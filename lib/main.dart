@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,9 +31,19 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // Tambahan: SplashScreen sebagai home
+      home: SplashScreen(loadingFuture: _simulateLoginProcess()),
+      routes: {
+        '/home': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+      },
     );
   }
+}
+
+Future<void> _simulateLoginProcess() async {
+  await Future.delayed(
+    const Duration(seconds: 3),
+  ); // simulasi loading, ganti dengan proses login asli
 }
 
 class MyHomePage extends StatefulWidget {
