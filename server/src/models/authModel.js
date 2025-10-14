@@ -1,12 +1,11 @@
 import db from '../core/config/knex.js';
 
-export const findUserByUsernameOrEmail = async (usernameOrEmail) => {
+export const findUser = async (norekammedis, tanggallahir) => {
   try {
-    const user = await db('users')
-      .where('USERNAME', usernameOrEmail)
-      .orWhere('EMAIL', usernameOrEmail)
+    const pasien = await db('pasien')
+      .where({ NOREKAMMEDIS: norekammedis, TANGGALLAHIR: tanggallahir })
       .first();
-    return user;
+    return pasien;
   } catch (err) {
     throw new Error('Database error: ' + err.message);
   }
