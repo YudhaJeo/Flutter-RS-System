@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
-  final Future<void> loadingFuture;
-  const SplashScreen({required this.loadingFuture, super.key});
+  final Future<void> Function(BuildContext) onFinish;
+  const SplashScreen({required this.onFinish, super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -23,10 +23,8 @@ class _SplashScreenState extends State<SplashScreen>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    widget.loadingFuture.then((_) {
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onFinish(context);
     });
   }
 
@@ -46,7 +44,6 @@ class _SplashScreenState extends State<SplashScreen>
           child: SizedBox(
             width: 150,
             height: 150,
-            // TODO: Ganti dengan logo aplikasi, sementara pakai FlutterLogo
             child: Image.asset(
               'assets/images/logo.png',
               width: 150,
