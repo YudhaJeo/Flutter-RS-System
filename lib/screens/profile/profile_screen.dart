@@ -121,6 +121,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Judul utama di paling atas
+          const Center(
+            child: Text(
+              'Profil Pasien',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 12),
           Center(
             child: CircleAvatar(
               radius: 54,
@@ -139,71 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 18),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Profil Pasien',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.logout, color: Colors.red),
-                    tooltip: 'Logout',
-                    onPressed: () async {
-                      final konfirm = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Logout'),
-                          content: const Text(
-                            'Apakah Anda yakin ingin logout?',
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Batal'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Logout'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (konfirm == true) {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.clear();
-                        if (!mounted) return;
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/login',
-                          (route) => false,
-                        );
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      _editMode ? Icons.save : Icons.edit,
-                      color: Colors.deepPurple,
-                    ),
-                    onPressed: () {
-                      if (_editMode) {
-                        _simpanProfile();
-                      } else {
-                        setState(() {
-                          _editMode = true;
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           _item("No. Rekam Medis", _profile!["NOREKAMMEDIS"], false),
           _item("Nama Lengkap", _profile!["NAMALENGKAP"], false),
           _item("NIK", _profile!["NIK"], false),
@@ -234,6 +178,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
             "Tanggal Daftar",
             _formatDate(_profile!["TANGGALDAFTAR"]),
             false,
+          ),
+          const SizedBox(height: 22),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: Icon(_editMode ? Icons.save : Icons.edit),
+                  label: Text(_editMode ? 'Simpan' : 'Edit Profile'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                  onPressed: () {
+                    if (_editMode) {
+                      _simpanProfile();
+                    } else {
+                      setState(() => _editMode = true);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 14),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  elevation: 2,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 22,
+                  ),
+                  textStyle: const TextStyle(fontSize: 16),
+                  side: const BorderSide(color: Colors.redAccent),
+                ),
+                onPressed: () async {
+                  final konfirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Logout'),
+                      content: const Text('Apakah Anda yakin ingin logout?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Batal'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Logout'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (konfirm == true) {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.clear();
+                    if (!mounted) return;
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/login',
+                      (route) => false,
+                    );
+                  }
+                },
+              ),
+            ],
           ),
         ],
       ),
