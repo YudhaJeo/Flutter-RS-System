@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,8 +12,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _rekamMedisController = TextEditingController();
   final TextEditingController _tanggalLahirController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -41,6 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
+        // Simpan sesi login ke SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        final pasien = data['pasien'];
+        await prefs.setInt('idPasien', pasien['IDPASIEN']);
+        await prefs.setString('norekammedis', pasien['NOREKAMMEDIS']);
+        await prefs.setString('namaLengkap', pasien['NAMALENGKAP']);
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/home');
         }
