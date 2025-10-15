@@ -14,10 +14,6 @@ class HomeScreen extends StatelessWidget {
           children: [
             const Text('Selamat datang di Home!'),
             const SizedBox(height: 24),
-            const Text(
-              'Random fun fact:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
           ],
         ),
       ),

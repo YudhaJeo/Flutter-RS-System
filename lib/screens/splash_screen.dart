@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   final Future<void> Function(BuildContext) onFinish;
@@ -23,8 +24,14 @@ class _SplashScreenState extends State<SplashScreen>
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onFinish(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      final norekammedis = prefs.getString('norekammedis');
+      if (norekammedis != null) {
+        Navigator.pushReplacementNamed(context, '/main');
+      } else {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     });
   }
 

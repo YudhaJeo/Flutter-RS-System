@@ -1,41 +1,31 @@
-import { findUserByUsernameOrEmail } from '../models/authModel.js';
+import { findUser } from '../models/authModel.js';
 
 export const loginUser = async (req, res) => {
-  const { usernameOrEmail, password } = req.body;
+  const { norekammedis, tanggallahir } = req.body;
 
-  if (!usernameOrEmail || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'Username/email dan password wajib diisi' });
+  if (!norekammedis || !tanggallahir) {
+    return res.status(400)
+      .json({ success: false, message: 'No rekam medis dan tanggal lahir wajib diisi' });
   }
 
   try {
-    const user = await findUserByUsernameOrEmail(usernameOrEmail);
-    if (!user) {
+    const pasien = await findUser(norekammedis, tanggallahir);
+    if (!pasien) {
       return res
         .status(401)
-        .json({ success: false, message: 'Username atau email tidak ditemukan' });
+        .json({ success: false, message: 'No Rekam Medis atau Tanggal Lahir tidak cocok!' });
     }
-
-    if (user.PASSWORD !== password) {
-      return res
-        .status(401)
-        .json({ success: false, message: 'Password salah' });
-    }
-
     return res.json({
       success: true,
       message: 'Login berhasil',
-      user: {
-        id: user.IDUSER,
-        username: user.USERNAME,
-        email: user.EMAIL,
+      pasien: {
+        IDPASIEN: pasien.IDPASIEN,
+        NOREKAMMEDIS: pasien.NOREKAMMEDIS,
+        NAMALENGKAP: pasien.NAMALENGKAP
       },
     });
   } catch (err) {
     console.error(err);
-    return res
-      .status(500)
-      .json({ success: false, message: 'Terjadi kesalahan server' });
+    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
   }
 };

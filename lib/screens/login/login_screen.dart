@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,8 +12,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _rekamMedisController = TextEditingController();
+  final TextEditingController _tanggalLahirController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _error;
@@ -25,23 +26,28 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
-    // final uri = Uri.parse('http://localhost:4100/login');
     final uri = Uri.parse('http://10.0.2.2:4100/login');
     try {
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'usernameOrEmail': _usernameController.text,
-          'password': _passwordController.text,
+          'norekammedis': _rekamMedisController.text,
+          'tanggallahir': _tanggalLahirController.text,
         }),
       );
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
+        // Simpan sesi login ke SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        final pasien = data['pasien'];
+        await prefs.setInt('idPasien', pasien['IDPASIEN']);
+        await prefs.setString('norekammedis', pasien['NOREKAMMEDIS']);
+        await prefs.setString('namaLengkap', pasien['NAMALENGKAP']);
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/main');
         }
       } else {
         setState(() {
@@ -72,16 +78,33 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(labelText: 'Username atau Email'),
+                  controller: _rekamMedisController,
+                  decoration: const InputDecoration(
+                    labelText: 'No Rekam Medis',
+                  ),
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password'),
+                  controller: _tanggalLahirController,
+                  decoration: const InputDecoration(
+                    labelText: 'Tanggal Lahir (yyyy-MM-dd)',
+                  ),
+                  readOnly: true,
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(2000),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      _tanggalLahirController.text = picked
+                          .toIso8601String()
+                          .substring(0, 10); // yyyy-MM-dd
+                    }
+                  },
                   validator: (value) =>
                       value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
@@ -89,7 +112,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (_error != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ),
                 SizedBox(
                   width: double.infinity,
