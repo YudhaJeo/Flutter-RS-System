@@ -121,6 +121,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: CircleAvatar(
+              radius: 54,
+              backgroundColor: Colors.deepPurple.shade50,
+              child: CircleAvatar(
+                radius: 52,
+                backgroundColor: Colors.white,
+                child: Image.asset(
+                  _profile!["JENISKELAMIN"] == 'L'
+                      ? 'assets/icons/male-avatar.png'
+                      : 'assets/icons/female-avatar.png',
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
