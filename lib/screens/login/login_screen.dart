@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('norekammedis', pasien['NOREKAMMEDIS']);
         await prefs.setString('namaLengkap', pasien['NAMALENGKAP']);
         if (mounted) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/main');
         }
       } else {
         setState(() {
