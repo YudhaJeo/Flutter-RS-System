@@ -1,5 +1,5 @@
 // D:\Mobile App\flutter_sistem_rs\server\src\controllers\profileController.js
-import { getProfileById, updateProfile as updateProfileModel } from '../models/profileModel.js';
+import { getProfileById, updateProfile as updateProfileModel, getAllAsuransi } from '../models/profileModel.js';
 
 export const getProfile = async (req, res) => {
   try {
@@ -22,6 +22,15 @@ export const updateProfile = async (req, res) => {
     const { alamat, nohp, usia, idasuransi, noasuransi } = req.body;
     const updated = await updateProfileModel(id, { alamat, nohp, usia, idasuransi, noasuransi });
     res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getAsuransi = async (req, res) => {
+  try {
+    const data = await getAllAsuransi();
+    res.json({ success: true, data });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

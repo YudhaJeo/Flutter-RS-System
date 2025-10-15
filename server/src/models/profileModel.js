@@ -23,3 +23,11 @@ export const updateProfile = async (id, data) => {
     throw new Error('Database error: ' + err.message);
   }
 };
+
+export const getAllAsuransi = async () => {
+  try {
+    return await db('asuransi').select('IDASURANSI', 'NAMAASURANSI');
+  } catch (err) {
+    throw new Error('Database Asuransi error: ' + err.message);
+  }
+};
