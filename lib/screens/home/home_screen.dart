@@ -2,6 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../reservasi/reservasi_screen.dart';
+import '../rekam_medis/rekam_medis_screen.dart';
+import '../dompet_medis/dompet_medis_screen.dart';
+import '../poli/poli_screen.dart';
+import '../jadwal/jadwal_screen.dart';
+import '../daftar_dokter/daftar_dokter_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -127,32 +133,74 @@ class _HomeScreenState extends State<HomeScreen> {
                         _buildMenuItem(
                           CupertinoIcons.calendar,
                           'Reservasi',
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReservasiScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           CupertinoIcons.doc_text,
                           'Rekam Medis',
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RekamMedisScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           CupertinoIcons.money_dollar,
                           'Dompet Medis',
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DompetMedisScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           CupertinoIcons.building_2_fill,
                           'Poli',
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PoliScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           CupertinoIcons.calendar_today,
                           'Jadwal',
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => JadwalScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuItem(
                           CupertinoIcons.person_2_fill,
                           'Daftar Dokter',
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DaftarDokterScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
