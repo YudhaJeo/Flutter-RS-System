@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,12 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        // Simpan sesi login ke SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         final pasien = data['pasien'];
         await prefs.setInt('idPasien', pasien['IDPASIEN']);
         await prefs.setString('norekammedis', pasien['NOREKAMMEDIS']);
         await prefs.setString('namaLengkap', pasien['NAMALENGKAP']);
+        await prefs.setString('nik', pasien['NIK']);
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/main');
         }
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (picked != null) {
                       _tanggalLahirController.text = picked
                           .toIso8601String()
-                          .substring(0, 10); // yyyy-MM-dd
+                          .substring(0, 10);
                     }
                   },
                   validator: (value) =>
