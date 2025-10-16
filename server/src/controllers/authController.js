@@ -21,7 +21,8 @@ export const loginUser = async (req, res) => {
       pasien: {
         IDPASIEN: pasien.IDPASIEN,
         NOREKAMMEDIS: pasien.NOREKAMMEDIS,
-        NAMALENGKAP: pasien.NAMALENGKAP
+        NAMALENGKAP: pasien.NAMALENGKAP,
+        NIK: pasien.NIK,
       },
     });
   } catch (err) {
