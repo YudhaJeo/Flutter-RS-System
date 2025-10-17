@@ -40,7 +40,7 @@ class ReservasiService {
       } else {
         throw Exception('Gagal memuat reservasi: ${response.body}');
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       rethrow;
     }
   }
