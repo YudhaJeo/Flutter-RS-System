@@ -1,6 +1,8 @@
+// dokter_by_poli_screenimport 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import '../../models/poli_model.dart';
 import '../../services/poli_service.dart';
+import '../poli/dokter_by_poli_screen.dart';
 
 class PoliScreen extends StatefulWidget {
   const PoliScreen({Key? key}) : super(key: key);
@@ -80,11 +82,13 @@ class _PoliScreenState extends State<PoliScreen> {
                     ),
                   ),
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content:
-                            Text('Kamu memilih ${poli.namaPoli} (${poli.kode})'),
-                        duration: const Duration(seconds: 2),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DokterByPoliScreen(
+                          idPoli: poli.idPoli,
+                          namaPoli: poli.namaPoli,
+                        ),
                       ),
                     );
                   },

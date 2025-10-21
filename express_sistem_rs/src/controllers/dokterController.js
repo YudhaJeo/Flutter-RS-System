@@ -21,3 +21,22 @@ export async function getDokterById(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
+
+export async function getDokterByPoli(req, res) {
+    try {
+      const idPoli = req.params.idPoli;
+      const dokters = await DokterModel.getAllDokter();
+  
+      const filtered = dokters.filter((d) => d.IDPOLI == idPoli);
+  
+      if (filtered.length === 0) {
+        return res.status(404).json({ message: 'Tidak ada dokter di poli ini' });
+      }
+  
+      res.json(filtered);
+    } catch (err) {
+      console.error('Error:', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+  
