@@ -251,6 +251,12 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
         idDokter: _selectedDokterId!,
         keterangan: _keteranganController.text.trim(),
         jamReservasi: _selectedJamReservasi!,
+        // Tambahkan satu hari untuk mengatasi masalah zona waktu
+        tanggalReservasi: DateTime(
+          _selectedTanggal!.year,
+          _selectedTanggal!.month,
+          _selectedTanggal!.day,
+        ).add(Duration(days: 1)).toUtc().toIso8601String().split('T')[0],
       );
 
       if (!mounted) return;

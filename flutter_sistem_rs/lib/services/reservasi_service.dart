@@ -53,6 +53,7 @@ class ReservasiService {
     required int idDokter,
     String? keterangan,
     required String jamReservasi,
+    required String tanggalReservasi,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final nik = prefs.getString('nik');
@@ -61,12 +62,22 @@ class ReservasiService {
       throw Exception('NIK tidak ditemukan. Silakan login ulang.');
     }
 
+    // Log untuk debugging
+    developer.log(
+      'Tambah Reservasi - Tanggal',
+      name: 'ReservasiService.tambahReservasi',
+      error: {
+        'Tanggal Input': tanggalReservasi,
+        'Tanggal Parsed': DateTime.parse(tanggalReservasi),
+      },
+    );
+
     final Map<String, dynamic> payload = {
       'NIK': nik,
       'IDPOLI': idPoli,
       'IDDOKTER': idDokter,
       'STATUS': 'Menunggu',
-      'TANGGALRESERVASI': DateTime.now().toIso8601String().split('T')[0],
+      'TANGGALRESERVASI': tanggalReservasi,
       'JAMRESERVASI': jamReservasi,
     };
 
@@ -100,7 +111,7 @@ class ReservasiService {
           nik: nik,
           idPoli: idPoli,
           idDokter: idDokter,
-          tanggalReservasi: payload['TANGGALRESERVASI']!,
+          tanggalReservasi: tanggalReservasi,
           status: 'Menunggu',
           namaLengkap: '',
           namaPoli: '',
@@ -144,29 +155,56 @@ class ReservasiService {
     }
   }
 
-  Future<Reservasi> editReservasi(
-    int idReservasi, {
-    int? idPoli,
-    int? idDokter,
+  Future<Reservasi> editReservasi({
+    required int idReservasi,
+    required int idPoli,
+    required int idDokter,
+    required String tanggalReservasi,
+    required String jamReservasi,
     String? keterangan,
   }) async {
-    final Map<String, dynamic> updateData = {};
+    final prefs = await SharedPreferences.getInstance();
+    final nik = prefs.getString('nik');
 
-    if (idPoli != null) updateData['IDPOLI'] = idPoli;
-    if (idDokter != null) updateData['IDDOKTER'] = idDokter;
-    if (keterangan != null) updateData['KETERANGAN'] = keterangan;
+    if (nik == null) {
+      throw Exception('NIK tidak ditemukan. Silakan login ulang.');
+    }
+
+    // Log untuk debugging
+    developer.log(
+      'Edit Reservasi - Tanggal',
+      name: 'ReservasiService.editReservasi',
+      error: {
+        'Tanggal Input': tanggalReservasi,
+        'Tanggal Parsed': DateTime.parse(tanggalReservasi),
+      },
+    );
+
+    final Map<String, dynamic> payload = {
+      'NIK': nik,
+      'IDPOLI': idPoli,
+      'IDDOKTER': idDokter,
+      'TANGGALRESERVASI': tanggalReservasi,
+      'JAMRESERVASI': jamReservasi,
+      'STATUS': 'Menunggu',
+    };
+
+    // Tambahkan keterangan hanya jika tidak null
+    if (keterangan != null && keterangan.trim().isNotEmpty) {
+      payload['KETERANGAN'] = keterangan;
+    }
 
     final response = await http.put(
       Uri.parse('$_baseUrl/$idReservasi'),
       headers: {'Content-Type': 'application/json'},
-      body: json.encode(updateData),
+      body: json.encode(payload),
     );
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body)['data'];
       return Reservasi.fromJson(jsonResponse);
     } else {
-      throw Exception('Gagal mengubah reservasi');
+      throw Exception('Gagal mengubah reservasi: ${response.body}');
     }
   }
 }

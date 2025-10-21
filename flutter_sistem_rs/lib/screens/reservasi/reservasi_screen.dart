@@ -3,6 +3,7 @@ import '../../models/reservasi_model.dart';
 import '../../services/reservasi_service.dart';
 import 'dart:developer' as developer;
 import '../reservasi/tambah_reservasi_screen.dart';
+import '../reservasi/edit_reservasi_screen.dart';
 
 class ReservasiScreen extends StatefulWidget {
   const ReservasiScreen({super.key});
@@ -107,62 +108,18 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
     }
   }
 
-  // Method untuk memformat tanggal
-  String _formatTanggal(String tanggalString) {
-    try {
-      // Parse tanggal dari string
-      final tanggal = DateTime.parse(tanggalString);
-
-      // Daftar nama bulan dalam bahasa Indonesia
-      final bulan = [
-        'Januari',
-        'Februari',
-        'Maret',
-        'April',
-        'Mei',
-        'Juni',
-        'Juli',
-        'Agustus',
-        'September',
-        'Oktober',
-        'November',
-        'Desember',
-      ];
-
-      // Daftar nama hari dalam bahasa Indonesia
-      final hari = [
-        'Senin',
-        'Selasa',
-        'Rabu',
-        'Kamis',
-        'Jumat',
-        'Sabtu',
-        'Minggu',
-      ];
-
-      // Format: "Senin, 20 Maret 2024"
-      return '${hari[tanggal.weekday - 1]}, ${tanggal.day} ${bulan[tanggal.month - 1]} ${tanggal.year}';
-    } catch (e) {
-      // Jika parsing gagal, kembalikan tanggal asli
-      return tanggalString;
-    }
-  }
-
-  // Modifikasi method _buildInfoRow untuk menggunakan format tanggal baru
-  Widget _buildInfoRow(String label, String value) {
-    // Jika label adalah 'Tanggal', gunakan method _formatTanggal
-    final formattedValue = label == 'Tanggal' ? _formatTanggal(value) : value;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(formattedValue),
-        ],
+  void _editReservasi(Reservasi reservasi) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditReservasiScreen(reservasi: reservasi),
       ),
     );
+
+    // Refresh list jika reservasi berhasil diubah
+    if (result == true) {
+      _fetchReservasi();
+    }
   }
 
   @override
@@ -221,18 +178,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                   backgroundColor: Colors.orange,
                                 ),
                                 onPressed: reservasi.dapatDiedit
-                                    ? () {
-                                        // TODO: Implementasi edit reservasi
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'Fitur edit akan segera hadir',
-                                            ),
-                                          ),
-                                        );
-                                      }
+                                    ? () => _editReservasi(reservasi)
                                     : null,
                               ),
                               ElevatedButton.icon(
@@ -254,6 +200,72 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                 },
               ),
             ),
+    );
+  }
+
+  // Method untuk memformat tanggal
+  String _formatTanggal(String tanggalString) {
+    try {
+      // Parse tanggal dari string, pastikan menggunakan UTC
+      final tanggalUtc = DateTime.parse(tanggalString);
+      final tanggal = tanggalUtc.toLocal();
+
+      // Log untuk debugging
+      developer.log(
+        'Konversi Tanggal',
+        name: 'ReservasiScreen._formatTanggal',
+        error: {'Input': tanggalString, 'UTC': tanggalUtc, 'Lokal': tanggal},
+      );
+
+      // Daftar nama bulan dalam bahasa Indonesia
+      final bulan = [
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
+      ];
+
+      // Daftar nama hari dalam bahasa Indonesia
+      final hari = [
+        'Senin',
+        'Selasa',
+        'Rabu',
+        'Kamis',
+        'Jumat',
+        'Sabtu',
+        'Minggu',
+      ];
+
+      // Format: "Senin, 20 Maret 2024"
+      return '${hari[tanggal.weekday - 1]}, ${tanggal.day} ${bulan[tanggal.month - 1]} ${tanggal.year}';
+    } catch (e) {
+      // Jika parsing gagal, kembalikan tanggal asli
+      return tanggalString;
+    }
+  }
+
+  // Modifikasi method _buildInfoRow untuk menggunakan format tanggal baru
+  Widget _buildInfoRow(String label, String value) {
+    // Jika label adalah 'Tanggal', gunakan method _formatTanggal
+    final formattedValue = label == 'Tanggal' ? _formatTanggal(value) : value;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(formattedValue),
+        ],
+      ),
     );
   }
 }
