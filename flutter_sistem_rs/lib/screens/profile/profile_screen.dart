@@ -194,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   icon: Icon(_editMode ? Icons.save : Icons.edit),
                   label: Text(_editMode ? 'Simpan' : 'Edit Profile'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: const Color.fromARGB(255, 66, 159, 235),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     textStyle: const TextStyle(fontSize: 16),
