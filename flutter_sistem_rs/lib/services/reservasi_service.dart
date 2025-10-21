@@ -200,9 +200,59 @@ class ReservasiService {
       body: json.encode(payload),
     );
 
+    // Log response untuk debugging
+    developer.log(
+      'Response Edit Reservasi',
+      name: 'ReservasiService.editReservasi',
+      error: {'Status Code': response.statusCode, 'Body': response.body},
+    );
+
+    // Jika berhasil atau data tersimpan meskipun response tidak sesuai
     if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body)['data'];
-      return Reservasi.fromJson(jsonResponse);
+      try {
+        // Coba parsing response
+        final decoded = json.decode(response.body);
+        final jsonResponse = decoded is Map && decoded.containsKey('data')
+            ? decoded['data']
+            : decoded;
+
+        // Jika parsing berhasil, kembalikan Reservasi
+        if (jsonResponse != null) {
+          return Reservasi.fromJson(jsonResponse);
+        }
+
+        // Jika parsing gagal, buat Reservasi manual
+        return Reservasi(
+          idReservasi: idReservasi,
+          nik: nik,
+          idPoli: idPoli,
+          idDokter: idDokter,
+          tanggalReservasi: tanggalReservasi,
+          jamReservasi: jamReservasi,
+          status: 'Menunggu',
+          namaLengkap: '',
+          namaPoli: '',
+          namaDokter: '',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      } catch (e) {
+        // Jika parsing gagal, buat Reservasi manual
+        return Reservasi(
+          idReservasi: idReservasi,
+          nik: nik,
+          idPoli: idPoli,
+          idDokter: idDokter,
+          tanggalReservasi: tanggalReservasi,
+          jamReservasi: jamReservasi,
+          status: 'Menunggu',
+          namaLengkap: '',
+          namaPoli: '',
+          namaDokter: '',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      }
     } else {
       throw Exception('Gagal mengubah reservasi: ${response.body}');
     }
