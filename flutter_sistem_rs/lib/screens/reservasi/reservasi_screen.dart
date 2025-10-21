@@ -31,6 +31,10 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       });
 
       final reservasi = await _reservasiService.fetchReservasiByNIK();
+
+      // Urutkan reservasi berdasarkan createdAt dari yang terbaru
+      reservasi.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
       setState(() {
         _reservasiList = reservasi;
         _isLoading = false;
@@ -101,6 +105,64 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
     if (result == true) {
       _fetchReservasi();
     }
+  }
+
+  // Method untuk memformat tanggal
+  String _formatTanggal(String tanggalString) {
+    try {
+      // Parse tanggal dari string
+      final tanggal = DateTime.parse(tanggalString);
+
+      // Daftar nama bulan dalam bahasa Indonesia
+      final bulan = [
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
+      ];
+
+      // Daftar nama hari dalam bahasa Indonesia
+      final hari = [
+        'Senin',
+        'Selasa',
+        'Rabu',
+        'Kamis',
+        'Jumat',
+        'Sabtu',
+        'Minggu',
+      ];
+
+      // Format: "Senin, 20 Maret 2024"
+      return '${hari[tanggal.weekday - 1]}, ${tanggal.day} ${bulan[tanggal.month - 1]} ${tanggal.year}';
+    } catch (e) {
+      // Jika parsing gagal, kembalikan tanggal asli
+      return tanggalString;
+    }
+  }
+
+  // Modifikasi method _buildInfoRow untuk menggunakan format tanggal baru
+  Widget _buildInfoRow(String label, String value) {
+    // Jika label adalah 'Tanggal', gunakan method _formatTanggal
+    final formattedValue = label == 'Tanggal' ? _formatTanggal(value) : value;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(formattedValue),
+        ],
+      ),
+    );
   }
 
   @override
@@ -192,19 +254,6 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                 },
               ),
             ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(value),
-        ],
-      ),
     );
   }
 }
