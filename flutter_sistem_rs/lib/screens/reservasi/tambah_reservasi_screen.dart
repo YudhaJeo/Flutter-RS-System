@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/reservasi_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../utils/app_env.dart';
 
 class TambahReservasiScreen extends StatefulWidget {
   const TambahReservasiScreen({super.key});
@@ -14,10 +15,10 @@ class TambahReservasiScreen extends StatefulWidget {
 class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reservasiService = ReservasiService();
-  
+
   // Controller untuk input
   final _keteranganController = TextEditingController();
-  
+
   // Variabel untuk dropdown
   int? _selectedPoliId;
   int? _selectedDokterId;
@@ -44,16 +45,22 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:4100/poli'),
+        // Uri.parse('${AppEnv.baseUrl}/poli'),
+        // Uri.parse('http://10.127.175.73:4100/poli'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final List<dynamic> poliData = json.decode(response.body);
         setState(() {
-          _poliList = poliData.map((poli) => {
-            'IDPOLI': poli['IDPOLI'],
-            'NAMAPOLI': poli['NAMAPOLI']
-          }).toList();
+          _poliList = poliData
+              .map(
+                (poli) => {
+                  'IDPOLI': poli['IDPOLI'],
+                  'NAMAPOLI': poli['NAMAPOLI'],
+                },
+              )
+              .toList();
         });
       } else {
         throw Exception('Gagal memuat daftar poli');
@@ -69,6 +76,8 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:4100/dokter'),
+        // Uri.parse('${AppEnv.baseUrl}/dokter'),
+        // Uri.parse('http://10.127.175.73:4100/dokter'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -115,18 +124,25 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
 
     // Dapatkan hari dari tanggal yang dipilih
     final hariDipilih = [
-      'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
+      'Minggu',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
     ][_selectedTanggal!.weekday % 7];
 
     setState(() {
       _dokterList = _allDokterList.where((dokter) {
         // Filter berdasarkan poli
         bool poliSesuai = dokter['IDPOLI'] == _selectedPoliId;
-        
+
         // Filter berdasarkan jadwal praktek
-        bool jadwalSesuai = (dokter['JADWALPRAKTEK'] as List<String>)
-            .any((jadwal) => jadwal.toLowerCase().contains(hariDipilih.toLowerCase()));
-        
+        bool jadwalSesuai = (dokter['JADWALPRAKTEK'] as List<String>).any(
+          (jadwal) => jadwal.toLowerCase().contains(hariDipilih.toLowerCase()),
+        );
+
         return poliSesuai && jadwalSesuai;
       }).toList();
     });
@@ -144,7 +160,13 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
 
     // Dapatkan hari dari tanggal yang dipilih
     final hariDipilih = [
-      'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
+      'Minggu',
+      'Senin',
+      'Selasa',
+      'Rabu',
+      'Kamis',
+      'Jumat',
+      'Sabtu',
     ][_selectedTanggal!.weekday % 7];
 
     // Cari dokter yang dipilih
@@ -156,15 +178,17 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     // Filter jam praktek berdasarkan hari
     if (selectedDokter.isNotEmpty && selectedDokter['JADWALPRAKTEK'] != null) {
       final List<String> jadwalPraktek = selectedDokter['JADWALPRAKTEK'];
-      
+
       setState(() {
         _jamOptions = jadwalPraktek
-            .where((jadwal) => 
-              jadwal.toLowerCase().contains(hariDipilih.toLowerCase()))
+            .where(
+              (jadwal) =>
+                  jadwal.toLowerCase().contains(hariDipilih.toLowerCase()),
+            )
             .toList();
 
         // Reset jam reservasi jika jam sebelumnya tidak tersedia
-        if (_selectedJamReservasi != null && 
+        if (_selectedJamReservasi != null &&
             !_jamOptions.contains(_selectedJamReservasi)) {
           _selectedJamReservasi = null;
         }
@@ -226,7 +250,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
         idPoli: _selectedPoliId!,
         idDokter: _selectedDokterId!,
         keterangan: _keteranganController.text.trim(),
-        jamReservasi: _selectedJamReservasi!, 
+        jamReservasi: _selectedJamReservasi!,
       );
 
       if (!mounted) return;
@@ -238,9 +262,9 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
       setState(() {
         _errorMessage = e.toString();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambah reservasi: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal menambah reservasi: $e')));
     } finally {
       setState(() {
         _isLoading = false;
@@ -270,9 +294,9 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                 ),
                 readOnly: true,
                 controller: TextEditingController(
-                  text: _selectedTanggal == null 
-                    ? '' 
-                    : '${_selectedTanggal!.day}/${_selectedTanggal!.month}/${_selectedTanggal!.year}'
+                  text: _selectedTanggal == null
+                      ? ''
+                      : '${_selectedTanggal!.day}/${_selectedTanggal!.month}/${_selectedTanggal!.year}',
                 ),
                 onTap: () async {
                   final pickedDate = await showDatePicker(
@@ -292,8 +316,8 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                     });
                   }
                 },
-                validator: (value) => 
-                  _selectedTanggal == null ? 'Pilih Tanggal' : null,
+                validator: (value) =>
+                    _selectedTanggal == null ? 'Pilih Tanggal' : null,
               ),
               const SizedBox(height: 16),
 
@@ -357,10 +381,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                 ),
                 value: _selectedJamReservasi,
                 items: _jamOptions.map((jam) {
-                  return DropdownMenuItem<String>(
-                    value: jam,
-                    child: Text(jam),
-                  );
+                  return DropdownMenuItem<String>(value: jam, child: Text(jam));
                 }).toList(),
                 onChanged: (_selectedDokterId == null)
                     ? null
@@ -369,7 +390,8 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                           _selectedJamReservasi = value;
                         });
                       },
-                validator: (value) => value == null ? 'Pilih Jam Praktek' : null,
+                validator: (value) =>
+                    value == null ? 'Pilih Jam Praktek' : null,
               ),
               const SizedBox(height: 16),
 
@@ -392,11 +414,11 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                    'Tambah Reservasi', 
-                    style: TextStyle(fontSize: 16)
-                  ),
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Tambah Reservasi',
+                        style: TextStyle(fontSize: 16),
+                      ),
               ),
 
               // Tampilkan pesan error jika ada

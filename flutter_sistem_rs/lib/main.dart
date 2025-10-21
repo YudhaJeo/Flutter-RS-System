@@ -1,12 +1,19 @@
 // D:\Mobile App\flutter_sistem_rs\lib\main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/main_nav_screen.dart';
 import 'screens/profile/profile_screen.dart';
 
-void main() {
+Future<void> main() async {
+  try {
+    await dotenv.load(fileName: ".env");
+    print(dotenv.env);
+  } catch (e) {
+    print("Error loading .env file: $e");
+  }
   runApp(const MyApp());
 }
 
@@ -19,7 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter RS Bayza',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 0, 140, 255)),
       ),
       home: SplashScreen(onFinish: _cekLoginDanRedirect),
       routes: {
@@ -33,6 +40,5 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> _cekLoginDanRedirect(BuildContext context) async {
-  await Future.delayed(const Duration(seconds: 2)); // simulasi loading
-  // logika pengecekan sudah dipindah ke SplashScreen
+  await Future.delayed(const Duration(seconds: 2));
 }

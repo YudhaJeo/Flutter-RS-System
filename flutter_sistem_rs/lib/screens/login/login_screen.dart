@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// import '../../utils/app_env.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,6 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final uri = Uri.parse('http://10.0.2.2:4100/login');
+    // final uri = Uri.parse('http://10.127.175.73:4100/login');
+    // final uri = Uri.parse('${AppEnv.baseUrl}/login');
+
     try {
       final response = await http.post(
         uri,
