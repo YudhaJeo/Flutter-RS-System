@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../models/poli_model.dart';
 import '../../services/poli_service.dart';
-import '../poli/dokter_by_poli_screen.dart';
+import 'dokter_by_poli_screen.dart';
 
 class PoliScreen extends StatefulWidget {
   const PoliScreen({Key? key}) : super(key: key);
