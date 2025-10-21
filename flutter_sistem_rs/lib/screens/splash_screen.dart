@@ -25,11 +25,17 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final prefs = await SharedPreferences.getInstance();
-      final norekammedis = prefs.getString('norekammedis');
-      if (norekammedis != null) {
-        Navigator.pushReplacementNamed(context, '/main');
-      } else {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final norekammedis = prefs.getString('norekammedis');
+        print('Norekammedis from SharedPreferences: $norekammedis');
+
+        if (norekammedis != null) {
+          Navigator.pushReplacementNamed(context, '/main');
+        } else {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+      } catch (e) {
         Navigator.pushReplacementNamed(context, '/login');
       }
     });

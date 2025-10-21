@@ -4,9 +4,12 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/reservasi_model.dart';
+import '../../utils/app_env.dart';
 
 class ReservasiService {
   static const String _baseUrl = 'http://10.0.2.2:4100/reservasi';
+  // static String get _baseUrl => '${AppEnv.baseUrl}/reservasi';
+  // static const String _baseUrl = 'http://10.127.175.73:4100/reservasi';
 
   Future<List<Reservasi>> fetchReservasiByNIK() async {
     try {
@@ -53,7 +56,7 @@ class ReservasiService {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final nik = prefs.getString('nik');
-    
+
     if (nik == null) {
       throw Exception('NIK tidak ditemukan. Silakan login ulang.');
     }
@@ -90,7 +93,8 @@ class ReservasiService {
         return Reservasi.fromJson(jsonResponse);
       } catch (e) {
         return Reservasi(
-          idReservasi: (jsonResponse is Map && jsonResponse['IDRESERVASI'] != null)
+          idReservasi:
+              (jsonResponse is Map && jsonResponse['IDRESERVASI'] != null)
               ? jsonResponse['IDRESERVASI']
               : 0,
           nik: nik,
@@ -109,7 +113,6 @@ class ReservasiService {
     } else {
       throw Exception('Gagal menambah reservasi: ${response.body}');
     }
-
   }
 
   Future<Reservasi> batalkanReservasi(dynamic idReservasi) async {

@@ -28,26 +28,26 @@ class _MainNavScreenState extends State<MainNavScreen> {
         onTap: _onItemTapped,
         backgroundColor: Colors.white.withOpacity(0.95),
         elevation: 16,
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: const Color.fromARGB(255, 17, 120, 255),
         unselectedItemColor: Colors.grey,
         selectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 14,
+          fontSize: 12,
         ),
         unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.normal,
-          fontSize: 13,
+          fontSize: 10,
         ),
-        iconSize: 28,
+        iconSize: 20,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home, size: 30),
+            activeIcon: Icon(Icons.home, size: 24),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person, size: 30),
+            activeIcon: Icon(Icons.person, size: 24),
             label: 'Profile',
           ),
         ],
