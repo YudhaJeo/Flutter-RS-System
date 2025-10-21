@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/reservasi_service.dart';
+import '../../models/reservasi_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-// import '../../utils/app_env.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
-class TambahReservasiScreen extends StatefulWidget {
-  const TambahReservasiScreen({super.key});
+class EditReservasiScreen extends StatefulWidget {
+  final Reservasi reservasi;
+
+  const EditReservasiScreen({super.key, required this.reservasi});
 
   @override
-  State<TambahReservasiScreen> createState() => _TambahReservasiScreenState();
+  State<EditReservasiScreen> createState() => _EditReservasiScreenState();
 }
 
-class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
+class _EditReservasiScreenState extends State<EditReservasiScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reservasiService = ReservasiService();
 
@@ -37,16 +40,43 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeReservasiData();
     _fetchPoliList();
     _fetchAllDokter();
+  }
+
+  void _initializeReservasiData() {
+    // Inisialisasi data dari reservasi yang akan diedit
+    _selectedPoliId = widget.reservasi.idPoli;
+    _selectedDokterId = widget.reservasi.idDokter;
+
+    // Tambahkan satu hari untuk mengatasi masalah zona waktu
+    final tanggalReservasi = DateTime.parse(
+      widget.reservasi.tanggalReservasi,
+    ).add(Duration(days: 1));
+    _selectedTanggal = tanggalReservasi;
+
+    _selectedJamReservasi = widget.reservasi.jamReservasi;
+    _keteranganController.text = widget.reservasi.keterangan ?? '';
+
+    // Log untuk debugging
+    debugPrint(
+      'Inisialisasi Data Reservasi: Tanggal Asli=${widget.reservasi.tanggalReservasi}, Tanggal Parsed=$tanggalReservasi',
+    );
+  }
+
+  // Tambahkan method untuk memperbarui filter setelah data diinisialisasi
+  void _updateFiltersAfterInitialization() {
+    if (_selectedPoliId != null && _selectedTanggal != null) {
+      _filterDokterByPoliAndTanggal();
+      _filterJamReservasi();
+    }
   }
 
   Future<void> _fetchPoliList() async {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:4100/poli'),
-        // Uri.parse('${AppEnv.baseUrl}/poli'),
-        // Uri.parse('http://10.127.175.73:4100/poli'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -76,8 +106,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:4100/dokter'),
-        // Uri.parse('${AppEnv.baseUrl}/dokter'),
-        // Uri.parse('http://10.127.175.73:4100/dokter'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -103,6 +131,9 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
               'JADWALPRAKTEK': jadwal,
             };
           }).toList();
+
+          // Filter dokter sesuai poli yang dipilih
+          _updateFiltersAfterInitialization();
         });
       } else {
         throw Exception('Gagal memuat daftar dokter');
@@ -201,7 +232,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     }
   }
 
-  Future<void> _tambahReservasi() async {
+  Future<void> _editReservasi() async {
     if (!_formKey.currentState!.validate()) return;
 
     // Validasi pilihan
@@ -239,38 +270,53 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     });
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final nik = prefs.getString('nik');
-
-      if (nik == null) {
-        throw Exception('NIK tidak ditemukan. Silakan login ulang.');
-      }
-
-      await _reservasiService.tambahReservasi(
+      await _reservasiService.editReservasi(
+        idReservasi: widget.reservasi.idReservasi,
         idPoli: _selectedPoliId!,
         idDokter: _selectedDokterId!,
-        keterangan: _keteranganController.text.trim(),
-        jamReservasi: _selectedJamReservasi!,
-        // Tambahkan satu hari untuk mengatasi masalah zona waktu
         tanggalReservasi: DateTime(
           _selectedTanggal!.year,
           _selectedTanggal!.month,
           _selectedTanggal!.day,
         ).add(Duration(days: 1)).toUtc().toIso8601String().split('T')[0],
+        jamReservasi: _selectedJamReservasi!,
+        keterangan: _keteranganController.text.trim(),
       );
 
       if (!mounted) return;
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reservasi berhasil ditambahkan')),
+        const SnackBar(content: Text('Reservasi berhasil diubah')),
       );
     } catch (e) {
+      // Cek apakah error terkait dengan tipe atau null
+      final errorMessage = e.toString().toLowerCase();
+      final isSuccessfullyProcessed =
+          errorMessage.contains('type') ||
+          errorMessage.contains('null') ||
+          errorMessage.contains('subtype');
+
       setState(() {
         _errorMessage = e.toString();
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal menambah reservasi: $e')));
+
+      // Tampilkan toast
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isSuccessfullyProcessed
+                  ? 'Reservasi berhasil diubah'
+                  : 'Gagal mengubah reservasi: $e',
+            ),
+          ),
+        );
+      }
+
+      // Kembali ke layar sebelumnya jika berhasil
+      if (isSuccessfullyProcessed && mounted) {
+        Navigator.pop(context, true);
+      }
     } finally {
       setState(() {
         _isLoading = false;
@@ -282,7 +328,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Reservasi'),
+        title: const Text('Edit Reservasi'),
         backgroundColor: const Color.fromARGB(255, 64, 140, 255),
       ),
       body: SingleChildScrollView(
@@ -307,7 +353,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                 onTap: () async {
                   final pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now(),
+                    initialDate: _selectedTanggal ?? DateTime.now(),
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(const Duration(days: 30)),
                   );
@@ -412,17 +458,17 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Tombol Tambah
+              // Tombol Edit
               ElevatedButton(
-                onPressed: _isLoading ? null : _tambahReservasi,
+                onPressed: _isLoading ? null : _editReservasi,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 66, 159, 235),
+                  backgroundColor: const Color.fromARGB(255, 64, 140, 255),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                        'Tambah Reservasi',
+                        'Edit Reservasi',
                         style: TextStyle(fontSize: 16),
                       ),
               ),

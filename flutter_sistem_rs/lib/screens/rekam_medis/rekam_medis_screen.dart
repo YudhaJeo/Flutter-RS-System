@@ -8,11 +8,9 @@ class RekamMedisScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rekam Medis'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 66, 159, 235),
       ),
-      body: const Center(
-        child: Text('Halaman Rekam Medis'),
-      ),
+      body: const Center(child: Text('Halaman Rekam Medis')),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home/home_screen.dart';
-import 'profile/profile_screen.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/profile/profile_screen.dart';
 
 class MainNavScreen extends StatefulWidget {
   const MainNavScreen({super.key});

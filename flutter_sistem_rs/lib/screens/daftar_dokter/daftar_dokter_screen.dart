@@ -8,11 +8,9 @@ class DaftarDokterScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Dokter'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 66, 159, 235),
       ),
-      body: const Center(
-        child: Text('Halaman Daftar Dokter'),
-      ),
+      body: const Center(child: Text('Halaman Daftar Dokter')),
     );
   }
 }
