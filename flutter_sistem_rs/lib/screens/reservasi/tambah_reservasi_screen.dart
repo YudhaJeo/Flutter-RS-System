@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/reservasi_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../utils/app_env.dart';
+// import '../../utils/app_env.dart';
 
 class TambahReservasiScreen extends StatefulWidget {
   const TambahReservasiScreen({super.key});
@@ -277,7 +277,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tambah Reservasi'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 64, 140, 255),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -410,7 +410,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _tambahReservasi,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: const Color.fromARGB(255, 66, 159, 235),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isLoading
