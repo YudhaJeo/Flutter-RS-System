@@ -1,5 +1,10 @@
 import db from '../core/config/knex.js';
 
+const MINIO_URL =
+  process.env.NODE_ENV === 'development'
+    ? 'http://10.0.2.2:9000' 
+    : process.env.MINIO_BASE_URL || 'http://localhost:9000';
+
 export async function getAllDokter() {
   const rows = await db('dokter')
     .leftJoin('jadwal_dokter', 'dokter.IDDOKTER', 'jadwal_dokter.IDDOKTER')
@@ -11,6 +16,7 @@ export async function getAllDokter() {
       'dokter.IDPOLI',
       'master_tenaga_medis.NAMALENGKAP',
       'master_tenaga_medis.JENISTENAGAMEDIS',
+      'master_tenaga_medis.FOTOPROFIL',
       'poli.NAMAPOLI',
       'jadwal_dokter.HARI',
       'jadwal_dokter.JAM_MULAI',
@@ -20,12 +26,18 @@ export async function getAllDokter() {
   const result = {};
   rows.forEach((row) => {
     if (!result[row.IDDOKTER]) {
+      const fotoUrl = row.FOTOPROFIL
+        ? `${MINIO_URL}${row.FOTOPROFIL.startsWith('/') ? '' : '/'}${row.FOTOPROFIL}`
+        : null;
+
       result[row.IDDOKTER] = {
         IDDOKTER: row.IDDOKTER,
         IDTENAGAMEDIS: row.IDTENAGAMEDIS,
         NAMALENGKAP: row.NAMALENGKAP,
+        JENISTENAGAMEDIS: row.JENISTENAGAMEDIS,
         IDPOLI: row.IDPOLI,
         NAMAPOLI: row.NAMAPOLI,
+        FOTOPROFIL: fotoUrl,
         JADWALPRAKTEK: [],
       };
     }
@@ -37,14 +49,33 @@ export async function getAllDokter() {
     }
   });
 
-  return Object.values(result).map((d) => ({
+  const finalData = Object.values(result).map((d) => ({
     ...d,
-    JADWALPRAKTEK: d.JADWALPRAKTEK.join(', ')
+    JADWALPRAKTEK: d.JADWALPRAKTEK.join(', '),
   }));
+
+  return finalData;
 }
 
 export const getDokterById = async (id) => {
-  const dokter = await db('dokter').where('IDDOKTER', id).first();
+
+  const dokter = await db('dokter')
+    .leftJoin('master_tenaga_medis', 'dokter.IDTENAGAMEDIS', 'master_tenaga_medis.IDTENAGAMEDIS')
+    .where('dokter.IDDOKTER', id)
+    .first();
+
+  if (!dokter) {
+    return null;
+  }
+
   const jadwal = await db('jadwal_dokter').where('IDDOKTER', id);
-  return dokter ? { ...dokter, JADWAL: jadwal } : null;
+  const fotoUrl = dokter.FOTOPROFIL
+    ? `${MINIO_URL}${dokter.FOTOPROFIL.startsWith('/') ? '' : '/'}${dokter.FOTOPROFIL}`
+    : null;
+
+  return {
+    ...dokter,
+    FOTOPROFIL: fotoUrl,
+    JADWAL: jadwal,
+  };
 };

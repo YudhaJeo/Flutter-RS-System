@@ -1,0 +1,20 @@
+// D:\Mobile App\flutter_sistem_rs\express_sistem_rs\src\core\config\minio.js
+import { Client } from "minio";
+
+const minioClient = new Client({
+  endPoint: process.env.MINIO_ENDPOINT,
+  port: parseInt(process.env.MINIO_PORT),
+  useSSL: false,
+  accessKey: process.env.MINIO_ACCESS_KEY,
+  secretKey: process.env.MINIO_SECRET_KEY,
+});
+
+(async () => {
+  const bucketName = "uploads";
+  const exists = await minioClient.bucketExists(bucketName).catch(() => false);
+  if (!exists) {
+    await minioClient.makeBucket(bucketName, "us-east-1");
+  }
+})();
+
+export default minioClient;
