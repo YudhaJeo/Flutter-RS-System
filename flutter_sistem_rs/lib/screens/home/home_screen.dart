@@ -180,12 +180,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         _buildMenuItem(
                           CupertinoIcons.calendar_today,
-                          'Jadwal',
+                          'Kalender',
                           () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => JadwalScreen(),
+                                builder: (context) => KalenderScreen(),
                               ),
                             );
                           },
