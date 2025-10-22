@@ -7,10 +7,10 @@ class JadwalScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Jadwal'),
+        title: const Text('Kalender'),
         backgroundColor: Colors.blue[800],
       ),
-      body: const Center(child: Text('Halaman Jadwal')),
+      body: const Center(child: Text('Halaman Kalender Dokter')),
     );
   }
 }

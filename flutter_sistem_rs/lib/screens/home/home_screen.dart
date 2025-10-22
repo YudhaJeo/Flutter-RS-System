@@ -6,7 +6,7 @@ import '../reservasi/reservasi_screen.dart';
 import '../rekam_medis/rekam_medis_screen.dart';
 import '../dompet_medis/dompet_medis_screen.dart';
 import '../poli/poli_screen.dart';
-import '../jadwal/jadwal_screen.dart';
+import '../kalender/kalender_screen.dart';
 import '../daftar_dokter/daftar_dokter_screen.dart';
 
 class HomeScreen extends StatefulWidget {
