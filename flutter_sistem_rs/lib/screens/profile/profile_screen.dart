@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-// import '../../utils/app_env.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -29,13 +28,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     final idPasien = prefs.getInt('idPasien');
     if (idPasien == null) return;
-    // final uri = Uri.parse('${AppEnv.baseUrl}/profile?id=$idPasien');
     final uri = Uri.parse('http://10.0.2.2:4100/profile?id=$idPasien');
-    // final uri = Uri.parse('${AppEnv.baseUrl}/profile?id=$idPasien');
-    final res = await http.get(
-      uri,
-      headers: {'Content-Type': 'application/json'},
-    );
+    final res = await http.get(uri, headers: {'Content-Type': 'application/json'});
     if (res.statusCode == 200) {
       final data = jsonDecode(res.body)['data'];
       setState(() {
@@ -55,8 +49,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final idPasien = prefs.getInt('idPasien');
     if (idPasien == null) return;
     final uri = Uri.parse('http://10.0.2.2:4100/profile');
-    // final uri = Uri.parse('${AppEnv.baseUrl}/profile');
-    // final uri = Uri.parse('http://10.127.175.73:4100/profile');
     final res = await http.put(
       uri,
       headers: {'Content-Type': 'application/json'},
@@ -70,30 +62,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }),
     );
     if (res.statusCode == 200) {
-      setState(() {
-        _editMode = false;
-      });
+      setState(() => _editMode = false);
       _fetchProfile();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil berhasil disimpan!')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menyimpan profil! (${res.statusCode})')),
+        SnackBar(content: Text('Gagal menyimpan profil (${res.statusCode})')),
       );
     }
   }
 
   Future<void> _fetchAsuransi() async {
     final uri = Uri.parse('http://10.0.2.2:4100/profile/asuransi');
-    // final uri = Uri.parse('${AppEnv.baseUrl}/profile/asuransi');
-    // final uri = Uri.parse('http://10.127.175.73:4100/profile/asuransi');
     final res = await http.get(uri);
     if (res.statusCode == 200) {
       final data = jsonDecode(res.body)['data'] as List;
-      setState(() {
-        _asuransiList = List<Map<String, dynamic>>.from(data);
-      });
+      setState(() => _asuransiList = List<Map<String, dynamic>>.from(data));
     }
   }
 
@@ -106,16 +92,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    if (_loading) return const Center(child: CircularProgressIndicator());
     if (_profile == null) {
       return const Center(child: Text('Data profil tidak ditemukan'));
     }
+
     String _formatDate(String? s) {
       if (s == null) return '-';
       try {
-        // Database format: yyyy-MM-dd
         final dt = DateTime.parse(s);
         return DateFormat('dd MMM yyyy').format(dt);
       } catch (_) {
@@ -123,207 +107,201 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Judul utama di paling atas
-          const Center(
-            child: Text(
-              'Profil Pasien',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+    return Scaffold(
+      backgroundColor: Colors.blue.shade50,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            Center(
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.white,
+                    child: Image.asset(
+                      _profile!["JENISKELAMIN"] == 'L'
+                          ? 'assets/icons/male-avatar.png'
+                          : 'assets/icons/female-avatar.png',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    _profile!["NAMALENGKAP"],
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "No. RM: ${_profile!["NOREKAMMEDIS"]}",
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: CircleAvatar(
-              radius: 54,
-              backgroundColor: Colors.deepPurple.shade50,
-              child: CircleAvatar(
-                radius: 52,
-                backgroundColor: Colors.white,
-                child: Image.asset(
-                  _profile!["JENISKELAMIN"] == 'L'
-                      ? 'assets/icons/male-avatar.png'
-                      : 'assets/icons/female-avatar.png',
-                  width: 96,
-                  height: 96,
-                  fit: BoxFit.cover,
+            const SizedBox(height: 25),
+
+            // ======= CARD PROFILE DETAIL =======
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              elevation: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  children: [
+                    _sectionTitle("Data Pribadi"),
+                    _item(Icons.badge, "NIK", _profile!["NIK"]),
+                    _item(Icons.cake, "Tanggal Lahir", _formatDate(_profile!["TANGGALLAHIR"])),
+                    _item(Icons.person, "Jenis Kelamin",
+                        _profile!["JENISKELAMIN"] == 'L' ? 'Laki-laki' : 'Perempuan'),
+                    const Divider(),
+                    _sectionTitle("Kontak & Domisili"),
+                    _editField(Icons.home, "Alamat Domisili", _alamatController, _editMode),
+                    _item(Icons.location_on, "Alamat KTP", _profile!["ALAMAT_KTP"]),
+                    _editField(Icons.phone, "No HP", _nohpController, _editMode,
+                        keyboard: TextInputType.phone),
+                    const Divider(),
+                    _sectionTitle("Informasi Tambahan"),
+                    _editField(Icons.accessibility, "Usia", _usiaController, _editMode,
+                        keyboard: TextInputType.number),
+                    _item(Icons.bloodtype, "Golongan Darah", _profile!["GOLDARAH"] ?? '-'),
+                    _asuransiField(),
+                    _item(Icons.calendar_today, "Tanggal Daftar", _formatDate(_profile!["TANGGALDAFTAR"])),
+                  ],
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          _item("No. Rekam Medis", _profile!["NOREKAMMEDIS"], false),
-          _item("Nama Lengkap", _profile!["NAMALENGKAP"], false),
-          _item("NIK", _profile!["NIK"], false),
-          _item("Tanggal Lahir", _formatDate(_profile!["TANGGALLAHIR"]), false),
-          _item(
-            "Jenis Kelamin",
-            _profile!["JENISKELAMIN"] == 'L' ? 'Laki-laki' : 'Perempuan',
-            false,
-          ),
-          _editField("Alamat Domisili", _alamatController, _editMode),
-          _item("Alamat KTP", _profile!["ALAMAT_KTP"], false),
-          _editField(
-            "No HP",
-            _nohpController,
-            _editMode,
-            keyboard: TextInputType.phone,
-          ),
-          _editField(
-            "Usia",
-            _usiaController,
-            _editMode,
-            keyboard: TextInputType.number,
-          ),
-          _item("Gol. Darah", _profile!["GOLDARAH"] ?? '-', false),
-          _asuransiField(),
-          //_editField("No Asuransi", _noasuransiController, _editMode), <- Tidak tampilkan sesuai permintaan
-          _item(
-            "Tanggal Daftar",
-            _formatDate(_profile!["TANGGALDAFTAR"]),
-            false,
-          ),
-          const SizedBox(height: 22),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: Icon(_editMode ? Icons.save : Icons.edit),
-                  label: Text(_editMode ? 'Simpan' : 'Edit Profile'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 66, 159, 235),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    textStyle: const TextStyle(fontSize: 16),
+
+            const SizedBox(height: 20),
+            // ======= BUTTONS =======
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: Icon(_editMode ? Icons.save : Icons.edit),
+                    label: Text(_editMode ? 'Simpan Perubahan' : 'Edit Profil'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      if (_editMode) {
+                        _simpanProfile();
+                      } else {
+                        setState(() => _editMode = true);
+                      }
+                    },
                   ),
-                  onPressed: () {
-                    if (_editMode) {
-                      _simpanProfile();
-                    } else {
-                      setState(() => _editMode = true);
+                ),
+                const SizedBox(width: 14),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  label: const Text('Logout'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14, horizontal: 22),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () async {
+                    final konfirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Logout'),
+                        content: const Text('Apakah Anda yakin ingin keluar?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Batal'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Logout'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (konfirm == true) {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
+                      if (!mounted) return;
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/login', (route) => false);
                     }
                   },
                 ),
-              ),
-              const SizedBox(width: 14),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: const Text(
-                  'Logout',
-                  style: TextStyle(color: Colors.red),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  elevation: 2,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 22,
-                  ),
-                  textStyle: const TextStyle(fontSize: 16),
-                  side: const BorderSide(color: Colors.redAccent),
-                ),
-                onPressed: () async {
-                  final konfirm = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Apakah Anda yakin ingin logout?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Batal'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Logout'),
-                        ),
-                      ],
-                    ),
-                  );
-                  if (konfirm == true) {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.clear();
-                    if (!mounted) return;
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/login',
-                      (route) => false,
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _item(String label, dynamic value, bool editable) {
+  Widget _sectionTitle(String title) => Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 6.0),
+          child: Text(title,
+              style: const TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+        ),
+      );
+
+  Widget _item(IconData icon, String label, dynamic value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          SizedBox(
-            width: 135,
-            child: Text(label, style: const TextStyle(fontSize: 15)),
-          ),
-          const SizedBox(width: 12),
+          Icon(icon, color: Colors.blueAccent, size: 20),
+          const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              "${value ?? '-'}",
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: editable ? FontWeight.w500 : FontWeight.normal,
-              ),
-            ),
+            child: Text("$label: ${value ?? '-'}",
+                style: const TextStyle(fontSize: 15)),
           ),
         ],
       ),
     );
   }
 
-  Widget _editField(
-    String label,
-    TextEditingController controller,
-    bool editable, {
-    TextInputType keyboard = TextInputType.text,
-  }) {
+  Widget _editField(IconData icon, String label, TextEditingController controller, bool editable,
+      {TextInputType keyboard = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 135,
-            child: Text(label, style: const TextStyle(fontSize: 15)),
+          Icon(icon, color: Colors.blueAccent, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: editable
+                ? TextFormField(
+                    controller: controller,
+                    keyboardType: keyboard,
+                    decoration: InputDecoration(
+                      labelText: label,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      isDense: true,
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    ),
+                  )
+                : Text("$label: ${controller.text}",
+                    style: const TextStyle(fontSize: 15)),
           ),
-          const SizedBox(width: 12),
-          if (editable)
-            Expanded(
-              child: TextFormField(
-                controller: controller,
-                keyboardType: keyboard,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
-                ),
-              ),
-            )
-          else
-            Expanded(
-              child: Text(
-                controller.text,
-                style: const TextStyle(fontSize: 15),
-              ),
-            ),
         ],
       ),
     );
@@ -331,30 +309,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _asuransiField() {
     if (!_editMode) {
-      // Tampil NAMAASURANSI (bukan ID)
       String nama = '-';
       if (_profile != null &&
           _profile!["IDASURANSI"] != null &&
           _asuransiList.isNotEmpty) {
         final found = _asuransiList.firstWhere(
-          (a) =>
-              a["IDASURANSI"].toString() == _profile!["IDASURANSI"].toString(),
+          (a) => a["IDASURANSI"].toString() == _profile!["IDASURANSI"].toString(),
           orElse: () => {"NAMAASURANSI": "-"},
         );
         nama = found["NAMAASURANSI"];
       }
-      return _item("Asuransi", nama, false);
+      return _item(Icons.health_and_safety, "Asuransi", nama);
     } else {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(
-              width: 135,
-              child: Text('Asuransi', style: TextStyle(fontSize: 15)),
-            ),
-            const SizedBox(width: 12),
+            const Icon(Icons.health_and_safety, color: Colors.blueAccent, size: 20),
+            const SizedBox(width: 8),
             Expanded(
               child: DropdownButtonFormField<String>(
                 isExpanded: true,
@@ -362,23 +334,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? null
                     : _idasuransiController.text,
                 items: _asuransiList
-                    .map(
-                      (a) => DropdownMenuItem<String>(
-                        value: a["IDASURANSI"].toString(),
-                        child: Text(a["NAMAASURANSI"]),
-                      ),
-                    )
+                    .map((a) => DropdownMenuItem<String>(
+                          value: a["IDASURANSI"].toString(),
+                          child: Text(a["NAMAASURANSI"]),
+                        ))
                     .toList(),
-                onChanged: (val) {
-                  setState(() => _idasuransiController.text = val ?? '');
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                onChanged: (val) =>
+                    setState(() => _idasuransiController.text = val ?? ''),
+                decoration: InputDecoration(
+                  labelText: "Asuransi",
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                 ),
               ),
             ),
