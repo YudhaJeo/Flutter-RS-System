@@ -123,85 +123,96 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reservasi Saya'),
-        backgroundColor: const Color.fromARGB(255, 66, 159, 235),
-        actions: [
-          IconButton(icon: const Icon(Icons.add), onPressed: _tambahReservasi),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-          ? Center(child: Text('Error: $_errorMessage'))
-          : _reservasiList.isEmpty
-          ? const Center(child: Text('Tidak ada reservasi'))
-          : RefreshIndicator(
-              onRefresh: _fetchReservasi,
-              child: ListView.builder(
-                itemCount: _reservasiList.length,
-                itemBuilder: (context, index) {
-                  final reservasi = _reservasiList[index];
-                  return Card(
-                    margin: const EdgeInsets.all(8),
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Reservasi ${reservasi.idReservasi}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Reservasi Saya'),
+      backgroundColor: const Color.fromARGB(255, 66, 159, 235),
+    ),
+    body: _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : _errorMessage != null
+            ? Center(child: Text('Error: $_errorMessage'))
+            : _reservasiList.isEmpty
+                ? const Center(child: Text('Tidak ada reservasi'))
+                : RefreshIndicator(
+                    onRefresh: _fetchReservasi,
+                    child: ListView.builder(
+                      itemCount: _reservasiList.length,
+                      itemBuilder: (context, index) {
+                        final reservasi = _reservasiList[index];
+                        return Card(
+                          margin: const EdgeInsets.all(8),
+                          elevation: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Reservasi ${reservasi.idReservasi}',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                _buildInfoRow('Poli', reservasi.namaPoli ?? '-'),
+                                _buildInfoRow('Dokter', reservasi.namaDokter ?? '-'),
+                                _buildInfoRow('Tanggal', reservasi.tanggalReservasi),
+                                _buildInfoRow('Jam', reservasi.jamReservasi ?? '-'),
+                                _buildInfoRow('Status', reservasi.status),
+                                if (reservasi.keterangan != null)
+                                  _buildInfoRow('Keterangan', reservasi.keterangan!),
+                                const SizedBox(height: 16),
+                               Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      icon: const Icon(Icons.edit, color: Colors.white),
+                                      label: const Text(
+                                        'Edit',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.orange,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      onPressed: reservasi.dapatDiedit
+                                          ? () => _editReservasi(reservasi)
+                                          : null,
+                                    ),
+                                    ElevatedButton.icon(
+                                      icon: const Icon(Icons.cancel, color: Colors.white),
+                                      label: const Text(
+                                        'Batalkan',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      onPressed: reservasi.dapatDibatalkan
+                                          ? () => _batalkanReservasi(reservasi)
+                                          : null,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          _buildInfoRow('Poli', reservasi.namaPoli ?? '-'),
-                          _buildInfoRow('Dokter', reservasi.namaDokter ?? '-'),
-                          _buildInfoRow('Tanggal', reservasi.tanggalReservasi),
-                          _buildInfoRow('Jam', reservasi.jamReservasi ?? '-'),
-                          _buildInfoRow('Status', reservasi.status),
-                          if (reservasi.keterangan != null)
-                            _buildInfoRow('Keterangan', reservasi.keterangan!),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton.icon(
-                                icon: const Icon(Icons.edit),
-                                label: const Text('Edit'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange,
-                                ),
-                                onPressed: reservasi.dapatDiedit
-                                    ? () => _editReservasi(reservasi)
-                                    : null,
-                              ),
-                              ElevatedButton.icon(
-                                icon: const Icon(Icons.cancel),
-                                label: const Text('Batalkan'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                ),
-                                onPressed: reservasi.dapatDibatalkan
-                                    ? () => _batalkanReservasi(reservasi)
-                                    : null,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            ),
-    );
-  }
+                  ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: _tambahReservasi,
+      backgroundColor: Color.fromARGB(255, 66, 159, 235),
+      child: const Icon(Icons.add, size: 32),
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  );
+}
 
   // Method untuk memformat tanggal
   String _formatTanggal(String tanggalString) {
