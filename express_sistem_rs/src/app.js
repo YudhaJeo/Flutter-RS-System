@@ -5,6 +5,7 @@ import profileRoutes from './routes/profileRoutes.js';
 import reservasiRoutes from './routes/reservasiRoutes.js'
 import poliRoutes from './routes/poliRoutes.js'
 import dokterRoutes from './routes/dokterRoutes.js'
+import depositRoutes from './routes/depositRoutes.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -25,5 +26,6 @@ app.use('/profile', profileRoutes);
 app.use('/reservasi', reservasiRoutes);
 app.use('/poli', poliRoutes);
 app.use('/dokter', dokterRoutes);
+app.use('/dompet_medis', depositRoutes);
 
 export default app;
