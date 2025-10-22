@@ -1,4 +1,3 @@
-// D:\Mobile App\flutter_sistem_rs\lib\screens\login\login_screen.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -72,67 +71,161 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      backgroundColor: const Color(0xFFF3F7FB), // latar belakang biru muda
+      body: SafeArea(
         child: Center(
-          child: Form(
-            key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextFormField(
-                  controller: _rekamMedisController,
-                  decoration: const InputDecoration(
-                    labelText: 'No Rekam Medis',
+                // 🏥 Ikon rumah sakit di atas
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFF42A5F5),
                   ),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Wajib diisi' : null,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _tanggalLahirController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tanggal Lahir (yyyy-MM-dd)',
+                  child: const Icon(
+                    Icons.local_hospital,
+                    color: Colors.white,
+                    size: 60,
                   ),
-                  readOnly: true,
-                  onTap: () async {
-                    final picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime(2000),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-                    if (picked != null) {
-                      _tanggalLahirController.text = picked
-                          .toIso8601String()
-                          .substring(0, 10);
-                    }
-                  },
-                  validator: (value) =>
-                      value == null || value.isEmpty ? 'Wajib diisi' : null,
                 ),
-                const SizedBox(height: 24),
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red),
+                const SizedBox(height: 20),
+
+                // 🩺 Judul dan deskripsi
+                const Text(
+                  "Selamat Datang di Rumah Sakit Bayza Medika!",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1976D2),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Masukkan No Rekam Medis dan Tanggal Lahir Anda",
+                  style: TextStyle(color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+
+                // 📋 Form Login
+                Card(
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _rekamMedisController,
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(
+                                Icons.badge_outlined,
+                                color: Color(0xFF42A5F5),
+                              ),
+                              labelText: 'No Rekam Medis',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF42A5F5), width: 1.2),
+                              ),
+                            ),
+                            validator: (value) => value == null || value.isEmpty
+                                ? 'Wajib diisi'
+                                : null,
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _tanggalLahirController,
+                            readOnly: true,
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime(2000),
+                                firstDate: DateTime(1900),
+                                lastDate: DateTime.now(),
+                              );
+                              if (picked != null) {
+                                _tanggalLahirController.text =
+                                    picked.toIso8601String().substring(0, 10);
+                              }
+                            },
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(
+                                Icons.calendar_today,
+                                color: Color(0xFF42A5F5),
+                              ),
+                              labelText: 'Tanggal Lahir (yyyy-MM-dd)',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF42A5F5), width: 1.2),
+                              ),
+                            ),
+                            validator: (value) => value == null || value.isEmpty
+                                ? 'Wajib diisi'
+                                : null,
+                          ),
+                          const SizedBox(height: 24),
+
+                          if (_error != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text(
+                                _error!,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+
+                          // 🔵 Tombol Login
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF42A5F5),
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: _isLoading ? null : _login,
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 22,
+                                      width: 22,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2, color: Colors.white),
+                                    )
+                                  : const Text(
+                                      'Login',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Login'),
-                  ),
+                ),
+
+                const SizedBox(height: 20),
+                const Text(
+                  "© 2025 Rumah Sakit Bayza Medika",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
