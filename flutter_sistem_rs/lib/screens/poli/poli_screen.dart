@@ -1,49 +1,23 @@
-// D:\Mobile App\flutter_sistem_rs\lib\screens\poli\poli_screen.dart
+// dokter_by_poli_screenimport 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import '../../models/poli_model.dart';
 import '../../services/poli_service.dart';
+import 'dokter_by_poli_screen.dart';
 
 class PoliScreen extends StatefulWidget {
-  const PoliScreen({super.key});
+  const PoliScreen({Key? key}) : super(key: key);
 
   @override
   State<PoliScreen> createState() => _PoliScreenState();
 }
 
 class _PoliScreenState extends State<PoliScreen> {
-  final PoliService _poliService = PoliService();
-  List<Poli> _poliList = [];
-  bool _isLoading = true;
-  String? _errorMessage;
+  late Future<List<Poli>> futurePoli;
 
   @override
   void initState() {
     super.initState();
-    _fetchPoli();
-  }
-
-  Future<void> _fetchPoli() async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
-
-      final poliList = await _poliService.fetchAllPoli();
-
-      // 🔹 Urutkan berdasarkan nama poli (A-Z)
-      poliList.sort((a, b) => a.namaPoli.toLowerCase().compareTo(b.namaPoli.toLowerCase()));
-
-      setState(() {
-        _poliList = poliList;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
-    }
+    futurePoli = PoliService.fetchPoli();
   }
 
   @override
@@ -51,30 +25,79 @@ class _PoliScreenState extends State<PoliScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daftar Poli'),
-        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-              ? Center(child: Text('Error: $_errorMessage'))
-              : _poliList.isEmpty
-                  ? const Center(child: Text('Tidak ada data poli'))
-                  : RefreshIndicator(
-                      onRefresh: _fetchPoli,
-                      child: ListView.builder(
-                        itemCount: _poliList.length,
-                        itemBuilder: (context, index) {
-                          final poli = _poliList[index];
-                          return ListTile(
-                            title: Text(poli.namaPoli),
-                            leading: const Icon(
-                              Icons.local_hospital,
-                              color: Colors.deepPurple,
-                            ),
-                          );
-                        },
-                      ),
+      body: FutureBuilder<List<Poli>>(
+        future: futurePoli,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Terjadi kesalahan: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('Belum ada data poli tersedia.'),
+            );
+          }
+
+          final poliList = snapshot.data!;
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemCount: poliList.length,
+            itemBuilder: (context, index) {
+              final poli = poliList[index];
+              return Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  title: Text(
+                    poli.namaPoli,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  subtitle: Text(
+                    'Kode: ${poli.kode}\nZona: ${poli.zona}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blue.shade100,
+                    child: Text(
+                      poli.kode,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DokterByPoliScreen(
+                          idPoli: poli.idPoli,
+                          namaPoli: poli.namaPoli,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
