@@ -7,6 +7,9 @@ import poliRoutes from './routes/poliRoutes.js'
 import dokterRoutes from './routes/dokterRoutes.js'
 import depositRoutes from './routes/depositRoutes.js';
 import kalenderRoutes from './routes/kalenderRoutes.js';
+import rekammedisRoutes from './routes/rekamMedisRoutes.js';
+import riwayatJalanRoutes from './routes/riwayatJalanRoutes.js';
+import riwayatInapRoutes from './routes/riwayatInapRoutes.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -29,5 +32,8 @@ app.use('/poli', poliRoutes);
 app.use('/dokter', dokterRoutes);
 app.use('/dompet_medis', depositRoutes);
 app.use('/kalender', kalenderRoutes);
+app.use('/rekam_medis', rekammedisRoutes);
+app.use('/riwayat_jalan', riwayatJalanRoutes);
+app.use('/riwayat_inap', riwayatInapRoutes);
 
 export default app;
