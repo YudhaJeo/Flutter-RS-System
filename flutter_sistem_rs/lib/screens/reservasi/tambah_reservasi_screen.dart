@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/reservasi_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../widgets/custom_topbar.dart';
 // import '../../utils/app_env.dart';
 
 class TambahReservasiScreen extends StatefulWidget {
@@ -281,9 +282,8 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tambah Reservasi'),
-        backgroundColor: const Color.fromARGB(255, 64, 140, 255),
+      appBar: CustomTopBar(
+        title: 'Tambah Reservasi'
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

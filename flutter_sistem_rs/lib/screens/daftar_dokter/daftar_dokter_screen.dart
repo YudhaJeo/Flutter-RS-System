@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/dokter_model.dart';
 import '../../services/dokter_service.dart';
 import '../../widgets/jadwal_dokter_modal.dart';
+import '../../widgets/custom_topbar.dart';
 
 class DaftarDokterScreen extends StatefulWidget {
   const DaftarDokterScreen({super.key});
@@ -31,13 +32,8 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text(
-          'Cari Dokter',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color.fromARGB(255, 50, 169, 248),
-        centerTitle: true,
+      appBar: CustomTopBar(
+        title: 'Cari Dokter'
       ),
       body: FutureBuilder<List<Dokter>>(
         future: futureDokter,

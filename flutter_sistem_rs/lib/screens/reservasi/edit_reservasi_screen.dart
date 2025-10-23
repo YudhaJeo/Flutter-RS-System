@@ -5,6 +5,7 @@ import '../../models/reservasi_model.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show debugPrint;
+import '../../widgets/custom_topbar.dart';
 
 class EditReservasiScreen extends StatefulWidget {
   final Reservasi reservasi;
@@ -327,9 +328,8 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit Reservasi'),
-        backgroundColor: const Color.fromARGB(255, 64, 140, 255),
+      appBar: CustomTopBar(
+        title: 'Edit Reservasi'
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

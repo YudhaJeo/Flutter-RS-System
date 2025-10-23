@@ -4,6 +4,7 @@ import '../../services/reservasi_service.dart';
 import 'dart:developer' as developer;
 import '../reservasi/tambah_reservasi_screen.dart';
 import '../reservasi/edit_reservasi_screen.dart';
+import '../../widgets/custom_topbar.dart';
 
 class ReservasiScreen extends StatefulWidget {
   const ReservasiScreen({super.key});
@@ -125,9 +126,8 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    appBar: AppBar(
-      title: const Text('Reservasi Saya'),
-      backgroundColor: const Color.fromARGB(255, 66, 159, 235),
+    appBar: CustomTopBar(
+      title: 'Reservasi Saya'
     ),
     body: _isLoading
         ? const Center(child: CircularProgressIndicator())

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../models/kalender_model.dart';
 import '../../services/kalender_service.dart';
+import '../../widgets/custom_topbar.dart';
 
 class KalenderScreen extends StatefulWidget {
   const KalenderScreen({super.key});
@@ -86,9 +87,8 @@ class _KalenderScreenState extends State<KalenderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kalender Dokter'),
-        backgroundColor: Colors.blue[800],
+      appBar: CustomTopBar(
+        title: 'Kalender Dokter',
       ),
       body: FutureBuilder<List<Kalender>>(
         future: _futureKalender,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/dompet_medis_model.dart';
 import '../../services/dompet_medis_service.dart';
+import '../../widgets/custom_topbar.dart';
 
 class DompetMedisScreen extends StatefulWidget {
   const DompetMedisScreen({super.key});
@@ -40,10 +41,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dompet Medis'),
-        backgroundColor: const Color.fromARGB(255, 66, 159, 235),
-        centerTitle: true,
+      appBar: CustomTopBar(
+        title: 'Dompet Medis'
       ),
       body: FutureBuilder<List<DompetMedis>>(
         future: futureDompetMedis,

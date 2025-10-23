@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/poli_model.dart';
 import '../../services/poli_service.dart';
 import 'dokter_by_poli_screen.dart';
+import '../../widgets/custom_topbar.dart';
 
 class PoliScreen extends StatefulWidget {
   const PoliScreen({Key? key}) : super(key: key);
@@ -23,17 +24,14 @@ class _PoliScreenState extends State<PoliScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Poli'),
-        centerTitle: true,
+      appBar: CustomTopBar(
+        title: 'Daftar Poli'
       ),
       body: FutureBuilder<List<Poli>>(
         future: futurePoli,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -43,9 +41,7 @@ class _PoliScreenState extends State<PoliScreen> {
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('Belum ada data poli tersedia.'),
-            );
+            return const Center(child: Text('Belum ada data poli tersedia.'));
           }
 
           final poliList = snapshot.data!;
@@ -61,8 +57,10 @@ class _PoliScreenState extends State<PoliScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   title: Text(
                     poli.namaPoli,
                     style: const TextStyle(
