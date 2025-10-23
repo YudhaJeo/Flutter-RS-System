@@ -124,95 +124,200 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: CustomTopBar(
-      title: 'Reservasi Saya'
-    ),
-    body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : _errorMessage != null
-            ? Center(child: Text('Error: $_errorMessage'))
-            : _reservasiList.isEmpty
-                ? const Center(child: Text('Tidak ada reservasi'))
-                : RefreshIndicator(
-                    onRefresh: _fetchReservasi,
-                    child: ListView.builder(
-                      itemCount: _reservasiList.length,
-                      itemBuilder: (context, index) {
-                        final reservasi = _reservasiList[index];
-                        return Card(
-                          margin: const EdgeInsets.all(8),
-                          elevation: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Reservasi ${reservasi.idReservasi}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomTopBar(title: 'Reservasi Saya'),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+          ? Center(child: Text('Error: $_errorMessage'))
+          : _reservasiList.isEmpty
+          ? const Center(child: Text('Tidak ada reservasi'))
+          : RefreshIndicator(
+              onRefresh: _fetchReservasi,
+              child: ListView.builder(
+                itemCount: _reservasiList.length,
+                itemBuilder: (context, index) {
+                  final reservasi = _reservasiList[index];
+                  return Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          spreadRadius: 1,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Reservasi ${_formatTanggalPendek(reservasi.tanggalReservasi)}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      (reservasi.status.toLowerCase() ==
+                                              'selesai' ||
+                                          reservasi.status.toLowerCase() ==
+                                              'dikonfirmasi')
+                                      ? Colors.green.shade100
+                                      : reservasi.status.toLowerCase() ==
+                                            'dibatalkan'
+                                      ? Colors.red.shade100
+                                      : Colors.blue.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  reservasi.status,
+                                  style: TextStyle(
+                                    color:
+                                        (reservasi.status.toLowerCase() ==
+                                                'selesai' ||
+                                            reservasi.status.toLowerCase() ==
+                                                'dikonfirmasi')
+                                        ? Colors.green.shade800
+                                        : reservasi.status.toLowerCase() ==
+                                              'dibatalkan'
+                                        ? Colors.red.shade800
+                                        : Colors.blue.shade800,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 12,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                _buildInfoRow('Poli', reservasi.namaPoli ?? '-'),
-                                _buildInfoRow('Dokter', reservasi.namaDokter ?? '-'),
-                                _buildInfoRow('Tanggal', reservasi.tanggalReservasi),
-                                _buildInfoRow('Jam', reservasi.jamReservasi ?? '-'),
-                                _buildInfoRow('Status', reservasi.status),
-                                if (reservasi.keterangan != null)
-                                  _buildInfoRow('Keterangan', reservasi.keterangan!),
-                                const SizedBox(height: 16),
-                               Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ElevatedButton.icon(
-                                      icon: const Icon(Icons.edit, color: Colors.white),
-                                      label: const Text(
-                                        'Edit',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.orange,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                      onPressed: reservasi.dapatDiedit
-                                          ? () => _editReservasi(reservasi)
-                                          : null,
-                                    ),
-                                    ElevatedButton.icon(
-                                      icon: const Icon(Icons.cancel, color: Colors.white),
-                                      label: const Text(
-                                        'Batalkan',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                      onPressed: reservasi.dapatDibatalkan
-                                          ? () => _batalkanReservasi(reservasi)
-                                          : null,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
+                          const SizedBox(height: 10),
+                          Divider(color: Colors.grey.shade300, height: 1),
+                          const SizedBox(height: 10),
+                          _buildInfoRow('Poli', reservasi.namaPoli ?? '-'),
+                          _buildInfoRow('Dokter', reservasi.namaDokter ?? '-'),
+                          _buildInfoRow('Tanggal', reservasi.tanggalReservasi),
+                          _buildInfoRow('Jam', reservasi.jamReservasi ?? '-'),
+                          if (reservasi.keterangan != null)
+                            _buildInfoRow('Keterangan', reservasi.keterangan!),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              OutlinedButton.icon(
+                                icon: Icon(
+                                  Icons.edit,
+                                  color: reservasi.dapatDiedit
+                                      ? Colors.orange
+                                      : Colors.grey,
+                                ),
+                                label: Text(
+                                  'Edit',
+                                  style: TextStyle(
+                                    color: reservasi.dapatDiedit
+                                        ? Colors.orange
+                                        : Colors.grey,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: reservasi.dapatDiedit
+                                        ? Colors.orange.shade300
+                                        : Colors.grey.shade300,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: reservasi.dapatDiedit
+                                    ? () => _editReservasi(reservasi)
+                                    : null,
+                              ),
+                              OutlinedButton.icon(
+                                icon: Icon(
+                                  Icons.cancel,
+                                  color: reservasi.dapatDibatalkan
+                                      ? Colors.red
+                                      : Colors.grey,
+                                ),
+                                label: Text(
+                                  'Batalkan',
+                                  style: TextStyle(
+                                    color: reservasi.dapatDibatalkan
+                                        ? Colors.red
+                                        : Colors.grey,
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                    color: reservasi.dapatDibatalkan
+                                        ? Colors.red.shade300
+                                        : Colors.grey.shade300,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: reservasi.dapatDibatalkan
+                                    ? () => _batalkanReservasi(reservasi)
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: _tambahReservasi,
-      backgroundColor: Color.fromARGB(255, 66, 159, 235),
-      child: const Icon(Icons.add, size: 32),
-    ),
-    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-  );
-}
+                  );
+                },
+              ),
+            ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08), // bayangan halus
+              spreadRadius: 2,
+              blurRadius: 12, // blur lembut
+              offset: const Offset(0, 4), // arah bayangan ke bawah
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: _tambahReservasi,
+          backgroundColor: Colors.white,
+          elevation: 0, // hilangkan default shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const Icon(Icons.add, size: 32, color: Colors.lightBlue),
+        ),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
 
   // Method untuk memformat tanggal
   String _formatTanggal(String tanggalString) {
@@ -259,6 +364,18 @@ Widget build(BuildContext context) {
       return '${hari[tanggal.weekday - 1]}, ${tanggal.day} ${bulan[tanggal.month - 1]} ${tanggal.year}';
     } catch (e) {
       // Jika parsing gagal, kembalikan tanggal asli
+      return tanggalString;
+    }
+  }
+
+  String _formatTanggalPendek(String tanggalString) {
+    try {
+      final tanggal = DateTime.parse(tanggalString).toLocal();
+      final dd = tanggal.day.toString().padLeft(2, '0');
+      final mm = tanggal.month.toString().padLeft(2, '0');
+      final yyyy = tanggal.year.toString();
+      return '$dd/$mm/$yyyy';
+    } catch (e) {
       return tanggalString;
     }
   }

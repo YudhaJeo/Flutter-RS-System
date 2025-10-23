@@ -1,6 +1,7 @@
 // D:\Mobile App\flutter_sistem_rs\lib\main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -26,7 +27,24 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter RS Bayza',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 0, 140, 255)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 0, 140, 255),
+        ),
+        textTheme: GoogleFonts.poppinsTextTheme(), // 🩵 font global
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          titleTextStyle: GoogleFonts.poppins(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+          iconTheme: const IconThemeData(
+            color: Colors.lightBlue, // warna ikon default (misal tombol back)
+          ),
+        ),
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: SplashScreen(onFinish: _cekLoginDanRedirect),
       routes: {
