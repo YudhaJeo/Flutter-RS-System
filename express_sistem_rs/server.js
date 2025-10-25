@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { createServer } from 'http';
 import app from './src/app.js';
 
-config();
+config({ quiet: true });
 
 const PORT = process.env.PORT;
 const EXPRESS_URL = process.env.EXPRESS_PUBLIC_URL;
