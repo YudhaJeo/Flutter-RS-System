@@ -1,5 +1,5 @@
-// D:\Mobile App\flutter_sistem_rs\lib\main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/splash_screen.dart';
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 0, 140, 255),
         ),
-        textTheme: GoogleFonts.poppinsTextTheme(), // 🩵 font global
+        textTheme: GoogleFonts.poppinsTextTheme(),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
@@ -40,12 +40,22 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
-          iconTheme: const IconThemeData(
-            color: Colors.lightBlue, // warna ikon default (misal tombol back)
-          ),
+          iconTheme: const IconThemeData(color: Colors.lightBlue),
         ),
         scaffoldBackgroundColor: Colors.white,
       ),
+
+      // 🟦 Tambahkan di sini:
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('id', 'ID'), // Bahasa Indonesia
+      ],
+      locale: const Locale('id', 'ID'), // Set default ke Bahasa Indonesia
+
       home: SplashScreen(onFinish: _cekLoginDanRedirect),
       routes: {
         '/login': (context) => const LoginScreen(),

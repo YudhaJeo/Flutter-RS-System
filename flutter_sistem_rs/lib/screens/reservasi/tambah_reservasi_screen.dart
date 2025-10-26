@@ -282,9 +282,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomTopBar(
-        title: 'Tambah Reservasi'
-      ),
+      appBar: CustomTopBar(title: 'Tambah Reservasi'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -322,8 +320,10 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                     });
                   }
                 },
-                validator: (value) =>
-                    _selectedTanggal == null ? 'Pilih Tanggal' : null,
+                validator: (value) {
+                  if (_selectedTanggal == null) return '';
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
 
@@ -349,7 +349,10 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                     _filterJamReservasi(); // Filter jam praktek
                   });
                 },
-                validator: (value) => value == null ? 'Pilih Poli' : null,
+                validator: (value) {
+                  if (value == null) return '';
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
 
@@ -375,7 +378,10 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                           _filterJamReservasi(); // Filter jam praktek
                         });
                       },
-                validator: (value) => value == null ? 'Pilih Dokter' : null,
+                validator: (value) {
+                  if (value == null) return '';
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
 
@@ -396,8 +402,10 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
                           _selectedJamReservasi = value;
                         });
                       },
-                validator: (value) =>
-                    value == null ? 'Pilih Jam Praktek' : null,
+                validator: (value) {
+                  if (value == null) return '';
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
 
@@ -416,14 +424,18 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _tambahReservasi,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 66, 159, 235),
+                  backgroundColor: Colors.lightBlue,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
                         'Tambah Reservasi',
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
               ),
 
