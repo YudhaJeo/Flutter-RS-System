@@ -10,6 +10,7 @@ import kalenderRoutes from './routes/kalenderRoutes.js';
 import rekammedisRoutes from './routes/rekamMedisRoutes.js';
 import riwayatJalanRoutes from './routes/riwayatJalanRoutes.js';
 import riwayatInapRoutes from './routes/riwayatInapRoutes.js';
+import beritaRoutes from './routes/beritaRoutes.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -35,5 +36,6 @@ app.use('/kalender', kalenderRoutes);
 app.use('/rekam_medis', rekammedisRoutes);
 app.use('/riwayat_jalan', riwayatJalanRoutes);
 app.use('/riwayat_inap', riwayatInapRoutes);
+app.use('/berita', beritaRoutes);
 
 export default app;

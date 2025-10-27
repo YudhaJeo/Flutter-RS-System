@@ -8,6 +8,7 @@ import '../dompet_medis/dompet_medis_screen.dart';
 import '../poli/poli_screen.dart';
 import '../kalender/kalender_screen.dart';
 import '../daftar_dokter/daftar_dokter_screen.dart';
+import '../../widgets/berita_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -219,94 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  height: 200, // Tinggi card berita
-                  child: PageView.builder(
-                    controller: PageController(viewportFraction: 0.9),
-                    itemCount: 3, // Jumlah berita
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Stack(
-                              children: [
-                                // Gambar berita
-                                Image.network(
-                                  'https://via.placeholder.com/350x200',
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                                // Gradient overlay untuk readability teks
-                                Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.bottomCenter,
-                                        end: Alignment.topCenter,
-                                        colors: [
-                                          Colors.black.withOpacity(0.8),
-                                          Colors.transparent,
-                                        ],
-                                      ),
-                                    ),
-                                    padding: const EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Judul Berita Kesehatan ${index + 1}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Deskripsi singkat berita kesehatan ${index + 1}',
-                                          style: const TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 12,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                // Tombol untuk membaca selengkapnya
-                                Positioned.fill(
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      onTap: () {
-                                        // Aksi saat berita diklik
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                const BeritaWidget(),
               ],
             ),
           ),
