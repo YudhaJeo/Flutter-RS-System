@@ -16,6 +16,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
   late Future<List<Kalender>> _futureKalender;
   Map<DateTime, List<Kalender>> _events = {};
   List<Kalender> _liburList = [];
+  List<Kalender> _perjanjianList = [];
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -28,7 +29,9 @@ class _KalenderScreenState extends State<KalenderScreen> {
   DateTime _normalizeDate(String dateStr) {
     final date = DateTime.tryParse(dateStr);
     if (date == null) return DateTime.now();
-    return DateTime(date.year, date.month, date.day);
+
+    final localDate = date.toLocal(); // pastikan tanggal lokal
+    return DateTime(localDate.year, localDate.month, localDate.day);
   }
 
   List<Kalender> _getEventsForDay(DateTime day) {
@@ -53,21 +56,38 @@ class _KalenderScreenState extends State<KalenderScreen> {
               itemCount: kalenders.length,
               itemBuilder: (context, index) {
                 final k = kalenders[index];
+                final isPerjanjian = k.status.toLowerCase() == 'perjanjian';
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
-                    color: k.isLibur ? Colors.red[50] : Colors.blue[50],
+                    color: k.isLibur
+                        ? Colors.red[50]
+                        : isPerjanjian
+                            ? Colors.blue[50]
+                            : Colors.grey[100],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: k.isLibur ? Colors.red.shade200 : Colors.blue.shade200,
+                      color: k.isLibur
+                          ? Colors.red.shade200
+                          : isPerjanjian
+                              ? Colors.blue.shade200
+                              : Colors.grey.shade300,
                     ),
                   ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: k.isLibur ? Colors.red.shade100 : Colors.blue.shade100,
+                      backgroundColor: k.isLibur
+                          ? Colors.red.shade100
+                          : isPerjanjian
+                              ? Colors.blue.shade100
+                              : Colors.grey.shade200,
                       child: Icon(
                         Icons.person,
-                        color: k.isLibur ? Colors.red : Colors.blue,
+                        color: k.isLibur
+                            ? Colors.red
+                            : isPerjanjian
+                                ? Colors.blue
+                                : Colors.grey,
                       ),
                     ),
                     title: Text(
@@ -124,17 +144,29 @@ class _KalenderScreenState extends State<KalenderScreen> {
             final data = snapshot.data!;
             final Map<DateTime, List<Kalender>> events = {};
             final List<Kalender> liburList = [];
+            final List<Kalender> perjanjianList = [];
 
             for (var item in data) {
               final date = _normalizeDate(item.tanggal);
               events.putIfAbsent(date, () => []).add(item);
-              if (item.isLibur) liburList.add(item);
+
+              if (item.isLibur) {
+                liburList.add(item);
+              } else if (item.status.toLowerCase() == 'perjanjian') {
+                perjanjianList.add(item);
+              }
             }
 
             _events = events;
             _liburList = liburList;
+            _perjanjianList = perjanjianList;
 
             final currentMonthLibur = _liburList.where((item) {
+              final date = _normalizeDate(item.tanggal);
+              return date.month == _focusedDay.month && date.year == _focusedDay.year;
+            }).toList();
+
+            final currentMonthPerjanjian = _perjanjianList.where((item) {
               final date = _normalizeDate(item.tanggal);
               return date.month == _focusedDay.month && date.year == _focusedDay.year;
             }).toList();
@@ -199,6 +231,13 @@ class _KalenderScreenState extends State<KalenderScreen> {
                               liburDate.day == day.day;
                         });
 
+                        final isPerjanjian = _perjanjianList.any((item) {
+                          final perjanjianDate = _normalizeDate(item.tanggal);
+                          return perjanjianDate.year == day.year &&
+                              perjanjianDate.month == day.month &&
+                              perjanjianDate.day == day.day;
+                        });
+
                         if (isLibur) {
                           return Container(
                             margin: const EdgeInsets.all(6.0),
@@ -215,64 +254,95 @@ class _KalenderScreenState extends State<KalenderScreen> {
                               ),
                             ),
                           );
+                        } else if (isPerjanjian) {
+                          return Container(
+                            margin: const EdgeInsets.all(6.0),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[100],
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${day.day}',
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
                         }
                         return null;
                       },
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (currentMonthLibur.isNotEmpty) ...[
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '📅 Jadwal Libur Dokter Bulan Ini',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: currentMonthLibur.length,
-                        itemBuilder: (context, index) {
-                          final item = currentMonthLibur[index];
-                          final date = _normalizeDate(item.tanggal);
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12.withOpacity(0.05),
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 2),
+
+                  // 🔹 Daftar jadwal libur dan perjanjian
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (currentMonthLibur.isNotEmpty) ...[
+                            const Text(
+                              '📅 Jadwal Libur Dokter Bulan Ini',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            ...currentMonthLibur.map((item) {
+                              final date = _normalizeDate(item.tanggal);
+                              return ListTile(
+                                leading: const Icon(Icons.event_busy, color: Colors.red),
+                                title: Text(item.namaDokter ?? 'Dokter tidak diketahui'),
+                                subtitle: Text(_formatTanggal(date)),
+                                trailing: Text(
+                                  item.keterangan ?? '',
+                                  style: const TextStyle(color: Colors.black54),
                                 ),
-                              ],
-                            ),
-                            child: ListTile(
-                              leading: const Icon(Icons.event_busy, color: Colors.red),
-                              title: Text(
-                                item.namaDokter ?? 'Dokter tidak diketahui',
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              subtitle: Text(_formatTanggal(date)),
-                              trailing: Text(
-                                item.keterangan ?? '',
-                                style: const TextStyle(color: Colors.black54),
+                              );
+                            }),
+                            const Divider(),
+                          ],
+                          if (currentMonthPerjanjian.isNotEmpty) ...[
+                            const Text(
+                              '📘 Jadwal Perjanjian Dokter Bulan Ini',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
-                          );
-                        },
+                            const SizedBox(height: 6),
+                            ...currentMonthPerjanjian.map((item) {
+                              final date = _normalizeDate(item.tanggal);
+                              return ListTile(
+                                leading: const Icon(Icons.event_note, color: Colors.blue),
+                                title: Text(item.namaDokter ?? 'Dokter tidak diketahui'),
+                                subtitle: Text(_formatTanggal(date)),
+                                trailing: Text(
+                                  item.keterangan ?? '',
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
+                              );
+                            }),
+                          ],
+                          if (currentMonthLibur.isEmpty && currentMonthPerjanjian.isEmpty)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: Text(
+                                  'Tidak ada jadwal libur atau perjanjian bulan ini.',
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  ] else
-                    const Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        'Tidak ada dokter yang libur bulan ini.',
-                        style: TextStyle(color: Colors.black54),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             );
