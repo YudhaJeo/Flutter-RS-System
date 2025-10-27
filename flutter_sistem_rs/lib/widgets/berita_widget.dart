@@ -48,9 +48,8 @@ class _BeritaWidgetState extends State<BeritaWidget> {
         beritaList.sort((a, b) => b.id.compareTo(a.id));
 
         // ambil maksimal 4 berita untuk ditampilkan di card
-        final tampilList = beritaList.length > 4
-            ? beritaList.take(4).toList()
-            : beritaList;
+        final tampilList =
+            beritaList.length > 4 ? beritaList.take(4).toList() : beritaList;
 
         return SizedBox(
           height: 200,
@@ -164,31 +163,41 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   berita.judul,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.bold,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 4),
                                 Text(
                                   berita.deskripsiSingkat,
                                   style: const TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 12,
+                                    fontSize: 10,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  berita.tanggalUpload,
+                                  style: const TextStyle(
+                                    color: Colors.white60,
+                                    fontSize: 8,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
+                        // tap area
                         Positioned.fill(
                           child: Material(
                             color: Colors.transparent,

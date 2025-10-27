@@ -1,5 +1,6 @@
 // D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\screens\berita\berita_screen.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/berita_model.dart';
 import '../../services/berita_service.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,6 +21,18 @@ class _BeritaScreenState extends State<BeritaScreen> {
     _beritaFuture = BeritaService.fetchAllBerita();
   }
 
+  // 🔹 Format tanggal agar lebih enak dibaca
+  String formatTanggal(String raw) {
+    try {
+      String clean = raw.replaceAll('TIB', 'T');
+      final date = DateTime.parse(clean);
+      return DateFormat('d MMMM yyyy', 'id_ID').format(date);
+    } catch (e) {
+      print('Error parsing tanggal: $raw -> $e');
+      return raw;
+    }
+  }
+
   Future<void> _launchURL(String url) async {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
@@ -38,7 +51,9 @@ class _BeritaScreenState extends State<BeritaScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Text('Gagal memuat berita: ${snapshot.error}');
+            return Center(
+              child: Text('Gagal memuat berita: ${snapshot.error}'),
+            );
           }
 
           final beritaList = snapshot.data ?? [];
@@ -46,6 +61,7 @@ class _BeritaScreenState extends State<BeritaScreen> {
             return const Center(child: Text('Belum ada berita.'));
           }
 
+          // Urutkan dari yang terbaru
           beritaList.sort((a, b) => b.id.compareTo(a.id));
 
           return ListView.builder(
@@ -56,24 +72,44 @@ class _BeritaScreenState extends State<BeritaScreen> {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: ListTile(
-                  leading: Image.network(
-                    berita.pratinjau,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.broken_image),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      berita.pratinjau,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image),
+                    ),
                   ),
                   title: Text(
                     berita.judul,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text(
-                    berita.deskripsiSingkat,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        berita.deskripsiSingkat,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        formatTanggal(berita.tanggalUpload),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                   onTap: () async {
                     final confirm = await showDialog<bool>(

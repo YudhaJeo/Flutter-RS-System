@@ -5,6 +5,7 @@ class Berita {
   final String deskripsiSingkat;
   final String pratinjau;
   final String url;
+  final String tanggalUpload;
 
   Berita({
     required this.id,
@@ -12,6 +13,7 @@ class Berita {
     required this.deskripsiSingkat,
     required this.pratinjau,
     required this.url,
+    required this.tanggalUpload,
   });
 
   factory Berita.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class Berita {
     deskripsiSingkat: json['DESKRIPSISINGKAT'],
     pratinjau: pratinjauUrl,
     url: json['URL'] ?? '',
+    tanggalUpload: json['CREATED_AT'],
   );
 }
 }
