@@ -1,3 +1,4 @@
+// D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\widgets\berita_widget.dart
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/berita_model.dart';
@@ -49,7 +50,6 @@ class _BeritaWidgetState extends State<BeritaWidget> {
             itemCount: beritaList.length,
             itemBuilder: (context, index) {
               final berita = beritaList[index];
-              final imageUrl = 'http://10.0.2.2:4100${berita.pratinjau}';
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -62,14 +62,19 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                     borderRadius: BorderRadius.circular(15),
                     child: Stack(
                       children: [
-                        // Gambar berita dari MinIO
                         Image.network(
-                          imageUrl,
+                          berita.pratinjau,
                           width: double.infinity,
                           height: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Center(child: Icon(Icons.broken_image)),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(child: CircularProgressIndicator());
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error load image: $error');
+                            return const Center(child: Icon(Icons.broken_image));
+                          },
                         ),
                         // Overlay teks
                         Positioned(

@@ -1,3 +1,4 @@
+// D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\models\berita_model.dart
 class Berita {
   final int id;
   final String judul;
@@ -14,12 +15,26 @@ class Berita {
   });
 
   factory Berita.fromJson(Map<String, dynamic> json) {
-    return Berita(
-      id: json['IDBERITA'],
-      judul: json['JUDUL'],
-      deskripsiSingkat: json['DESKRIPSISINGKAT'],
-      pratinjau: json['PRATINJAU'],
-      url: json['URL'] ?? '',
-    );
+  final rawPratinjau = json['PRATINJAU'];
+  String pratinjauUrl = '';
+
+  if (rawPratinjau != null && rawPratinjau.toString().isNotEmpty) {
+    if (rawPratinjau.toString().startsWith('http')) {
+      pratinjauUrl = rawPratinjau;
+    } else {
+      final path = rawPratinjau.toString().startsWith('/')
+          ? rawPratinjau
+          : '/$rawPratinjau';
+      pratinjauUrl = 'http://10.0.2.2:4100$path';
+    }
   }
+
+  return Berita(
+    id: json['IDBERITA'],
+    judul: json['JUDUL'],
+    deskripsiSingkat: json['DESKRIPSISINGKAT'],
+    pratinjau: pratinjauUrl,
+    url: json['URL'] ?? '',
+  );
+}
 }

@@ -28,7 +28,6 @@ class _SplashScreenState extends State<SplashScreen>
       try {
         final prefs = await SharedPreferences.getInstance();
         final norekammedis = prefs.getString('norekammedis');
-        print('Norekammedis from SharedPreferences: $norekammedis');
 
         if (norekammedis != null) {
           Navigator.pushReplacementNamed(context, '/main');
