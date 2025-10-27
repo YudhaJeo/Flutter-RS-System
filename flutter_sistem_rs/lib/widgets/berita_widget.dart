@@ -73,19 +73,42 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                     },
                     child: Card(
                       elevation: 4,
-                      color: Colors.blue.shade700,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'Lihat Semua Berita',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          // pakai background blur newspaper
+                          Image.asset(
+                            'assets/images/newspaper-blurred.jpg',
+                            fit: BoxFit.cover,
                           ),
-                        ),
+                          // overlay warna biar teks kebaca
+                          Container(
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                          // konten tengah
+                          Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.newspaper,
+                                    color: Colors.white, size: 40),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Lihat Semua Berita',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
