@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/dokter_model.dart';
 import '../../services/dokter_service.dart';
-import '../../widgets/jadwal_dokter_modal.dart'; // ubah ke nama file yang berisi halaman jadwal
+import '../../widgets/jadwal_dokter_modal.dart';
 import '../../widgets/custom_topbar.dart';
 
 class DaftarDokterScreen extends StatefulWidget {
@@ -20,7 +20,6 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
     futureDokter = DokterService.fetchAllDokter();
   }
 
-  // Ganti: bukan showDialog lagi, tapi pindah ke halaman jadwal dokter
   void _openJadwalDokter(Dokter dokter) {
     Navigator.push(
       context,
@@ -33,8 +32,8 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      appBar: CustomTopBar(title: 'Cari Dokter'),
+      backgroundColor: Colors.white,
+      appBar: const CustomTopBar(title: 'Cari Dokter'),
       body: FutureBuilder<List<Dokter>>(
         future: futureDokter,
         builder: (context, snapshot) {
@@ -48,7 +47,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Belum ada data dokter tersedia.'));
+            return const Center(child: Text('Belum ada data dokter.'));
           }
 
           final dokterList = snapshot.data!;
@@ -56,91 +55,96 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
             (a, b) => a.namaLengkap.toLowerCase().compareTo(b.namaLengkap.toLowerCase()),
           );
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: dokterList.length,
-            itemBuilder: (context, index) {
-              final dokter = dokterList[index];
-              return Card(
-                elevation: 3,
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // FOTO DOKTER
-                      CircleAvatar(
-                        radius: 35,
-                        backgroundColor: const Color.fromARGB(255, 139, 212, 255),
-                        backgroundImage: dokter.fotoProfil != null
-                            ? NetworkImage(dokter.fotoProfil!)
-                            : null,
-                        child: dokter.fotoProfil == null
-                            ? const Icon(Icons.person, color: Colors.green, size: 35)
-                            : null,
+          return RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                futureDokter = DokterService.fetchAllDokter();
+              });
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              itemCount: dokterList.length,
+              itemBuilder: (context, index) {
+                final dokter = dokterList[index];
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      const SizedBox(height: 10),
-
-                      // NAMA DOKTER
-                      Text(
-                        dokter.namaLengkap.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-
-                      // KLINIK
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ],
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _openJadwalDokter(dokter),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            'Klinik',
-                            style: TextStyle(fontSize: 14, color: Colors.black54),
+                          CircleAvatar(
+                            radius: 35,
+                            backgroundColor: Colors.blue.shade50,
+                            backgroundImage: dokter.fotoProfil != null
+                                ? NetworkImage(dokter.fotoProfil!)
+                                : null,
+                            child: dokter.fotoProfil == null
+                                ? const Icon(Icons.person, color: Colors.blue, size: 35)
+                                : null,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 10),
+                          Text(
+                            dokter.namaLengkap.toUpperCase(),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
                           Text(
                             dokter.namaPoli,
                             style: const TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                              color: Colors.black54,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Divider(color: Colors.grey.shade300, height: 1),
+                          const SizedBox(height: 10),
+                          InkWell(
+                            onTap: () => _openJadwalDokter(dokter),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'LIHAT JADWAL',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 12),
-
-                      // TOMBOL LIHAT JADWAL
-                      InkWell(
-                        onTap: () => _openJadwalDokter(dokter),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'LIHAT JADWAL',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 50, 169, 248),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           );
         },
       ),
