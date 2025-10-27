@@ -1,6 +1,7 @@
 // D:\Mobile App\flutter_sistem_rs\lib\screens\dompet_medis\dompet_medis_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import '../../models/dompet_medis_model.dart';
 import '../../services/dompet_medis_service.dart';
 import '../../widgets/custom_topbar.dart';
@@ -24,7 +25,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
 
   Future<void> _loadUserDompetMedis() async {
     final prefs = await SharedPreferences.getInstance();
-    final nik = prefs.getString('nik'); // Pastikan kamu simpan NIK saat login
+    final nik = prefs.getString('nik'); // disimpan saat login
 
     if (nik != null && nik.isNotEmpty) {
       setState(() {
@@ -33,17 +34,24 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
       });
     } else {
       setState(() {
-        futureDompetMedis = Future.error('Data pengguna tidak ditemukan'); 
+        futureDompetMedis = Future.error('Data pengguna tidak ditemukan');
       });
+    }
+  }
+
+  String _formatTanggal(String tanggal) {
+    try {
+      final date = DateTime.parse(tanggal);
+      return DateFormat('d MMMM yyyy', 'id_ID').format(date);
+    } catch (e) {
+      return tanggal; // fallback jika format tidak sesuai
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomTopBar(
-        title: 'Dompet Medis'
-      ),
+      appBar: CustomTopBar(title: 'Dompet Medis'),
       body: FutureBuilder<List<DompetMedis>>(
         future: futureDompetMedis,
         builder: (context, snapshot) {
@@ -58,54 +66,132 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text('Belum ada deposit tercatat.'),
-            );
+            return const Center(child: Text('Belum ada deposit tercatat.'));
           }
 
           final depositList = snapshot.data!;
-
-          // 🔹 Urutkan berdasarkan nama pasien atau invoice (A-Z)
           depositList.sort((a, b) =>
               a.noInvoice.toLowerCase().compareTo(b.noInvoice.toLowerCase()));
 
-          return ListView.separated(
+          return ListView.builder(
             padding: const EdgeInsets.all(16),
-            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemCount: depositList.length,
             itemBuilder: (context, index) {
               final deposit = depositList[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: const Icon(Icons.account_balance_wallet,
-                      color: Colors.blue),
-                  title: Text(
-                    deposit.noInvoice,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  subtitle: Column(
+
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      spreadRadius: 1,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Nama: ${deposit.namaPasien}'),
-                      if (deposit.namaBank != null)
-                        Text('Bank: ${deposit.namaBank}'),
-                      Text('Tanggal: ${deposit.tanggalDeposit}'),
+                      // Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            deposit.noInvoice,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Deposit',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Divider(color: Colors.grey.shade300, height: 1),
+                      const SizedBox(height: 10),
+
+                      // Detail Info
+                      _buildInfoRow('Nama', deposit.namaPasien),
+                      if (deposit.namaBank != null &&
+                          deposit.namaBank!.isNotEmpty)
+                        _buildInfoRow('Bank', deposit.namaBank!),
+                      _buildInfoRow(
+                          'Tanggal', _formatTanggal(deposit.tanggalDeposit)),
+                      const SizedBox(height: 8),
+
+                      // Jumlah Deposit
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Jumlah',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            'Rp ${deposit.jumlahDeposit.toStringAsFixed(0)}',
+                            style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
-                  ),
-                  trailing: Text(
-                    'Rp ${deposit.jumlahDeposit.toStringAsFixed(0)}',
-                    style: const TextStyle(
-                        color: Colors.green, fontWeight: FontWeight.bold),
                   ),
                 ),
               );
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ),
+        ],
       ),
     );
   }
