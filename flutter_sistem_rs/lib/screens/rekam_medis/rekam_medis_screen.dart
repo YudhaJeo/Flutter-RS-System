@@ -4,6 +4,7 @@ import '../../models/rekammedis_model.dart';
 import '../../services/rekammedis_service.dart';
 import 'detail_rajal_sreen.dart';
 import 'detail_ranap_screen.dart';
+import '../../widgets/custom_topbar.dart';
 
 class RekamMedisScreen extends StatefulWidget {
   const RekamMedisScreen({super.key});
@@ -82,7 +83,9 @@ void _openDetail(RekamMedis item) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Kunjungan')),
+      appBar: CustomTopBar(
+        title: 'Rekam Medis',
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
