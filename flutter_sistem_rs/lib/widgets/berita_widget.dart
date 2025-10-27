@@ -1,8 +1,8 @@
-// D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\widgets\berita_widget.dart
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/berita_model.dart';
 import '../services/berita_service.dart';
+import '../screens/berita/berita_screen.dart';
 
 class BeritaWidget extends StatefulWidget {
   const BeritaWidget({super.key});
@@ -38,18 +38,61 @@ class _BeritaWidgetState extends State<BeritaWidget> {
         if (snapshot.hasError) {
           return Text('Gagal memuat berita: ${snapshot.error}');
         }
+
         final beritaList = snapshot.data ?? [];
         if (beritaList.isEmpty) {
           return const Text('Belum ada berita.');
         }
 
+        // urutkan berita dari terbaru
+        beritaList.sort((a, b) => b.id.compareTo(a.id));
+
+        // ambil maksimal 4 berita untuk ditampilkan di card
+        final tampilList = beritaList.length > 4
+            ? beritaList.take(4).toList()
+            : beritaList;
+
         return SizedBox(
           height: 200,
           child: PageView.builder(
             controller: PageController(viewportFraction: 0.9),
-            itemCount: beritaList.length,
+            itemCount: tampilList.length + (beritaList.length > 4 ? 1 : 0),
             itemBuilder: (context, index) {
-              final berita = beritaList[index];
+              // card terakhir = tombol "Lihat Semua Berita"
+              if (beritaList.length > 4 && index == tampilList.length) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BeritaScreen(),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      elevation: 4,
+                      color: Colors.blue.shade700,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Lihat Semua Berita',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              final berita = tampilList[index];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -80,7 +123,6 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                             );
                           },
                         ),
-                        // Overlay teks
                         Positioned(
                           bottom: 0,
                           left: 0,
@@ -124,7 +166,6 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                             ),
                           ),
                         ),
-                        // Klik buka browser
                         Positioned.fill(
                           child: Material(
                             color: Colors.transparent,
@@ -134,14 +175,18 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     title: const Text('Buka di Browser?'),
-                                    content: const Text('Apakah kamu yakin ingin membuka berita ini di browser?'),
+                                    content: const Text(
+                                      'Apakah kamu yakin ingin membuka berita ini di browser?',
+                                    ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context, false),
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
                                         child: const Text('Batal'),
                                       ),
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context, true),
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
                                         child: const Text('Buka'),
                                       ),
                                     ],
@@ -149,7 +194,6 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                                 );
 
                                 if (confirm == true) {
-                                  // langsung pakai method yang udah work
                                   await _launchURL(berita.url);
                                 }
                               },
