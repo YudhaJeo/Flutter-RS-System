@@ -1,8 +1,9 @@
-// D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\screens\poli\dokter_by_poli_screen.dart
+// D:\Mobile App\flutter_sistem_rs\lib\screens\poli\dokter_by_poli_screen.dart
 import 'package:flutter/material.dart';
 import '../../models/dokter_model.dart';
 import '../../services/dokter_service.dart';
 import '../../widgets/jadwal_dokter_modal.dart';
+import '../../widgets/custom_topbar.dart';
 
 class DokterByPoliScreen extends StatefulWidget {
   final int idPoli;
@@ -27,21 +28,20 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
     futureDokter = DokterService.fetchDokterByPoli(widget.idPoli);
   }
 
-  void _showJadwalDialog(Dokter dokter) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => DokterJadwalModal(dokter: dokter),
+  void _openJadwalDokter(Dokter dokter) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DokterJadwalModal(dokter: dokter),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Dokter - ${widget.namaPoli}'),
-        centerTitle: true,
-      ),
+      backgroundColor: Colors.grey[100],
+      appBar: CustomTopBar(title: 'Dokter ${widget.namaPoli}'),
       body: FutureBuilder<List<Dokter>>(
         future: futureDokter,
         builder: (context, snapshot) {
@@ -49,36 +49,102 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-              child: Text('Terjadi kesalahan: ${snapshot.error}'),
+              child: Text(
+                'Terjadi kesalahan: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red),
+              ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('Belum ada dokter di poli ini.'));
           }
 
-          final dokters = snapshot.data!;
+          final dokterList = snapshot.data!;
+          dokterList.sort(
+            (a, b) => a.namaLengkap.toLowerCase().compareTo(b.namaLengkap.toLowerCase()),
+          );
+
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: dokters.length,
+            padding: const EdgeInsets.all(12),
+            itemCount: dokterList.length,
             itemBuilder: (context, index) {
-              final dokter = dokters[index];
+              final dokter = dokterList[index];
               return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(Icons.person, color: Colors.blue),
-                  title: Text(
-                    dokter.namaLengkap,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                elevation: 3,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // FOTO DOKTER
+                      CircleAvatar(
+                        radius: 35,
+                        backgroundColor: const Color.fromARGB(255, 139, 212, 255),
+                        backgroundImage: dokter.fotoProfil != null
+                            ? NetworkImage(dokter.fotoProfil!)
+                            : null,
+                        child: dokter.fotoProfil == null
+                            ? const Icon(Icons.person, color: Colors.green, size: 35)
+                            : null,
+                      ),
+                      const SizedBox(height: 10),
+
+                      // NAMA DOKTER
+                      Text(
+                        dokter.namaLengkap.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+
+                      // KLINIK
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Klinik',
+                            style: TextStyle(fontSize: 14, color: Colors.black54),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            dokter.namaPoli,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // TOMBOL LIHAT JADWAL
+                      InkWell(
+                        onTap: () => _openJadwalDokter(dokter),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'LIHAT JADWAL',
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 50, 169, 248),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  trailing: const Text(
-                    'Lihat Detail',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  onTap: () => _showJadwalDialog(dokter),
                 ),
               );
             },

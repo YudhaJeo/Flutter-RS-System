@@ -4,6 +4,7 @@ import '../../models/rekammedis_model.dart';
 import '../../services/rekammedis_service.dart';
 import 'detail_rajal_sreen.dart';
 import 'detail_ranap_screen.dart';
+import '../../widgets/custom_topbar.dart';
 
 class RekamMedisScreen extends StatefulWidget {
   const RekamMedisScreen({super.key});
@@ -57,61 +58,131 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
     return "${tgl.day}-${tgl.month}-${tgl.year}";
   }
 
-void _openDetail(RekamMedis item) {
-  if (item.jenis == 'RAWAT JALAN' && item.idRawatJalan != null) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => DetailRawatJalanScreen(id: item.idRawatJalan!),
-      ),
-    );
-  } else if (item.jenis == 'RAWAT INAP' && item.idRawatInap != null) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => DetailRawatInapScreen(id: item.idRawatInap!),
-      ),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('ID riwayat tidak ditemukan')),
-    );
+  void _openDetail(RekamMedis item) {
+    if (item.jenis == 'RAWAT JALAN' && item.idRawatJalan != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DetailRawatJalanScreen(id: item.idRawatJalan!),
+        ),
+      );
+    } else if (item.jenis == 'RAWAT INAP' && item.idRawatInap != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DetailRawatInapScreen(id: item.idRawatInap!),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ID riwayat tidak ditemukan')),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat Kunjungan')),
+      appBar: const CustomTopBar(title: 'Rekam Medis'),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(child: Text(_error!))
               : _riwayat.isEmpty
                   ? const Center(child: Text('Belum ada riwayat kunjungan.'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(8),
-                      itemCount: _riwayat.length,
-                      itemBuilder: (context, i) {
-                        final item = _riwayat[i];
-                        return Card(
-                          child: ListTile(
-                            leading: Icon(
-                              item.jenis == 'RAWAT INAP'
-                                  ? Icons.hotel
-                                  : Icons.local_hospital,
-                              color: Colors.blue,
+                  : RefreshIndicator(
+                      onRefresh: _loadRiwayat,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        itemCount: _riwayat.length,
+                        itemBuilder: (context, i) {
+                          final item = _riwayat[i];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                              border:
+                                  Border.all(color: Colors.grey.shade200),
                             ),
-                            title: Text(item.jenis),
-                            subtitle: Text('Tanggal: ${_formatTanggal(item.tanggal)}'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.remove_red_eye),
-                              onPressed: () => _openDetail(item),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () => _openDetail(item),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: Colors.blue.shade50,
+                                          radius: 24,
+                                          child: Icon(
+                                            item.jenis == 'RAWAT INAP'
+                                                ? Icons.hotel
+                                                : Icons.local_hospital,
+                                            color: Colors.blue,
+                                            size: 28,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            item.jenis,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                        const Icon(Icons.remove_red_eye,
+                                            color: Colors.grey),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Divider(
+                                        color: Colors.grey.shade300, height: 1),
+                                    const SizedBox(height: 10),
+                                    _buildInfoRow('Tanggal',
+                                        _formatTanggal(item.tanggal)),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Colors.black87,
+            )),
+        Text(value,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black54,
+            )),
+      ],
     );
   }
 }

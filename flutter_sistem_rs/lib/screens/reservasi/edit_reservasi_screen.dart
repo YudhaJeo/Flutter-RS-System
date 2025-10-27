@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/reservasi_service.dart';
 import '../../models/reservasi_model.dart';
 import 'dart:convert';
@@ -20,17 +19,13 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reservasiService = ReservasiService();
 
-  // Controller untuk input
   final _keteranganController = TextEditingController();
-
-  // Variabel untuk dropdown
   int? _selectedPoliId;
   int? _selectedDokterId;
   DateTime? _selectedTanggal;
   String? _selectedJamReservasi;
   List<String> _jamOptions = [];
 
-  // List untuk dropdown (nanti diisi dari backend)
   List<Map<String, dynamic>> _poliList = [];
   List<Map<String, dynamic>> _dokterList = [];
   List<Map<String, dynamic>> _allDokterList = [];
@@ -47,26 +42,20 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
   }
 
   void _initializeReservasiData() {
-    // Inisialisasi data dari reservasi yang akan diedit
     _selectedPoliId = widget.reservasi.idPoli;
     _selectedDokterId = widget.reservasi.idDokter;
 
-    // Tambahkan satu hari untuk mengatasi masalah zona waktu
-    final tanggalReservasi = DateTime.parse(
-      widget.reservasi.tanggalReservasi,
-    ).add(Duration(days: 1));
+    final tanggalReservasi = DateTime.parse(widget.reservasi.tanggalReservasi)
+        .add(const Duration(days: 1));
     _selectedTanggal = tanggalReservasi;
 
     _selectedJamReservasi = widget.reservasi.jamReservasi;
     _keteranganController.text = widget.reservasi.keterangan ?? '';
 
-    // Log untuk debugging
     debugPrint(
-      'Inisialisasi Data Reservasi: Tanggal Asli=${widget.reservasi.tanggalReservasi}, Tanggal Parsed=$tanggalReservasi',
-    );
+        'Init Reservasi: ${widget.reservasi.tanggalReservasi} -> $tanggalReservasi');
   }
 
-  // Tambahkan method untuk memperbarui filter setelah data diinisialisasi
   void _updateFiltersAfterInitialization() {
     if (_selectedPoliId != null && _selectedTanggal != null) {
       _filterDokterByPoliAndTanggal();
@@ -80,26 +69,16 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
         Uri.parse('http://10.0.2.2:4100/poli'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
-        final List<dynamic> poliData = json.decode(response.body);
+        final List<dynamic> data = json.decode(response.body);
         setState(() {
-          _poliList = poliData
-              .map(
-                (poli) => {
-                  'IDPOLI': poli['IDPOLI'],
-                  'NAMAPOLI': poli['NAMAPOLI'],
-                },
-              )
+          _poliList = data
+              .map((p) => {'IDPOLI': p['IDPOLI'], 'NAMAPOLI': p['NAMAPOLI']})
               .toList();
         });
-      } else {
-        throw Exception('Gagal memuat daftar poli');
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Gagal memuat daftar poli: $e';
-      });
+      setState(() => _errorMessage = 'Gagal memuat poli: $e');
     }
   }
 
@@ -109,79 +88,60 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
         Uri.parse('http://10.0.2.2:4100/dokter'),
         headers: {'Content-Type': 'application/json'},
       );
-
       if (response.statusCode == 200) {
-        final List<dynamic> dokterData = json.decode(response.body);
+        final List<dynamic> data = json.decode(response.body);
         setState(() {
-          _allDokterList = dokterData.map((dokter) {
-            // Parsing jadwal praktek
+          _allDokterList = data.map((d) {
             List<String> jadwal = [];
-            if (dokter['JADWALPRAKTEK'] is String) {
-              jadwal = (dokter['JADWALPRAKTEK'] as String)
+            if (d['JADWALPRAKTEK'] is String) {
+              jadwal = (d['JADWALPRAKTEK'] as String)
                   .split(',')
                   .map((j) => j.trim())
                   .toList();
-            } else if (dokter['JADWALPRAKTEK'] is List) {
-              jadwal = List<String>.from(dokter['JADWALPRAKTEK']);
+            } else if (d['JADWALPRAKTEK'] is List) {
+              jadwal = List<String>.from(d['JADWALPRAKTEK']);
             }
-
             return {
-              'IDDOKTER': dokter['IDDOKTER'],
-              'NAMALENGKAP': dokter['NAMALENGKAP'],
-              'IDPOLI': dokter['IDPOLI'],
+              'IDDOKTER': d['IDDOKTER'],
+              'NAMALENGKAP': d['NAMALENGKAP'],
+              'IDPOLI': d['IDPOLI'],
               'JADWALPRAKTEK': jadwal,
             };
           }).toList();
-
-          // Filter dokter sesuai poli yang dipilih
           _updateFiltersAfterInitialization();
         });
-      } else {
-        throw Exception('Gagal memuat daftar dokter');
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Gagal memuat daftar dokter: $e';
-      });
+      setState(() => _errorMessage = 'Gagal memuat dokter: $e');
     }
   }
 
   void _filterDokterByPoliAndTanggal() {
     if (_selectedPoliId == null || _selectedTanggal == null) {
-      setState(() {
-        _dokterList = [];
-      });
+      setState(() => _dokterList = []);
       return;
     }
-
-    // Dapatkan hari dari tanggal yang dipilih
-    final hariDipilih = [
+    final hari = [
       'Minggu',
       'Senin',
       'Selasa',
       'Rabu',
       'Kamis',
       'Jumat',
-      'Sabtu',
+      'Sabtu'
     ][_selectedTanggal!.weekday % 7];
 
     setState(() {
-      _dokterList = _allDokterList.where((dokter) {
-        // Filter berdasarkan poli
-        bool poliSesuai = dokter['IDPOLI'] == _selectedPoliId;
-
-        // Filter berdasarkan jadwal praktek
-        bool jadwalSesuai = (dokter['JADWALPRAKTEK'] as List<String>).any(
-          (jadwal) => jadwal.toLowerCase().contains(hariDipilih.toLowerCase()),
-        );
-
-        return poliSesuai && jadwalSesuai;
+      _dokterList = _allDokterList.where((d) {
+        bool poliMatch = d['IDPOLI'] == _selectedPoliId;
+        bool jadwalMatch = (d['JADWALPRAKTEK'] as List<String>)
+            .any((j) => j.toLowerCase().contains(hari.toLowerCase()));
+        return poliMatch && jadwalMatch;
       }).toList();
     });
   }
 
   void _filterJamReservasi() {
-    // Reset jam reservasi jika dokter atau tanggal belum dipilih
     if (_selectedDokterId == null || _selectedTanggal == null) {
       setState(() {
         _jamOptions = [];
@@ -190,45 +150,27 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
       return;
     }
 
-    // Dapatkan hari dari tanggal yang dipilih
-    final hariDipilih = [
+    final hari = [
       'Minggu',
       'Senin',
       'Selasa',
       'Rabu',
       'Kamis',
       'Jumat',
-      'Sabtu',
+      'Sabtu'
     ][_selectedTanggal!.weekday % 7];
 
-    // Cari dokter yang dipilih
-    final selectedDokter = _allDokterList.firstWhere(
-      (dokter) => dokter['IDDOKTER'] == _selectedDokterId,
+    final dokter = _allDokterList.firstWhere(
+      (d) => d['IDDOKTER'] == _selectedDokterId,
       orElse: () => {},
     );
 
-    // Filter jam praktek berdasarkan hari
-    if (selectedDokter.isNotEmpty && selectedDokter['JADWALPRAKTEK'] != null) {
-      final List<String> jadwalPraktek = selectedDokter['JADWALPRAKTEK'];
-
+    if (dokter.isNotEmpty && dokter['JADWALPRAKTEK'] != null) {
+      final List<String> jadwal = dokter['JADWALPRAKTEK'];
       setState(() {
-        _jamOptions = jadwalPraktek
-            .where(
-              (jadwal) =>
-                  jadwal.toLowerCase().contains(hariDipilih.toLowerCase()),
-            )
+        _jamOptions = jadwal
+            .where((j) => j.toLowerCase().contains(hari.toLowerCase()))
             .toList();
-
-        // Reset jam reservasi jika jam sebelumnya tidak tersedia
-        if (_selectedJamReservasi != null &&
-            !_jamOptions.contains(_selectedJamReservasi)) {
-          _selectedJamReservasi = null;
-        }
-      });
-    } else {
-      setState(() {
-        _jamOptions = [];
-        _selectedJamReservasi = null;
       });
     }
   }
@@ -236,31 +178,12 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
   Future<void> _editReservasi() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Validasi pilihan
-    if (_selectedPoliId == null) {
+    if (_selectedPoliId == null ||
+        _selectedDokterId == null ||
+        _selectedTanggal == null ||
+        _selectedJamReservasi == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Poli terlebih dahulu')),
-      );
-      return;
-    }
-
-    if (_selectedDokterId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Dokter terlebih dahulu')),
-      );
-      return;
-    }
-
-    if (_selectedTanggal == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Tanggal terlebih dahulu')),
-      );
-      return;
-    }
-
-    if (_selectedJamReservasi == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Jam Praktek terlebih dahulu')),
+        const SnackBar(content: Text('Lengkapi semua field terlebih dahulu')),
       );
       return;
     }
@@ -279,7 +202,7 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
           _selectedTanggal!.year,
           _selectedTanggal!.month,
           _selectedTanggal!.day,
-        ).add(Duration(days: 1)).toUtc().toIso8601String().split('T')[0],
+        ).add(const Duration(days: 1)).toUtc().toIso8601String().split('T')[0],
         jamReservasi: _selectedJamReservasi!,
         keterangan: _keteranganController.text.trim(),
       );
@@ -290,200 +213,233 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
         const SnackBar(content: Text('Reservasi berhasil diubah')),
       );
     } catch (e) {
-      // Cek apakah error terkait dengan tipe atau null
-      final errorMessage = e.toString().toLowerCase();
-      final isSuccessfullyProcessed =
-          errorMessage.contains('type') ||
-          errorMessage.contains('null') ||
-          errorMessage.contains('subtype');
-
-      setState(() {
-        _errorMessage = e.toString();
-      });
-
-      // Tampilkan toast
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isSuccessfullyProcessed
-                  ? 'Reservasi berhasil diubah'
-                  : 'Gagal mengubah reservasi: $e',
-            ),
-          ),
-        );
-      }
-
-      // Kembali ke layar sebelumnya jika berhasil
-      if (isSuccessfullyProcessed && mounted) {
-        Navigator.pop(context, true);
-      }
+      setState(() => _errorMessage = e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengubah reservasi: $e')),
+      );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomTopBar(
-        title: 'Edit Reservasi'
-      ),
+      backgroundColor: Colors.grey[100],
+      appBar: CustomTopBar(title: 'Edit Reservasi'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Tanggal Reservasi',
-                  border: OutlineInputBorder(),
-                  suffixIcon: Icon(Icons.calendar_today),
-                ),
-                readOnly: true,
-                controller: TextEditingController(
-                  text: _selectedTanggal == null
-                      ? ''
-                      : '${_selectedTanggal!.day}/${_selectedTanggal!.month}/${_selectedTanggal!.year}',
-                ),
-                onTap: () async {
-                  final pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _selectedTanggal ?? DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 30)),
-                  );
+        child: Center(
+          child: Card(
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
 
-                  if (pickedDate != null) {
-                    setState(() {
-                      _selectedTanggal = pickedDate;
-                      _selectedDokterId = null; // Reset dokter
-                      _selectedJamReservasi = null; // Reset jam reservasi
-                      _filterDokterByPoliAndTanggal(); // Filter dokter
-                      _filterJamReservasi(); // Filter jam praktek
-                    });
-                  }
-                },
-                validator: (value) =>
-                    _selectedTanggal == null ? 'Pilih Tanggal' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Dropdown Poli
-              DropdownButtonFormField<int>(
-                decoration: const InputDecoration(
-                  labelText: 'Pilih Poli',
-                  border: OutlineInputBorder(),
-                ),
-                value: _selectedPoliId,
-                items: _poliList.map((poli) {
-                  return DropdownMenuItem<int>(
-                    value: (poli['IDPOLI'] as int),
-                    child: Text(poli['NAMAPOLI'] ?? '-'),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedPoliId = value;
-                    _selectedDokterId = null; // Reset dokter
-                    _selectedJamReservasi = null; // Reset jam reservasi
-                    _filterDokterByPoliAndTanggal(); // Filter dokter
-                    _filterJamReservasi(); // Filter jam praktek
-                  });
-                },
-                validator: (value) => value == null ? 'Pilih Poli' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Dropdown Dokter (aktif setelah poli dan tanggal dipilih)
-              DropdownButtonFormField<int>(
-                decoration: const InputDecoration(
-                  labelText: 'Pilih Dokter',
-                  border: OutlineInputBorder(),
-                ),
-                value: _selectedDokterId,
-                items: _dokterList.map((dokter) {
-                  return DropdownMenuItem<int>(
-                    value: (dokter['IDDOKTER'] as int),
-                    child: Text(dokter['NAMALENGKAP'] ?? '-'),
-                  );
-                }).toList(),
-                onChanged: (_selectedPoliId == null || _selectedTanggal == null)
-                    ? null
-                    : (value) {
-                        setState(() {
-                          _selectedDokterId = value;
-                          _selectedJamReservasi = null; // Reset jam reservasi
-                          _filterJamReservasi(); // Filter jam praktek
-                        });
-                      },
-                validator: (value) => value == null ? 'Pilih Dokter' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Dropdown Jam Reservasi (aktif setelah dokter dipilih)
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  labelText: 'Pilih Jam Praktek',
-                  border: OutlineInputBorder(),
-                ),
-                value: _selectedJamReservasi,
-                items: _jamOptions.map((jam) {
-                  return DropdownMenuItem<String>(value: jam, child: Text(jam));
-                }).toList(),
-                onChanged: (_selectedDokterId == null)
-                    ? null
-                    : (value) {
-                        setState(() {
-                          _selectedJamReservasi = value;
-                        });
-                      },
-                validator: (value) =>
-                    value == null ? 'Pilih Jam Praktek' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // Keterangan (opsional)
-              TextFormField(
-                controller: _keteranganController,
-                decoration: const InputDecoration(
-                  labelText: 'Keterangan (Opsional)',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 24),
-
-              // Tombol Edit
-              ElevatedButton(
-                onPressed: _isLoading ? null : _editReservasi,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 64, 140, 255),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Edit Reservasi',
-                        style: TextStyle(fontSize: 16),
+                    // 📅 Tanggal Reservasi
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Tanggal Reservasi',
+                        prefixIcon: const Icon(Icons.date_range),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-              ),
+                      readOnly: true,
+                      controller: TextEditingController(
+                        text: _selectedTanggal == null
+                            ? ''
+                            : '${_selectedTanggal!.day}/${_selectedTanggal!.month}/${_selectedTanggal!.year}',
+                      ),
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedTanggal ?? DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 30)),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _selectedTanggal = pickedDate;
+                            _selectedDokterId = null;
+                            _selectedJamReservasi = null;
+                            _filterDokterByPoliAndTanggal();
+                            _filterJamReservasi();
+                          });
+                        }
+                      },
+                      validator: (value) =>
+                          _selectedTanggal == null ? '' : null,
+                    ),
+                    const SizedBox(height: 16),
 
-              // Tampilkan pesan error jika ada
-              if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
+                    // 🏥 Pilih Poli
+                    DropdownButtonFormField<int>(
+                      decoration: InputDecoration(
+                        labelText: 'Pilih Poli',
+                        prefixIcon: const Icon(Icons.local_hospital),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      value: _selectedPoliId,
+                      items: _poliList.map((poli) {
+                        return DropdownMenuItem<int>(
+                          value: poli['IDPOLI'],
+                          child: Text(poli['NAMAPOLI'] ?? '-'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPoliId = value;
+                          _selectedDokterId = null;
+                          _selectedJamReservasi = null;
+                          _filterDokterByPoliAndTanggal();
+                          _filterJamReservasi();
+                        });
+                      },
+                      validator: (value) => value == null ? '' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 👨‍⚕️ Pilih Dokter
+                    DropdownButtonFormField<int>(
+                      decoration: InputDecoration(
+                        labelText: 'Pilih Dokter',
+                        prefixIcon: const Icon(Icons.person),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      value: _selectedDokterId,
+                      items: _dokterList.map((d) {
+                        return DropdownMenuItem<int>(
+                          value: d['IDDOKTER'],
+                          child: Text(d['NAMALENGKAP'] ?? '-'),
+                        );
+                      }).toList(),
+                      onChanged:
+                          (_selectedPoliId == null || _selectedTanggal == null)
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    _selectedDokterId = value;
+                                    _selectedJamReservasi = null;
+                                    _filterJamReservasi();
+                                  });
+                                },
+                      validator: (value) => value == null ? '' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // ⏰ Pilih Jam
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: 'Pilih Jam Praktek',
+                        prefixIcon: const Icon(Icons.access_time),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      value: _selectedJamReservasi,
+                      items: _jamOptions.map((jam) {
+                        return DropdownMenuItem<String>(
+                          value: jam,
+                          child: Text(jam),
+                        );
+                      }).toList(),
+                      onChanged: (_selectedDokterId == null)
+                          ? null
+                          : (value) {
+                              setState(() {
+                                _selectedJamReservasi = value;
+                              });
+                            },
+                      validator: (value) => value == null ? '' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 📝 Keterangan
+                    TextFormField(
+                      controller: _keteranganController,
+                      decoration: InputDecoration(
+                        labelText: 'Keterangan (Opsional)',
+                        prefixIcon:
+                            const Icon(Icons.note_alt_outlined),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 🔘 Tombol Edit
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.lightBlue,
+                              ),
+                            )
+                          : ElevatedButton.icon(
+                              onPressed: _editReservasi,
+                              icon: const Icon(Icons.edit),
+                              label: const Text(
+                                'Edit Reservasi',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.lightBlue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                  horizontal: 10,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 3,
+                              ),
+                            ),
+                    ),
+
+                    if (_errorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                  ],
                 ),
-            ],
+              ),
+            ),
           ),
         ),
       ),

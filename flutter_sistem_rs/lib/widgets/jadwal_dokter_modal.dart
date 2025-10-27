@@ -1,6 +1,6 @@
-// D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\widgets\dokter_jadwal_modal.dart
 import 'package:flutter/material.dart';
 import '../models/dokter_model.dart';
+import 'custom_topbar.dart';
 
 class DokterJadwalModal extends StatelessWidget {
   final Dokter dokter;
@@ -9,69 +9,123 @@ class DokterJadwalModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Pisahkan jadwal per baris berdasarkan koma
+    // Jadwal dari backend dipisah dengan koma
     final jadwalList = dokter.jadwalPraktek
         .split(',')
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Text(
-                dokter.namaLengkap,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomTopBar(title: 'Jadwal Dokter'),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Jadwal Praktek:',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            if (jadwalList.isNotEmpty)
-              ...jadwalList.map((item) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text(
-                      '• $item',
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ))
-            else
-              const Text(
-                'Tidak ada jadwal tersedia',
-                style: TextStyle(fontSize: 14, color: Colors.black54),
-              ),
-            const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[700],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+            elevation: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  // FOTO DOKTER
+                  CircleAvatar(
+                    radius: 45,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: dokter.fotoProfil != null
+                        ? NetworkImage(dokter.fotoProfil!)
+                        : null,
+                    child: dokter.fotoProfil == null
+                        ? const Icon(Icons.person, size: 50, color: Colors.green)
+                        : null,
                   ),
-                ),
-                child: const Text('Tutup'),
+                  const SizedBox(height: 16),
+
+                  // NAMA DAN KLINIK
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Dokter",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          dokter.namaLengkap,
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Klinik",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Expanded(
+                        child: Text(
+                          dokter.namaPoli,
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 4),
+
+                  // LIST JADWAL PRAKTEK
+                  if (jadwalList.isNotEmpty)
+                    Column(
+                      children: jadwalList.map((item) {
+                        // Misal format jadwal "Senin 09:00 - 14:00"
+                        final parts = item.split(' ');
+                        final hari = parts.isNotEmpty ? parts.first : '-';
+                        final jam = parts.length > 1
+                            ? item.substring(hari.length).trim()
+                            : '';
+
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.verified,
+                            color: Colors.green,
+                          ),
+                          title: Text(
+                            hari,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: Text(jam),
+                          dense: true,
+                          visualDensity:
+                              const VisualDensity(vertical: -2, horizontal: -2),
+                        );
+                      }).toList(),
+                    )
+                  else
+                    const Text(
+                      'Tidak ada jadwal tersedia',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
