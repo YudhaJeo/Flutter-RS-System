@@ -11,6 +11,7 @@ import rekammedisRoutes from './routes/rekamMedisRoutes.js';
 import riwayatJalanRoutes from './routes/riwayatJalanRoutes.js';
 import riwayatInapRoutes from './routes/riwayatInapRoutes.js';
 import beritaRoutes from './routes/beritaRoutes.js';
+import depositPenggunaanRoutes from './routes/depositPenggunaanRoutes.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -37,5 +38,6 @@ app.use('/rekam_medis', rekammedisRoutes);
 app.use('/riwayat_jalan', riwayatJalanRoutes);
 app.use('/riwayat_inap', riwayatInapRoutes);
 app.use('/berita', beritaRoutes);
+app.use('/deposit_penggunaan', depositPenggunaanRoutes);
 
 export default app;
