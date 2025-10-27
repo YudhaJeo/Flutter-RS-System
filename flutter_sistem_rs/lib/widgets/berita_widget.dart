@@ -69,11 +69,15 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
                           },
                           errorBuilder: (context, error, stackTrace) {
                             print('Error load image: $error');
-                            return const Center(child: Icon(Icons.broken_image));
+                            return const Center(
+                              child: Icon(Icons.broken_image),
+                            );
                           },
                         ),
                         // Overlay teks
@@ -125,7 +129,30 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () => _launchURL(berita.url),
+                              onTap: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Buka di Browser?'),
+                                    content: const Text('Apakah kamu yakin ingin membuka berita ini di browser?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, false),
+                                        child: const Text('Batal'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text('Buka'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  // langsung pakai method yang udah work
+                                  await _launchURL(berita.url);
+                                }
+                              },
                             ),
                           ),
                         ),
