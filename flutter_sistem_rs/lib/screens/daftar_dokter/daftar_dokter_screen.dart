@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/dokter_model.dart';
 import '../../services/dokter_service.dart';
-import '../../widgets/jadwal_dokter_modal.dart';
+import '../../widgets/jadwal_dokter_modal.dart'; // ubah ke nama file yang berisi halaman jadwal
 import '../../widgets/custom_topbar.dart';
 
 class DaftarDokterScreen extends StatefulWidget {
@@ -20,11 +20,13 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
     futureDokter = DokterService.fetchAllDokter();
   }
 
-  void _showJadwalDialog(Dokter dokter) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => DokterJadwalModal(dokter: dokter),
+  // Ganti: bukan showDialog lagi, tapi pindah ke halaman jadwal dokter
+  void _openJadwalDokter(Dokter dokter) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DokterJadwalModal(dokter: dokter),
+      ),
     );
   }
 
@@ -32,9 +34,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: CustomTopBar(
-        title: 'Cari Dokter'
-      ),
+      appBar: CustomTopBar(title: 'Cari Dokter'),
       body: FutureBuilder<List<Dokter>>(
         future: futureDokter,
         builder: (context, snapshot) {
@@ -119,7 +119,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
 
                       // TOMBOL LIHAT JADWAL
                       InkWell(
-                        onTap: () => _showJadwalDialog(dokter),
+                        onTap: () => _openJadwalDokter(dokter),
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
