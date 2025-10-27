@@ -67,11 +67,11 @@ class _DetailRawatInapScreenState extends State<DetailRawatInapScreen> {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.blue.shade700, size: 22),
+          Icon(icon, color: Colors.blue.shade600, size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -79,10 +79,10 @@ class _DetailRawatInapScreenState extends State<DetailRawatInapScreen> {
               children: [
                 Text(label,
                     style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey)),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(value,
                     style: const TextStyle(
                         fontSize: 16,
@@ -108,62 +108,72 @@ class _DetailRawatInapScreenState extends State<DetailRawatInapScreen> {
       );
     }
 
-    return ExpansionTile(
-      iconColor: Colors.blue.shade700,
-      collapsedIconColor: Colors.grey,
-      tilePadding: EdgeInsets.zero,
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
-          color: Colors.blue.shade700,
-        ),
-      ),
-      children: items.map((item) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Colors.grey.shade200),
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          iconColor: Colors.blue.shade700,
+          collapsedIconColor: Colors.grey,
+          tilePadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.blue.shade700,
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item[label1 ?? ''] ?? '-',
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500)),
-                    Text(
-                      '${label2 ?? ''}: ${item[label2 ?? ''] ?? '-'}',
-                      style:
-                          const TextStyle(fontSize: 13, color: Colors.black54),
-                    ),
-                  ],
+          children: items.map((item) {
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.shade200),
                 ),
               ),
-              Text(
-                formatRupiah(item['TOTAL'] ?? 0),
-                style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black54),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item[label1 ?? ''] ?? '-',
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.w500)),
+                        Text(
+                          '${label2 ?? ''}: ${item[label2 ?? ''] ?? '-'}',
+                          style: const TextStyle(
+                              fontSize: 13, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    formatRupiah(item['TOTAL'] ?? 0),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87),
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: CustomTopBar(title: 'Detail Rawat Inap'),
       body: loading
           ? const Center(child: CircularProgressIndicator(color: Colors.blue))
@@ -177,7 +187,7 @@ class _DetailRawatInapScreenState extends State<DetailRawatInapScreen> {
               : data == null
                   ? const Center(child: Text('Tidak ada data'))
                   : SingleChildScrollView(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(18),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -185,76 +195,84 @@ class _DetailRawatInapScreenState extends State<DetailRawatInapScreen> {
                             child: Column(
                               children: [
                                 Icon(Icons.hotel,
-                                    color: Colors.blue.shade700, size: 55),
-                                const SizedBox(height: 10),
+                                    color: Colors.blue.shade700, size: 60),
+                                const SizedBox(height: 8),
                                 Text(
                                   'Detail Rawat Inap',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(
-                                        color: Colors.blue.shade700,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  style: TextStyle(
+                                    color: Colors.blue.shade700,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
                                 ),
                                 const SizedBox(height: 20),
                               ],
                             ),
                           ),
-                          _buildInfoRow(Icons.person, 'Pasien',
-                              data!['NAMALENGKAP'] ?? '-'),
-                          _buildInfoRow(Icons.bed, 'Nomor Bed',
-                              data!['NOMORBED'] ?? '-'),
-                          _buildInfoRow(Icons.login, 'Tanggal Masuk',
-                              formatTanggal(data!['TANGGALMASUK'])),
-                          _buildInfoRow(Icons.logout, 'Tanggal Keluar',
-                              formatTanggal(data!['TANGGALKELUAR'])),
-                          const Divider(height: 32),
-                          _buildInfoRow(Icons.meeting_room, 'Total Kamar',
-                              formatRupiah(data!['TOTALKAMAR'])),
-                          _buildInfoRow(Icons.medical_services, 'Total Obat',
-                              formatRupiah(data!['TOTALOBAT'])),
-                          _buildInfoRow(Icons.healing, 'Total Alkes',
-                              formatRupiah(data!['TOTALALKES'])),
-                          _buildInfoRow(Icons.content_paste, 'Total Tindakan',
-                              formatRupiah(data!['TOTALTINDAKAN'])),
-                          const SizedBox(height: 10),
-                          const Divider(height: 24),
-                          Text(
-                            'Total Biaya: ${formatRupiah(data!['TOTALBIAYA'])}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black54,
+
+                          Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildInfoRow(Icons.person, 'Pasien',
+                                      data!['NAMALENGKAP'] ?? '-'),
+                                  _buildInfoRow(Icons.bed, 'Nomor Bed',
+                                      data!['NOMORBED'] ?? '-'),
+                                  _buildInfoRow(Icons.login, 'Tanggal Masuk',
+                                      formatTanggal(data!['TANGGALMASUK'])),
+                                  _buildInfoRow(Icons.logout, 'Tanggal Keluar',
+                                      formatTanggal(data!['TANGGALKELUAR'])),
+                                ],
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
+
+                          Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            elevation: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  _buildInfoRow(Icons.meeting_room,
+                                      'Total Kamar',
+                                      formatRupiah(data!['TOTALKAMAR'])),
+                                  _buildInfoRow(Icons.medical_services,
+                                      'Total Obat',
+                                      formatRupiah(data!['TOTALOBAT'])),
+                                  _buildInfoRow(Icons.healing, 'Total Alkes',
+                                      formatRupiah(data!['TOTALALKES'])),
+                                  _buildInfoRow(Icons.content_paste,
+                                      'Total Tindakan',
+                                      formatRupiah(data!['TOTALTINDAKAN'])),
+                                  const Divider(height: 24),
+                                  Text(
+                                    'Total Biaya: ${formatRupiah(data!['TOTALBIAYA'])}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
                           _buildSection('Daftar Obat', data!['obat'],
                               label1: 'NAMAOBAT', label2: 'JENISOBAT'),
                           _buildSection('Daftar Alkes', data!['alkes'],
                               label1: 'NAMAALKES', label2: 'JENISALKES'),
                           _buildSection('Daftar Tindakan', data!['tindakan'],
                               label1: 'NAMATINDAKAN', label2: 'KATEGORI'),
-                          const SizedBox(height: 30),
-                          Center(
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue.shade700,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 28, vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              icon: const Icon(Icons.arrow_back, color: Colors.white),
-                              label: const Text(
-                                'Kembali',
-                                style: TextStyle(
-                                    fontSize: 16, color: Colors.white),
-                              ),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ),
                         ],
                       ),
                     ),
