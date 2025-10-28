@@ -8,6 +8,7 @@ import '../dompet_medis/dompet_medis_screen.dart';
 import '../poli/poli_screen.dart';
 import '../kalender/kalender_screen.dart';
 import '../daftar_dokter/daftar_dokter_screen.dart';
+import '../kritik_saran/kritik_saran_screen.dart';
 import '../../widgets/berita_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -133,6 +134,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     size: 24,
                                   ),
                                   onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const KritikSaranScreen(),
+                                      ),
+                                    );
                                   },
                                 ),
                               ),
