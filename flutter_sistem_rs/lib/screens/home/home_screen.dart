@@ -36,225 +36,344 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Bar dengan Sapaan dan Ikon
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.blue[700]!,
+                      Colors.blue[500]!,
+                    ],
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Hai,',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                Text(
+                                  _patientName,
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'Semangat jaga kesehatanmu hari ini!',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(
+                                    CupertinoIcons.bell_fill,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: IconButton(
+                                  icon: const Icon(
+                                    CupertinoIcons.chat_bubble_text_fill,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  onPressed: () {
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue[50],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    CupertinoIcons.square_grid_2x2_fill,
+                                    color: Colors.blue[700],
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Layanan Kami',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            GridView.count(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              crossAxisCount: 3,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              children: [
+                                _buildMenuItem(
+                                  CupertinoIcons.calendar,
+                                  'Reservasi',
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ReservasiScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  CupertinoIcons.doc_text_fill,
+                                  'Rekam Medis',
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RekamMedisScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  CupertinoIcons.creditcard_fill,
+                                  'Dompet Medis',
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DompetMedisScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  CupertinoIcons.building_2_fill,
+                                  'Poli',
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PoliScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  CupertinoIcons.calendar_today,
+                                  'Kalender',
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => KalenderScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  CupertinoIcons.person_2_fill,
+                                  'Daftar Dokter',
+                                  () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DaftarDokterScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    Row(
                       children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            CupertinoIcons.news_solid,
+                            color: Colors.blue[700],
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
                         Text(
-                          'Hai, $_patientName!',
+                          'Berita Kesehatan Terkini',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue[800],
                           ),
                         ),
-                        Text(
-                          'Semangat jaga kesehatanmu hari ini!',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            CupertinoIcons.bell,
-                            color: Colors.blue[800],
-                          ),
-                          onPressed: () {
-                            // Aksi untuk notifikasi
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            CupertinoIcons.chat_bubble_text,
-                            color: Colors.blue[800],
-                          ),
-                          onPressed: () {
-                            // Aksi untuk kotak saran
-                          },
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 16),
+                    const BeritaWidget(),
                   ],
                 ),
-
-                const SizedBox(height: 20),
-
-                // Search Bar untuk Dokter
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Cari dokter...',
-                    prefixIcon: Icon(
-                      CupertinoIcons.search,
-                      color: Colors.blue[800],
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 15,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Card Menu Layanan
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 3,
-                      children: [
-                        _buildMenuItem(
-                          CupertinoIcons.calendar,
-                          'Reservasi',
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ReservasiScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          CupertinoIcons.doc_text,
-                          'Rekam Medis',
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RekamMedisScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          CupertinoIcons.money_dollar,
-                          'Dompet Medis',
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DompetMedisScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          CupertinoIcons.building_2_fill,
-                          'Poli',
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PoliScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          CupertinoIcons.calendar_today,
-                          'Kalender',
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => KalenderScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        _buildMenuItem(
-                          CupertinoIcons.person_2_fill,
-                          'Daftar Dokter',
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DaftarDokterScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Card Berita Kesehatan
-                Text(
-                  'Berita Kesehatan Terkini',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const BeritaWidget(),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // Fungsi untuk membuat item menu
-  Widget _buildMenuItem(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildMenuItem(
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blue[50],
-              borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
-            child: Icon(icon, color: Colors.blue[800], size: 30),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.blue[800],
-              fontWeight: FontWeight.w500,
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.blue[400]!,
+                    Colors.blue[600]!,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 28,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 10),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }
