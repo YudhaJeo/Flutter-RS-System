@@ -1,8 +1,8 @@
 // D:\Mobile App\flutter_sistem_rs\express_sistem_rs\src\models\notifikasiModel.js
 import db from '../core/config/knex.js';
 
-export const getAll = () => {
-  return db('notifikasi_user')
+export const getAll = (nik = null) => {
+  const query = db('notifikasi_user')
     .join('pasien', 'notifikasi_user.NIK', 'pasien.NIK')
     .leftJoin('poli', 'notifikasi_user.IDPOLI', 'poli.IDPOLI')
     .leftJoin('dokter', 'notifikasi_user.IDDOKTER', 'dokter.IDDOKTER')
@@ -17,6 +17,12 @@ export const getAll = () => {
       'poli.NAMAPOLI',
       'master_tenaga_medis.NAMALENGKAP as NAMADOKTER'
     );
+
+  if (nik) {
+    query.where('notifikasi_user.NIK', nik);
+  }
+
+  return query;
 };
 
 export const updateStatusById = async (id) => {

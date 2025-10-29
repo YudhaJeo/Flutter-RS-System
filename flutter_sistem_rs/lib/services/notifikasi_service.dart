@@ -6,11 +6,13 @@ import '../models/notifikasi_model.dart';
 class NotifikasiService {
   static const String _baseUrl = 'http://10.0.2.2:4100/notifikasi';
 
-  /// Ambil daftar notifikasi berdasarkan NIK user yang login
   Future<List<Notifikasi>> fetchNotifikasiByNIK() async {
     final prefs = await SharedPreferences.getInstance();
     final nik = prefs.getString('nik') ?? prefs.getString('NIK');
-    if (nik == null) throw Exception('NIK tidak ditemukan, silakan login ulang.');
+
+    if (nik == null) {
+      throw Exception('NIK tidak ditemukan, silakan login ulang.');
+    }
 
     final response = await http.get(Uri.parse('$_baseUrl?nik=$nik'));
     if (response.statusCode == 200) {
@@ -19,11 +21,11 @@ class NotifikasiService {
           decoded['data'] is List ? decoded['data'] : [decoded['data']];
       return dataList.map((e) => Notifikasi.fromJson(e)).toList();
     } else {
+      print('❌ Error response body: ${response.body}');
       throw Exception('Gagal memuat notifikasi: ${response.body}');
     }
   }
 
-  /// Tandai notifikasi sebagai sudah dibaca
   Future<void> ubahStatusDibaca(int id) async {
     final response = await http.put(
       Uri.parse('$_baseUrl/$id/status'),
