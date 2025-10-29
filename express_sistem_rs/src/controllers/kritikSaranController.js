@@ -26,7 +26,7 @@ export const getKritikSaranById = async (req, res) => {
 
 export const createKritikSaran = async (req, res) => {
   try {
-    const { NIK, JENIS, PESAN } = req.body;
+    const { NIK, JENIS, PESAN, CREATED_AT } = req.body;
 
     if (!JENIS || !PESAN) {
       return res.status(400).json({
@@ -35,8 +35,20 @@ export const createKritikSaran = async (req, res) => {
       });
     }
 
-    const newData = await KritikSaranModel.create({ NIK, JENIS, PESAN });
-    res.status(201).json({ success: true, message: 'Data berhasil ditambahkan', data: newData });
+    const now = CREATED_AT ? new Date(CREATED_AT) : new Date();
+
+    const newData = await KritikSaranModel.create({
+      NIK,
+      JENIS,
+      PESAN,
+      CREATED_AT: now, 
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Data berhasil ditambahkan',
+      data: newData,
+    });
   } catch (err) {
     console.error('Create Error:', err);
     res.status(500).json({ success: false, message: err.message });

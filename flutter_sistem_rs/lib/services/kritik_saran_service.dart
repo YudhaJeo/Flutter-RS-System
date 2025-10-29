@@ -22,33 +22,35 @@ class KritikSaranService {
     }
   }
 
-  Future<KritikSaran> tambahKritikSaran({
-    required String jenis,
-    required String pesan,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final nik = prefs.getString('nik');
-    if (nik == null) throw Exception('NIK tidak ditemukan, silakan login ulang.');
+Future<KritikSaran> tambahKritikSaran({
+  required String jenis,
+  required String pesan,
+  required DateTime createdAt,
+}) async {
+  final prefs = await SharedPreferences.getInstance();
+  final nik = prefs.getString('nik') ?? prefs.getString('NIK');
+  if (nik == null) throw Exception('NIK tidak ditemukan, silakan login ulang.');
 
-    final body = json.encode({
-      'NIK': nik,
-      'JENIS': jenis,
-      'PESAN': pesan,
-    });
+  final body = json.encode({
+    'NIK': nik,
+    'JENIS': jenis,
+    'PESAN': pesan,
+    'CREATED_AT': createdAt.toIso8601String(),
+  });
 
-    final response = await http.post(
-      Uri.parse(_baseUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
+  final response = await http.post(
+    Uri.parse(_baseUrl),
+    headers: {'Content-Type': 'application/json'},
+    body: body,
+  );
 
-    if (response.statusCode == 201 || response.statusCode == 200) {
-      final decoded = json.decode(response.body);
-      return KritikSaran.fromJson(decoded['data']);
-    } else {
-      throw Exception('Gagal mengirim kritik/saran: ${response.body}');
-    }
+  if (response.statusCode == 201 || response.statusCode == 200) {
+    final decoded = json.decode(response.body);
+    return KritikSaran.fromJson(decoded['data']);
+  } else {
+    throw Exception('Gagal mengirim kritik/saran: ${response.body}');
   }
+}
 
   Future<void> hapusKritikSaran(int id) async {
     final response = await http.delete(Uri.parse('$_baseUrl/$id'));
