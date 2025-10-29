@@ -31,10 +31,14 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
         _errorMessage = null;
       });
       final result = await _service.fetchNotifikasiByNIK();
+
+      result.sort((a, b) => b.idNotifikasi.compareTo(a.idNotifikasi));
+
       setState(() {
         _list = result;
         _isLoading = false;
       });
+
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
