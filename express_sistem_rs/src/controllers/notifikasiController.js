@@ -10,3 +10,14 @@ export async function getAllNotifikasi(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
+export async function updateStatusNotifikasi(req, res) {
+  try {
+    const { id } = req.params;
+    await NotifikasiModel.updateStatusById(id);
+    res.json({ message: 'Status notifikasi berhasil diperbarui menjadi dibaca.' });
+  } catch (err) {
+    console.error('UpdateStatus Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+}

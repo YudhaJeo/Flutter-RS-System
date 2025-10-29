@@ -5,5 +5,6 @@ import * as NotifikasiController from '../controllers/notifikasiController.js';
 const router = express.Router();
 
 router.get('/', NotifikasiController.getAllNotifikasi);
+router.put('/:id/status', NotifikasiController.updateStatusNotifikasi); 
 
 export default router;
