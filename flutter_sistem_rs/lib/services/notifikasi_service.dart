@@ -26,21 +26,13 @@ class NotifikasiService {
   /// Tandai notifikasi sebagai sudah dibaca
   Future<void> ubahStatusDibaca(int id) async {
     final response = await http.put(
-      Uri.parse('$_baseUrl/status/$id'),
+      Uri.parse('$_baseUrl/$id/status'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'STATUS': true}),
     );
 
     if (response.statusCode != 200) {
       throw Exception('Gagal memperbarui status notifikasi: ${response.body}');
-    }
-  }
-
-  /// Hapus notifikasi berdasarkan ID
-  Future<void> hapusNotifikasi(int id) async {
-    final response = await http.delete(Uri.parse('$_baseUrl/$id'));
-    if (response.statusCode != 200) {
-      throw Exception('Gagal menghapus notifikasi: ${response.body}');
     }
   }
 }
