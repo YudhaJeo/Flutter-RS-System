@@ -81,7 +81,7 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                         children: [
                           // pakai background blur newspaper
                           Image.asset(
-                            'assets/images/newspaper-blurred.jpg',
+                            'assets/images/newspaper-background.jpg',
                             fit: BoxFit.cover,
                           ),
                           // overlay warna biar teks kebaca

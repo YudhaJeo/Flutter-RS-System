@@ -9,11 +9,11 @@ import 'widgets/main_bottom_nav.dart';
 import 'screens/profile/profile_screen.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   try {
     await dotenv.load(fileName: ".env");
-    print(dotenv.env);
   } catch (e) {
-    print("Error loading .env file: $e");
+    debugPrint("Gagal memuat .env: $e");
   }
   runApp(const MyApp());
 }
@@ -24,13 +24,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Flutter RS Bayza',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 0, 140, 255),
         ),
         textTheme: GoogleFonts.poppinsTextTheme(),
+        scaffoldBackgroundColor: Colors.blue.shade50,
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
@@ -42,21 +43,20 @@ class MyApp extends StatelessWidget {
           ),
           iconTheme: const IconThemeData(color: Colors.lightBlue),
         ),
-        scaffoldBackgroundColor: Colors.white,
       ),
 
-      // 🟦 Tambahkan di sini:
+      // 🌍 Lokal Indonesia
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('id', 'ID'), // Bahasa Indonesia
-      ],
-      locale: const Locale('id', 'ID'), // Set default ke Bahasa Indonesia
+      supportedLocales: const [Locale('id', 'ID')],
+      locale: const Locale('id', 'ID'),
 
-      home: SplashScreen(onFinish: _cekLoginDanRedirect),
+      // 🌊 Splash dengan background sama kayak home
+      home: const SplashScreen(onFinish: _cekLoginDanRedirect),
+
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
