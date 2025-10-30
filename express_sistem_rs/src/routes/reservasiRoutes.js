@@ -7,5 +7,6 @@ router.get('/', ReservasiController.getAllReservasi);
 router.post('/', ReservasiController.createReservasi);
 router.put('/:id', ReservasiController.updateReservasi);
 router.delete('/:id', ReservasiController.deleteReservasi);
+router.get('/count', ReservasiController.countReservasi);
 
 export default router;

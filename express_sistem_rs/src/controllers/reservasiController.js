@@ -42,6 +42,27 @@ export async function createReservasi(req, res) {
   }
 }
 
+export async function countReservasi(req, res) {
+  try {
+    const { IDDOKTER, TANGGALRESERVASI } = req.query;
+
+    if (!IDDOKTER || !TANGGALRESERVASI) {
+      return res.status(400).json({ error: 'IDDOKTER dan TANGGALRESERVASI wajib diisi' });
+    }
+
+    const result = await db('reservasi')
+      .where('IDDOKTER', IDDOKTER)
+      .andWhere('TANGGALRESERVASI', TANGGALRESERVASI)
+      .count('* as total')
+      .first();
+
+    res.json({ total: result.total });
+  } catch (err) {
+    console.error('❌ Error countReservasi:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
 export async function updateReservasi(req, res) {
   const trx = await db.transaction();
 
