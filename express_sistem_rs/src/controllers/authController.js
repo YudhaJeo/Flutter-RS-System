@@ -4,17 +4,21 @@ export const loginUser = async (req, res) => {
   const { norekammedis, tanggallahir } = req.body;
 
   if (!norekammedis || !tanggallahir) {
-    return res.status(400)
-      .json({ success: false, message: 'No rekam medis dan tanggal lahir wajib diisi' });
+    return res.status(400).json({
+      success: false,
+      message: 'No Rekam Medis / NIK dan Tanggal Lahir wajib diisi',
+    });
   }
 
   try {
     const pasien = await findUser(norekammedis, tanggallahir);
     if (!pasien) {
-      return res
-        .status(401)
-        .json({ success: false, message: 'No Rekam Medis atau Tanggal Lahir tidak cocok!' });
+      return res.status(401).json({
+        success: false,
+        message: 'Data tidak cocok! Periksa No Rekam Medis/NIK dan Tanggal Lahir.',
+      });
     }
+
     return res.json({
       success: true,
       message: 'Login berhasil',
@@ -27,6 +31,9 @@ export const loginUser = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan server',
+    });
   }
 };

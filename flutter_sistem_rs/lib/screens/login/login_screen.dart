@@ -12,7 +12,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _rekamMedisController = TextEditingController();
+  final TextEditingController _identitasController = TextEditingController();
   final TextEditingController _tanggalLahirController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'norekammedis': _rekamMedisController.text,
+          'norekammedis': _identitasController.text,
           'tanggallahir': _tanggalLahirController.text,
         }),
       );
@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F7FB), // latar belakang biru muda
+      backgroundColor: const Color(0xFFF3F7FB),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "Masukkan No Rekam Medis dan Tanggal Lahir Anda",
+                  "Masukkan No Rekam Medis/NIK dan Tanggal Lahir Anda",
                   style: TextStyle(color: Colors.black54),
                   textAlign: TextAlign.center,
                 ),
@@ -125,13 +125,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         children: [
                           TextFormField(
-                            controller: _rekamMedisController,
+                            controller: _identitasController,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
                                 Icons.badge_outlined,
                                 color: Color(0xFF42A5F5),
                               ),
-                              labelText: 'No Rekam Medis',
+                              labelText: 'No Rekam Medis / NIK',
+                              hintText: 'Masukkan No Rekam Medis atau NIK',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -166,6 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Color(0xFF42A5F5),
                               ),
                               labelText: 'Tanggal Lahir (yyyy-MM-dd)',
+                              hintText: 'Pilih tanggal lahir',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -186,6 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text(
                                 _error!,
                                 style: const TextStyle(color: Colors.red),
+                                textAlign: TextAlign.center,
                               ),
                             ),
 
