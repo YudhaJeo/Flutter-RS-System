@@ -2,7 +2,8 @@ import * as KritikSaranModel from '../models/kritikSaranModel.js';
 
 export const getAllKritikSaran = async (req, res) => {
   try {
-    const data = await KritikSaranModel.getAll();
+    const { nik } = req.query;
+    const data = await KritikSaranModel.getAll(nik);
     res.status(200).json({ success: true, data });
   } catch (err) {
     console.error('Get All Error:', err);
