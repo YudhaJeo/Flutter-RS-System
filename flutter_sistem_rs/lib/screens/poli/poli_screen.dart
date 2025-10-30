@@ -61,6 +61,7 @@ class _PoliScreenState extends State<PoliScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: const CustomTopBar(title: 'Daftar Poli'),
       body: FutureBuilder<List<Poli>>(
         future: futurePoli,
@@ -88,26 +89,34 @@ class _PoliScreenState extends State<PoliScreen> {
               children: [
                 // 🔍 Search Bar
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Cari poli...',
                       prefixIcon: const Icon(Icons.search, color: Colors.grey),
                       filled: true,
-                      fillColor: Colors.grey.shade100,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 0,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.grey.shade300, width: 1),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: Colors.blue, width: 1.5),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -117,7 +126,9 @@ class _PoliScreenState extends State<PoliScreen> {
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 8),
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     itemCount: filteredPoli.length,
                     itemBuilder: (context, index) {
                       final poli = filteredPoli[index];
@@ -204,17 +215,18 @@ class _PoliScreenState extends State<PoliScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.black87,
-            )),
-        Text(value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-            )),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
       ],
     );
   }

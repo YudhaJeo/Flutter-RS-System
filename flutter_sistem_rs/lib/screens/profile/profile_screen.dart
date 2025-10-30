@@ -144,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
-        String formatDate(String? s) {
+    String formatDate(String? s) {
       if (s == null) return '-';
       try {
         final dt = DateTime.parse(s);
@@ -154,9 +154,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
 
-
     return Scaffold(
-      backgroundColor: Colors.blue.shade50,
+      backgroundColor: const Color(0xFFF5F7FA),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -169,11 +168,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Colors.blueAccent, Colors.blue.shade300],
+                      colors: [
+                        Colors.blue[700]!,
+                        Colors.blue[500]!,
+                      ],
                     ),
                     borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(80),
-                      bottomRight: Radius.circular(80),
+                      bottomLeft: Radius.circular(60),
+                      bottomRight: Radius.circular(60),
                     ),
                   ),
                   padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
@@ -182,6 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 30),
                       Container(
                         decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -348,7 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           formatDate(_profile!["TANGGALDAFTAR"])),
                     ],
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 24),
                   Align(
                     alignment: Alignment.center,
                     child: SizedBox(
@@ -366,7 +369,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -386,16 +389,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.white, Colors.blue.shade50.withOpacity(0.3)],
-          ),
-        ),
+      color: Colors.white,
+      child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -564,7 +559,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Colors.blueAccent, width: 2),
                       ),
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                           vertical: 14, horizontal: 16),
                     ),
                   )

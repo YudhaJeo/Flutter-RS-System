@@ -56,8 +56,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -68,7 +69,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.redAccent),
                 onPressed: () => Navigator.pop(context),
-              )
+              ),
             ],
           ),
           content: FutureBuilder<List<DepositPenggunaan>>(
@@ -76,8 +77,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SizedBox(
-                    height: 80,
-                    child: Center(child: CircularProgressIndicator()));
+                  height: 80,
+                  child: Center(child: CircularProgressIndicator()),
+                );
               } else if (snapshot.hasError) {
                 return Text(
                   'Gagal memuat data: ${snapshot.error}',
@@ -109,12 +111,18 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                           Text(
                             'No. Deposit: ${penggunaan.noDeposit}',
                             style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 14),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           const SizedBox(height: 4),
-                          Text('Jumlah Pemakaian: '
-                              'Rp ${penggunaan.jumlahPemakaian.toStringAsFixed(0)}'),
-                          Text('Tanggal: ${_formatTanggal(penggunaan.tanggalPemakaian)}'),
+                          Text(
+                            'Jumlah Pemakaian: '
+                            'Rp ${penggunaan.jumlahPemakaian.toStringAsFixed(0)}',
+                          ),
+                          Text(
+                            'Tanggal: ${_formatTanggal(penggunaan.tanggalPemakaian)}',
+                          ),
                         ],
                       ),
                     );
@@ -131,6 +139,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: CustomTopBar(title: 'Dompet Medis'),
       body: FutureBuilder<List<DompetMedis>>(
         future: futureDompetMedis,
@@ -150,8 +159,10 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
           }
 
           final depositList = snapshot.data!;
-          depositList.sort((a, b) =>
-              a.noInvoice.toLowerCase().compareTo(b.noInvoice.toLowerCase()));
+          depositList.sort(
+            (a, b) =>
+                a.noInvoice.toLowerCase().compareTo(b.noInvoice.toLowerCase()),
+          );
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -162,7 +173,10 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
               return GestureDetector(
                 onTap: () => _showRiwayatPenggunaanDialog(deposit.noInvoice),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -178,7 +192,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 20),
+                      vertical: 16,
+                      horizontal: 20,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -196,7 +212,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.blue.shade100,
                                 borderRadius: BorderRadius.circular(12),
@@ -222,7 +240,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                             deposit.namaBank!.isNotEmpty)
                           _buildInfoRow('Bank', deposit.namaBank!),
                         _buildInfoRow(
-                            'Tanggal', _formatTanggal(deposit.tanggalDeposit)),
+                          'Tanggal',
+                          _formatTanggal(deposit.tanggalDeposit),
+                        ),
                         const SizedBox(height: 8),
 
                         // Jumlah Deposit
@@ -264,9 +284,10 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style:
-                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+          ),
           Flexible(
             child: Text(
               value,

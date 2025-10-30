@@ -83,87 +83,92 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: const CustomTopBar(title: 'Rekam Medis'),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!))
-              : _riwayat.isEmpty
-                  ? const Center(child: Text('Belum ada riwayat kunjungan.'))
-                  : RefreshIndicator(
-                      onRefresh: _loadRiwayat,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        itemCount: _riwayat.length,
-                        itemBuilder: (context, i) {
-                          final item = _riwayat[i];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  spreadRadius: 1,
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+          ? Center(child: Text(_error!))
+          : _riwayat.isEmpty
+          ? const Center(child: Text('Belum ada riwayat kunjungan.'))
+          : RefreshIndicator(
+              onRefresh: _loadRiwayat,
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                itemCount: _riwayat.length,
+                itemBuilder: (context, i) {
+                  final item = _riwayat[i];
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          spreadRadius: 1,
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => _openDetail(item),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.blue.shade50,
+                                  radius: 24,
+                                  child: Icon(
+                                    item.jenis == 'RAWAT INAP'
+                                        ? Icons.hotel
+                                        : Icons.local_hospital,
+                                    color: Colors.blue,
+                                    size: 28,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    item.jenis,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.remove_red_eye,
+                                  color: Colors.grey,
                                 ),
                               ],
-                              border:
-                                  Border.all(color: Colors.grey.shade200),
                             ),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () => _openDetail(item),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor: Colors.blue.shade50,
-                                          radius: 24,
-                                          child: Icon(
-                                            item.jenis == 'RAWAT INAP'
-                                                ? Icons.hotel
-                                                : Icons.local_hospital,
-                                            color: Colors.blue,
-                                            size: 28,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            item.jenis,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                        ),
-                                        const Icon(Icons.remove_red_eye,
-                                            color: Colors.grey),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Divider(
-                                        color: Colors.grey.shade300, height: 1),
-                                    const SizedBox(height: 10),
-                                    _buildInfoRow('Tanggal',
-                                        _formatTanggal(item.tanggal)),
-                                  ],
-                                ),
-                              ),
+                            const SizedBox(height: 12),
+                            Divider(color: Colors.grey.shade300, height: 1),
+                            const SizedBox(height: 10),
+                            _buildInfoRow(
+                              'Tanggal',
+                              _formatTanggal(item.tanggal),
                             ),
-                          );
-                        },
+                          ],
+                        ),
                       ),
                     ),
+                  );
+                },
+              ),
+            ),
     );
   }
 
@@ -171,17 +176,18 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: Colors.black87,
-            )),
-        Text(value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
-            )),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 14, color: Colors.black54),
+        ),
       ],
     );
   }

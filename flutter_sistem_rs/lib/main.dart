@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart'; // ← tambahkan ini
 import 'screens/splash_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/main_bottom_nav.dart';
+import 'widgets/main_bottom_nav.dart';
 import 'screens/profile/profile_screen.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   try {
     await dotenv.load(fileName: ".env");
-    print(dotenv.env);
   } catch (e) {
-    print("Error loading .env file: $e");
+    debugPrint("Gagal memuat .env: $e");
   }
+
   runApp(const MyApp());
 }
 
@@ -23,14 +26,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // menyatu dengan appbar
+      statusBarIconBrightness: Brightness.dark, // icon gelap
+      statusBarBrightness: Brightness.light, // iOS
+    ));
+
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Flutter RS Bayza',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 0, 140, 255),
         ),
         textTheme: GoogleFonts.poppinsTextTheme(),
+        scaffoldBackgroundColor: Colors.blue.shade50,
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
@@ -42,21 +52,15 @@ class MyApp extends StatelessWidget {
           ),
           iconTheme: const IconThemeData(color: Colors.lightBlue),
         ),
-        scaffoldBackgroundColor: Colors.white,
       ),
-
-      // 🟦 Tambahkan di sini:
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('id', 'ID'), // Bahasa Indonesia
-      ],
-      locale: const Locale('id', 'ID'), // Set default ke Bahasa Indonesia
-
-      home: SplashScreen(onFinish: _cekLoginDanRedirect),
+      supportedLocales: const [Locale('id', 'ID')],
+      locale: const Locale('id', 'ID'),
+      home: const SplashScreen(onFinish: _cekLoginDanRedirect),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),

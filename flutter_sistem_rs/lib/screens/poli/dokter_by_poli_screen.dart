@@ -40,7 +40,7 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       appBar: CustomTopBar(title: 'Dokter ${widget.namaPoli}'),
       body: FutureBuilder<List<Dokter>>(
         future: futureDokter,
@@ -60,7 +60,9 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
 
           final dokterList = snapshot.data!;
           dokterList.sort(
-            (a, b) => a.namaLengkap.toLowerCase().compareTo(b.namaLengkap.toLowerCase()),
+            (a, b) => a.namaLengkap.toLowerCase().compareTo(
+              b.namaLengkap.toLowerCase(),
+            ),
           );
 
           return ListView.builder(
@@ -69,25 +71,37 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
             itemBuilder: (context, index) {
               final dokter = dokterList[index];
               return Card(
-                elevation: 3,
+                color: Colors.white,
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 8,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // FOTO DOKTER
                       CircleAvatar(
                         radius: 35,
-                        backgroundColor: const Color.fromARGB(255, 139, 212, 255),
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          139,
+                          212,
+                          255,
+                        ),
                         backgroundImage: dokter.fotoProfil != null
                             ? NetworkImage(dokter.fotoProfil!)
                             : null,
                         child: dokter.fotoProfil == null
-                            ? const Icon(Icons.person, color: Colors.green, size: 35)
+                            ? const Icon(
+                                Icons.person,
+                                color: Colors.green,
+                                size: 35,
+                              )
                             : null,
                       ),
                       const SizedBox(height: 10),
@@ -109,7 +123,10 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
                         children: [
                           const Text(
                             'Klinik',
-                            style: TextStyle(fontSize: 14, color: Colors.black54),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -129,7 +146,10 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
                         onTap: () => _openJadwalDokter(dokter),
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(8),

@@ -12,6 +12,7 @@ import '../kritik_saran/kritik_saran_screen.dart';
 import '../notifikasi/notifikasi_screen.dart';
 import '../../widgets/berita_widget.dart';
 import '../../services/notifikasi_service.dart';
+import 'package:flutter/services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -61,6 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: const Color(0xFFF5F7FA), // warna background Home kamu
+      statusBarIconBrightness: Brightness.dark, // ikon gelap agar kontras
+    ));
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
