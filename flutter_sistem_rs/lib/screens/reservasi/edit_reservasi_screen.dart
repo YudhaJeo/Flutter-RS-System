@@ -32,6 +32,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
 
   bool _isLoading = false;
   String? _errorMessage;
+  
+  // Tambahan untuk jumlah reservasi
+  int? _jumlahReservasi;
+  bool _isLoadingJumlah = false;
 
   @override
   void initState() {
@@ -60,6 +64,7 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
     if (_selectedPoliId != null && _selectedTanggal != null) {
       _filterDokterByPoliAndTanggal();
       _filterJamReservasi();
+      _cekJumlahReservasi();
     }
   }
 
@@ -171,6 +176,43 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
         _jamOptions = jadwal
             .where((j) => j.toLowerCase().contains(hari.toLowerCase()))
             .toList();
+      });
+    }
+  }
+
+  // Method untuk mengecek jumlah reservasi
+  Future<void> _cekJumlahReservasi() async {
+    if (_selectedDokterId == null || _selectedTanggal == null) {
+      setState(() {
+        _jumlahReservasi = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoadingJumlah = true;
+    });
+
+    try {
+      final tanggalReservasi = DateTime(
+        _selectedTanggal!.year,
+        _selectedTanggal!.month,
+        _selectedTanggal!.day,
+      ).add(const Duration(days: 1)).toUtc().toIso8601String().split('T')[0];
+
+      final jumlah = await _reservasiService.getJumlahReservasi(
+        idDokter: _selectedDokterId!,
+        tanggalReservasi: tanggalReservasi,
+      );
+
+      setState(() {
+        _jumlahReservasi = jumlah;
+        _isLoadingJumlah = false;
+      });
+    } catch (e) {
+      setState(() {
+        _jumlahReservasi = null;
+        _isLoadingJumlah = false;
       });
     }
   }
@@ -356,6 +398,7 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                           _selectedTanggal = pickedDate;
                           _selectedDokterId = null;
                           _selectedJamReservasi = null;
+                          _jumlahReservasi = null;
                           _filterDokterByPoliAndTanggal();
                           _filterJamReservasi();
                         });
@@ -398,6 +441,7 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                         _selectedPoliId = value;
                         _selectedDokterId = null;
                         _selectedJamReservasi = null;
+                        _jumlahReservasi = null;
                         _filterDokterByPoliAndTanggal();
                         _filterJamReservasi();
                       });
@@ -441,11 +485,48 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                               _selectedDokterId = value;
                               _selectedJamReservasi = null;
                               _filterJamReservasi();
+                              _cekJumlahReservasi();
                             });
                           },
                     validator: (value) => value == null ? 'Pilih dokter' : null,
                   ),
                   const SizedBox(height: 16),
+
+                  // Info Jumlah Reservasi
+                  if (_selectedDokterId != null && _selectedTanggal != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _isLoadingJumlah
+                                ? const Text(
+                                    'Mengecek jumlah antrian...',
+                                    style: TextStyle(fontSize: 13),
+                                  )
+                                : Text(
+                                    _jumlahReservasi != null
+                                        ? 'Saat ini ada $_jumlahReservasi reservasi pada dokter dan tanggal yang sama'
+                                        : 'Gagal mengecek jumlah reservasi',
+                                    style: TextStyle(
+                                      color: Colors.blue.shade900,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_selectedDokterId != null && _selectedTanggal != null)
+                    const SizedBox(height: 16),
 
                   // ⏰ Pilih Jam
                   DropdownButtonFormField<String>(

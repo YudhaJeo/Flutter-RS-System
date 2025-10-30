@@ -257,4 +257,31 @@ class ReservasiService {
       throw Exception('Gagal mengubah reservasi: ${response.body}');
     }
   }
+
+  Future<int> getJumlahReservasi({
+    required int idDokter,
+    required String tanggalReservasi,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/count?IDDOKTER=$idDokter&TANGGALRESERVASI=$tanggalReservasi'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['total'] ?? 0;
+      } else { 
+        throw Exception('Gagal mengambil jumlah reservasi');
+      }
+    } catch (e) {
+      developer.log(
+        'Error getJumlahReservasi',
+        name: 'ReservasiService.getJumlahReservasi',
+        error: e,
+      );
+      return 0;
+    }
+  }
 }
+
