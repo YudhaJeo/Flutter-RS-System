@@ -27,7 +27,8 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
   Future<List<Dokter>> _fetchData() async {
     final dokterList = await DokterService.fetchAllDokter();
     dokterList.sort(
-      (a, b) => a.namaLengkap.toLowerCase().compareTo(b.namaLengkap.toLowerCase()),
+      (a, b) =>
+          a.namaLengkap.toLowerCase().compareTo(b.namaLengkap.toLowerCase()),
     );
 
     setState(() {
@@ -43,7 +44,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
     setState(() {
       filteredDokter = allDokter.where((dokter) {
         return dokter.namaLengkap.toLowerCase().contains(query) ||
-               dokter.namaPoli.toLowerCase().contains(query);
+            dokter.namaPoli.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -94,26 +95,34 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
               children: [
                 // 🔍 SearchBar di atas daftar dokter
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
                       hintText: 'Cari nama dokter atau poli...',
                       prefixIcon: const Icon(Icons.search, color: Colors.grey),
                       filled: true,
-                      fillColor: Colors.grey.shade100,
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 0,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: Colors.grey.shade300, width: 1),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            const BorderSide(color: Colors.blue, width: 1.5),
+                        borderSide: const BorderSide(
+                          color: Colors.blue,
+                          width: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -122,7 +131,10 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                 // 📋 Daftar Dokter
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     itemCount: filteredDokter.length,
                     itemBuilder: (context, index) {
                       final dokter = filteredDokter[index];
@@ -156,8 +168,11 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                                       ? NetworkImage(dokter.fotoProfil!)
                                       : null,
                                   child: dokter.fotoProfil == null
-                                      ? const Icon(Icons.person,
-                                          color: Colors.blue, size: 35)
+                                      ? const Icon(
+                                          Icons.person,
+                                          color: Colors.blue,
+                                          size: 35,
+                                        )
                                       : null,
                                 ),
                                 const SizedBox(height: 10),
@@ -186,7 +201,9 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 16),
+                                      vertical: 8,
+                                      horizontal: 16,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.blue.shade50,
                                       borderRadius: BorderRadius.circular(8),

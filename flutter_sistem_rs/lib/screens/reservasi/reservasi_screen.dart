@@ -126,6 +126,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: CustomTopBar(title: 'Reservasi Saya'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -307,11 +308,11 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
         child: FloatingActionButton(
           onPressed: _tambahReservasi,
           backgroundColor: Colors.white,
-          elevation: 0, // hilangkan default shadow
+          elevation: 3, // hilangkan default shadow
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          child: const Icon(Icons.add, size: 32, color: Colors.lightBlue),
+          child: const Icon(Icons.add, size: 36, color: Colors.lightBlue),
         ),
       ),
 

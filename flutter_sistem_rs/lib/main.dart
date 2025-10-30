@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart'; // ← tambahkan ini
 import 'screens/splash_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -10,11 +11,13 @@ import 'screens/profile/profile_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   try {
     await dotenv.load(fileName: ".env");
   } catch (e) {
     debugPrint("Gagal memuat .env: $e");
   }
+
   runApp(const MyApp());
 }
 
@@ -23,6 +26,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // menyatu dengan appbar
+      statusBarIconBrightness: Brightness.dark, // icon gelap
+      statusBarBrightness: Brightness.light, // iOS
+    ));
+
     return MaterialApp(
       title: 'Flutter RS Bayza',
       debugShowCheckedModeBanner: false,
@@ -44,8 +53,6 @@ class MyApp extends StatelessWidget {
           iconTheme: const IconThemeData(color: Colors.lightBlue),
         ),
       ),
-
-      // 🌍 Lokal Indonesia
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -53,10 +60,7 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('id', 'ID')],
       locale: const Locale('id', 'ID'),
-
-      // 🌊 Splash dengan background sama kayak home
       home: const SplashScreen(onFinish: _cekLoginDanRedirect),
-
       routes: {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),

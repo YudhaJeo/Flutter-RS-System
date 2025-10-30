@@ -44,7 +44,9 @@ class _KalenderScreenState extends State<KalenderScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.grey[50],
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
             'Kalender Dokter (${DateFormat('dd MMMM yyyy', 'id_ID').format(date)})',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -63,15 +65,15 @@ class _KalenderScreenState extends State<KalenderScreen> {
                     color: k.isLibur
                         ? Colors.red[50]
                         : isPerjanjian
-                            ? Colors.blue[50]
-                            : Colors.grey[100],
+                        ? Colors.blue[50]
+                        : Colors.grey[100],
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: k.isLibur
                           ? Colors.red.shade200
                           : isPerjanjian
-                              ? Colors.blue.shade200
-                              : Colors.grey.shade300,
+                          ? Colors.blue.shade200
+                          : Colors.grey.shade300,
                     ),
                   ),
                   child: ListTile(
@@ -79,15 +81,15 @@ class _KalenderScreenState extends State<KalenderScreen> {
                       backgroundColor: k.isLibur
                           ? Colors.red.shade100
                           : isPerjanjian
-                              ? Colors.blue.shade100
-                              : Colors.grey.shade200,
+                          ? Colors.blue.shade100
+                          : Colors.grey.shade200,
                       child: Icon(
                         Icons.person,
                         color: k.isLibur
                             ? Colors.red
                             : isPerjanjian
-                                ? Colors.blue
-                                : Colors.grey,
+                            ? Colors.blue
+                            : Colors.grey,
                       ),
                     ),
                     title: Text(
@@ -97,11 +99,17 @@ class _KalenderScreenState extends State<KalenderScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Status: ${k.status}', style: const TextStyle(fontSize: 13)),
+                        Text(
+                          'Status: ${k.status}',
+                          style: const TextStyle(fontSize: 13),
+                        ),
                         if (k.keterangan != null)
                           Text(
                             'Keterangan: ${k.keterangan}',
-                            style: const TextStyle(fontSize: 13, color: Colors.black54),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black54,
+                            ),
                           ),
                       ],
                     ),
@@ -128,6 +136,7 @@ class _KalenderScreenState extends State<KalenderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: const CustomTopBar(title: 'Kalender Dokter'),
       body: FutureBuilder<List<Kalender>>(
         future: _futureKalender,
@@ -163,12 +172,14 @@ class _KalenderScreenState extends State<KalenderScreen> {
 
             final currentMonthLibur = _liburList.where((item) {
               final date = _normalizeDate(item.tanggal);
-              return date.month == _focusedDay.month && date.year == _focusedDay.year;
+              return date.month == _focusedDay.month &&
+                  date.year == _focusedDay.year;
             }).toList();
 
             final currentMonthPerjanjian = _perjanjianList.where((item) {
               final date = _normalizeDate(item.tanggal);
-              return date.month == _focusedDay.month && date.year == _focusedDay.year;
+              return date.month == _focusedDay.month &&
+                  date.year == _focusedDay.year;
             }).toList();
 
             return Container(
@@ -208,7 +219,9 @@ class _KalenderScreenState extends State<KalenderScreen> {
                         color: Colors.blue,
                         shape: BoxShape.circle,
                       ),
-                      weekendTextStyle: const TextStyle(color: Colors.redAccent),
+                      weekendTextStyle: const TextStyle(
+                        color: Colors.redAccent,
+                      ),
                       defaultTextStyle: const TextStyle(fontSize: 14),
                     ),
                     headerStyle: const HeaderStyle(
@@ -219,8 +232,14 @@ class _KalenderScreenState extends State<KalenderScreen> {
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
-                      leftChevronIcon: Icon(Icons.chevron_left, color: Colors.blue),
-                      rightChevronIcon: Icon(Icons.chevron_right, color: Colors.blue),
+                      leftChevronIcon: Icon(
+                        Icons.chevron_left,
+                        color: Colors.blue,
+                      ),
+                      rightChevronIcon: Icon(
+                        Icons.chevron_right,
+                        color: Colors.blue,
+                      ),
                     ),
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
@@ -296,8 +315,13 @@ class _KalenderScreenState extends State<KalenderScreen> {
                             ...currentMonthLibur.map((item) {
                               final date = _normalizeDate(item.tanggal);
                               return ListTile(
-                                leading: const Icon(Icons.event_busy, color: Colors.red),
-                                title: Text(item.namaDokter ?? 'Dokter tidak diketahui'),
+                                leading: const Icon(
+                                  Icons.event_busy,
+                                  color: Colors.red,
+                                ),
+                                title: Text(
+                                  item.namaDokter ?? 'Dokter tidak diketahui',
+                                ),
                                 subtitle: Text(_formatTanggal(date)),
                                 trailing: Text(
                                   item.keterangan ?? '',
@@ -319,8 +343,13 @@ class _KalenderScreenState extends State<KalenderScreen> {
                             ...currentMonthPerjanjian.map((item) {
                               final date = _normalizeDate(item.tanggal);
                               return ListTile(
-                                leading: const Icon(Icons.event_note, color: Colors.blue),
-                                title: Text(item.namaDokter ?? 'Dokter tidak diketahui'),
+                                leading: const Icon(
+                                  Icons.event_note,
+                                  color: Colors.blue,
+                                ),
+                                title: Text(
+                                  item.namaDokter ?? 'Dokter tidak diketahui',
+                                ),
                                 subtitle: Text(_formatTanggal(date)),
                                 trailing: Text(
                                   item.keterangan ?? '',
@@ -329,7 +358,8 @@ class _KalenderScreenState extends State<KalenderScreen> {
                               );
                             }),
                           ],
-                          if (currentMonthLibur.isEmpty && currentMonthPerjanjian.isEmpty)
+                          if (currentMonthLibur.isEmpty &&
+                              currentMonthPerjanjian.isEmpty)
                             const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(20.0),

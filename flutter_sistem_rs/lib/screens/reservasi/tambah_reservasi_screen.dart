@@ -4,7 +4,6 @@ import '../../services/reservasi_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../widgets/custom_topbar.dart';
-// import '../../utils/app_env.dart';
 
 class TambahReservasiScreen extends StatefulWidget {
   const TambahReservasiScreen({super.key});
@@ -17,17 +16,14 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   final _formKey = GlobalKey<FormState>();
   final _reservasiService = ReservasiService();
 
-  // Controller untuk input
   final _keteranganController = TextEditingController();
 
-  // Variabel untuk dropdown
   int? _selectedPoliId;
   int? _selectedDokterId;
   DateTime? _selectedTanggal;
   String? _selectedJamReservasi;
   List<String> _jamOptions = [];
 
-  // List untuk dropdown (nanti diisi dari backend)
   List<Map<String, dynamic>> _poliList = [];
   List<Map<String, dynamic>> _dokterList = [];
   List<Map<String, dynamic>> _allDokterList = [];
@@ -46,8 +42,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:4100/poli'),
-        // Uri.parse('${AppEnv.baseUrl}/poli'),
-        // Uri.parse('http://10.127.175.73:4100/poli'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -77,8 +71,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:4100/dokter'),
-        // Uri.parse('${AppEnv.baseUrl}/dokter'),
-        // Uri.parse('http://10.127.175.73:4100/dokter'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -86,7 +78,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
         final List<dynamic> dokterData = json.decode(response.body);
         setState(() {
           _allDokterList = dokterData.map((dokter) {
-            // Parsing jadwal praktek
             List<String> jadwal = [];
             if (dokter['JADWALPRAKTEK'] is String) {
               jadwal = (dokter['JADWALPRAKTEK'] as String)
@@ -123,7 +114,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
       return;
     }
 
-    // Dapatkan hari dari tanggal yang dipilih
     final hariDipilih = [
       'Minggu',
       'Senin',
@@ -136,21 +126,16 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
 
     setState(() {
       _dokterList = _allDokterList.where((dokter) {
-        // Filter berdasarkan poli
         bool poliSesuai = dokter['IDPOLI'] == _selectedPoliId;
-
-        // Filter berdasarkan jadwal praktek
         bool jadwalSesuai = (dokter['JADWALPRAKTEK'] as List<String>).any(
           (jadwal) => jadwal.toLowerCase().contains(hariDipilih.toLowerCase()),
         );
-
         return poliSesuai && jadwalSesuai;
       }).toList();
     });
   }
 
   void _filterJamReservasi() {
-    // Reset jam reservasi jika dokter atau tanggal belum dipilih
     if (_selectedDokterId == null || _selectedTanggal == null) {
       setState(() {
         _jamOptions = [];
@@ -159,7 +144,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
       return;
     }
 
-    // Dapatkan hari dari tanggal yang dipilih
     final hariDipilih = [
       'Minggu',
       'Senin',
@@ -170,13 +154,11 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
       'Sabtu',
     ][_selectedTanggal!.weekday % 7];
 
-    // Cari dokter yang dipilih
     final selectedDokter = _allDokterList.firstWhere(
       (dokter) => dokter['IDDOKTER'] == _selectedDokterId,
       orElse: () => {},
     );
 
-    // Filter jam praktek berdasarkan hari
     if (selectedDokter.isNotEmpty && selectedDokter['JADWALPRAKTEK'] != null) {
       final List<String> jadwalPraktek = selectedDokter['JADWALPRAKTEK'];
 
@@ -188,7 +170,6 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
             )
             .toList();
 
-        // Reset jam reservasi jika jam sebelumnya tidak tersedia
         if (_selectedJamReservasi != null &&
             !_jamOptions.contains(_selectedJamReservasi)) {
           _selectedJamReservasi = null;
@@ -205,31 +186,24 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   Future<void> _tambahReservasi() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Validasi pilihan
-    if (_selectedPoliId == null) {
+    if (_selectedPoliId == null ||
+        _selectedDokterId == null ||
+        _selectedTanggal == null ||
+        _selectedJamReservasi == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Poli terlebih dahulu')),
-      );
-      return;
-    }
-
-    if (_selectedDokterId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Dokter terlebih dahulu')),
-      );
-      return;
-    }
-
-    if (_selectedTanggal == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Tanggal terlebih dahulu')),
-      );
-      return;
-    }
-
-    if (_selectedJamReservasi == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih Jam Praktek terlebih dahulu')),
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.warning, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Lengkapi semua field terlebih dahulu'),
+            ],
+          ),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
+        ),
       );
       return;
     }
@@ -252,26 +226,49 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
         idDokter: _selectedDokterId!,
         keterangan: _keteranganController.text.trim(),
         jamReservasi: _selectedJamReservasi!,
-        // Tambahkan satu hari untuk mengatasi masalah zona waktu
         tanggalReservasi: DateTime(
           _selectedTanggal!.year,
           _selectedTanggal!.month,
           _selectedTanggal!.day,
-        ).add(Duration(days: 1)).toUtc().toIso8601String().split('T')[0],
+        ).add(const Duration(days: 1)).toUtc().toIso8601String().split('T')[0],
       );
 
       if (!mounted) return;
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Reservasi berhasil ditambahkan')),
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Reservasi berhasil ditambahkan'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
+        ),
       );
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal menambah reservasi: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('Gagal menambah reservasi: $e')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
@@ -280,17 +277,26 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey[100],
-    appBar: CustomTopBar(title: 'Tambah Reservasi'),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Center(
-        child: Card(
-          elevation: 6,
-          shape: RoundedRectangleBorder(
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomTopBar(title: 'Tambah Reservasi'),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                spreadRadius: 1,
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(color: Colors.grey.shade200),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -299,18 +305,55 @@ Widget build(BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 10),
-                  
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.add_circle_outline,
+                          color: Colors.blue.shade700,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Buat Reservasi Baru',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Divider(color: Colors.grey.shade300, height: 1),
+                  const SizedBox(height: 20),
 
                   // 📅 Tanggal Reservasi
                   TextFormField(
                     decoration: InputDecoration(
                       labelText: 'Tanggal Reservasi',
-                      prefixIcon: const Icon(Icons.date_range),
+                      labelStyle: TextStyle(color: Colors.grey.shade700),
+                      prefixIcon: Icon(Icons.date_range, color: Colors.blue.shade600),
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
                       ),
                     ),
                     readOnly: true,
@@ -336,10 +379,7 @@ Widget build(BuildContext context) {
                         });
                       }
                     },
-                    validator: (value) {
-                      if (_selectedTanggal == null) return '';
-                      return null;
-                    },
+                    validator: (value) => _selectedTanggal == null ? 'Pilih tanggal' : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -347,11 +387,21 @@ Widget build(BuildContext context) {
                   DropdownButtonFormField<int>(
                     decoration: InputDecoration(
                       labelText: 'Pilih Poli',
-                      prefixIcon: const Icon(Icons.local_hospital),
+                      labelStyle: TextStyle(color: Colors.grey.shade700),
+                      prefixIcon: Icon(Icons.local_hospital, color: Colors.blue.shade600),
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
                       ),
                     ),
                     value: _selectedPoliId,
@@ -370,7 +420,7 @@ Widget build(BuildContext context) {
                         _filterJamReservasi();
                       });
                     },
-                    validator: (value) => value == null ? '' : null,
+                    validator: (value) => value == null ? 'Pilih poli' : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -378,11 +428,21 @@ Widget build(BuildContext context) {
                   DropdownButtonFormField<int>(
                     decoration: InputDecoration(
                       labelText: 'Pilih Dokter',
-                      prefixIcon: const Icon(Icons.person),
+                      labelStyle: TextStyle(color: Colors.grey.shade700),
+                      prefixIcon: Icon(Icons.person, color: Colors.blue.shade600),
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
                       ),
                     ),
                     value: _selectedDokterId,
@@ -401,7 +461,7 @@ Widget build(BuildContext context) {
                               _filterJamReservasi();
                             });
                           },
-                    validator: (value) => value == null ? '' : null,
+                    validator: (value) => value == null ? 'Pilih dokter' : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -409,11 +469,21 @@ Widget build(BuildContext context) {
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(
                       labelText: 'Pilih Jam Praktek',
-                      prefixIcon: const Icon(Icons.access_time),
+                      labelStyle: TextStyle(color: Colors.grey.shade700),
+                      prefixIcon: Icon(Icons.access_time, color: Colors.blue.shade600),
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
                       ),
                     ),
                     value: _selectedJamReservasi,
@@ -430,7 +500,7 @@ Widget build(BuildContext context) {
                               _selectedJamReservasi = value;
                             });
                           },
-                    validator: (value) => value == null ? '' : null,
+                    validator: (value) => value == null ? 'Pilih jam praktek' : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -439,61 +509,86 @@ Widget build(BuildContext context) {
                     controller: _keteranganController,
                     decoration: InputDecoration(
                       labelText: 'Keterangan (Opsional)',
-                      prefixIcon: const Icon(Icons.note_alt_outlined),
+                      labelStyle: TextStyle(color: Colors.grey.shade700),
+                      prefixIcon: Icon(Icons.note_alt_outlined, color: Colors.blue.shade600),
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
                       ),
                     ),
                     maxLines: 3,
                   ),
                   const SizedBox(height: 24),
 
-                  // Tombol Simpan
+                  // 🔘 Tombol Simpan
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _isLoading
                         ? const Center(
                             child: CircularProgressIndicator(
-                              color: Colors.lightBlue,
+                              color: Colors.blue,
                             ),
                           )
-                        : ElevatedButton.icon(
-                      onPressed: _tambahReservasi,
-                      icon: const Icon(Icons.save, size: 22),
-                      label: const Text(
-                        'Simpan Reservasi',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2, 
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightBlue.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16, 
-                          horizontal: 24, 
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 4, 
-                        shadowColor: Colors.lightBlueAccent.withOpacity(0.4),
-                      ),
-                    ),
+                        : ElevatedButton(
+                            onPressed: _tambahReservasi,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade600,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 2,
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.save, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Simpan Reservasi',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                   ),
 
-                  // Pesan error
                   if (_errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
-                        textAlign: TextAlign.center,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.error_outline, color: Colors.red.shade700),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: TextStyle(color: Colors.red.shade700),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                 ],
@@ -502,8 +597,6 @@ Widget build(BuildContext context) {
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

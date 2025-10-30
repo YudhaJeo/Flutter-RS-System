@@ -18,7 +18,6 @@ export async function getRiwayatKunjungan(req, res) {
 export async function getDetailRiwayat(req, res) {
   try {
     const nik = req.params.nik || req.query.nik || req.headers['x-nik'];
-    console.log('NIK diterima:', nik); 
 
     if (!nik) {
       return res.status(400).json({ error: 'NIK wajib dikirim (params, query, atau header)' });

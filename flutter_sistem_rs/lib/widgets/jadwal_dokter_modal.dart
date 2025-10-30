@@ -23,6 +23,7 @@ class DokterJadwalModal extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Card(
+            color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
