@@ -1,7 +1,14 @@
 import db from '../core/config/knex.js';
 
-export const getAll = async () => {
-  return db('kritik_saran').select('*').orderBy('CREATED_AT', 'desc');
+export const getAll = async (nik = null) => {
+  const query = db('kritik_saran')
+    .select('*')
+    .orderBy('CREATED_AT', 'desc');
+
+  if (nik) {
+    query.where('kritik_saran.NIK', nik);
+  }
+  return query;
 };
 
 export const getById = async (id) => {

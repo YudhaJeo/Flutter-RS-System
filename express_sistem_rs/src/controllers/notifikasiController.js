@@ -4,10 +4,8 @@ import * as NotifikasiModel from '../models/notifikasiModel.js';
 export async function getAllNotifikasi(req, res) {
   try {
     const { nik } = req.query;
-    console.log('🔍 NIK diterima dari frontend:', nik);
 
     const data = await NotifikasiModel.getAll(nik);
-    console.log('📦 Jumlah data dikirim ke frontend:', data.length);
 
     res.json({ data });
   } catch (err) {
