@@ -1,5 +1,5 @@
-// D:\Mobile App\flutter_sistem_rs\lib\screens\poli\dokter_by_poli_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../models/dokter_model.dart';
 import '../../services/dokter_service.dart';
 import '../../widgets/jadwal_dokter_modal.dart';
@@ -25,7 +25,17 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
   @override
   void initState() {
     super.initState();
-    futureDokter = DokterService.fetchDokterByPoli(widget.idPoli);
+    futureDokter = _fetchData();
+  }
+
+  Future<List<Dokter>> _fetchData() async {
+    final dokterList = await DokterService.fetchDokterByPoli(widget.idPoli);
+    dokterList.sort(
+      (a, b) => a.namaLengkap.toLowerCase().compareTo(
+        b.namaLengkap.toLowerCase(),
+      ),
+    );
+    return dokterList;
   }
 
   void _openJadwalDokter(Dokter dokter) {
@@ -40,7 +50,7 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: CustomTopBar(title: 'Dokter ${widget.namaPoli}'),
       body: FutureBuilder<List<Dokter>>(
         future: futureDokter,
@@ -49,125 +59,330 @@ class _DokterByPoliScreenState extends State<DokterByPoliScreen> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(
-              child: Text(
-                'Terjadi kesalahan: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.exclamationmark_triangle,
+                    size: 64,
+                    color: Colors.red[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Terjadi kesalahan',
+                    style: TextStyle(
+                      color: Colors.red[700],
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      '${snapshot.error}',
+                      style: TextStyle(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Belum ada dokter di poli ini.'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.person_2,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada dokter di poli ini',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           final dokterList = snapshot.data!;
-          dokterList.sort(
-            (a, b) => a.namaLengkap.toLowerCase().compareTo(
-              b.namaLengkap.toLowerCase(),
-            ),
-          );
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(12),
-            itemCount: dokterList.length,
-            itemBuilder: (context, index) {
-              final dokter = dokterList[index];
-              return Card(
-                color: Colors.white,
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 8,
+          return RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                futureDokter = _fetchData();
+              });
+            },
+            child: Column(
+              children: [
+                // Header Card with Poli Info
+                Container(
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.blue[700]!,
+                        Colors.blue[500]!,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // FOTO DOKTER
-                      CircleAvatar(
-                        radius: 35,
-                        backgroundColor: const Color.fromARGB(
-                          255,
-                          139,
-                          212,
-                          255,
-                        ),
-                        backgroundImage: dokter.fotoProfil != null
-                            ? NetworkImage(dokter.fotoProfil!)
-                            : null,
-                        child: dokter.fotoProfil == null
-                            ? const Icon(
-                                Icons.person,
-                                color: Colors.green,
-                                size: 35,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(height: 10),
-
-                      // NAMA DOKTER
-                      Text(
-                        dokter.namaLengkap.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-
-                      // KLINIK
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'Klinik',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black54,
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              CupertinoIcons.building_2_fill,
+                              color: Colors.white,
+                              size: 28,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            dokter.namaPoli,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              widget.namaPoli,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 12),
-
-                      // TOMBOL LIHAT JADWAL
-                      InkWell(
-                        onTap: () => _openJadwalDokter(dokter),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 8,
-                            horizontal: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'LIHAT JADWAL',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 50, 169, 248),
-                              fontWeight: FontWeight.bold,
-                            ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '${dokterList.length} Dokter',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Tersedia untuk konsultasi',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            },
+
+                // Dokter List
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    itemCount: dokterList.length,
+                    itemBuilder: (context, index) {
+                      final dokter = dokterList[index];
+                      return GestureDetector(
+                        onTap: () => _openJadwalDokter(dokter),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                spreadRadius: 1,
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: Colors.grey.shade200,
+                              width: 1,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                // Avatar
+                                Container(
+                                  width: 70,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.blue[100]!,
+                                        Colors.blue[50]!,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.blue.withOpacity(0.2),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(14),
+                                    child: dokter.fotoProfil != null
+                                        ? Image.network(
+                                            dokter.fotoProfil!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Icon(
+                                                CupertinoIcons.person_fill,
+                                                color: Colors.blue[700],
+                                                size: 32,
+                                              );
+                                            },
+                                          )
+                                        : Icon(
+                                            CupertinoIcons.person_fill,
+                                            color: Colors.blue[700],
+                                            size: 32,
+                                          ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                // Info
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        dokter.namaLengkap,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[50],
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              CupertinoIcons.building_2_fill,
+                                              size: 12,
+                                              color: Colors.blue[700],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Flexible(
+                                              child: Text(
+                                                dokter.namaPoli,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.blue[700],
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      // Button
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.blue[700]!,
+                                              Colors.blue[500]!,
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.blue.withOpacity(0.3),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 4),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: const [
+                                            Icon(
+                                              CupertinoIcons.calendar,
+                                              size: 14,
+                                              color: Colors.white,
+                                            ),
+                                            SizedBox(width: 6),
+                                            Text(
+                                              'LIHAT JADWAL',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Arrow Icon
+                                Icon(
+                                  CupertinoIcons.chevron_right,
+                                  color: Colors.grey[400],
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

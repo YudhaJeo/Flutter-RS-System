@@ -58,28 +58,4 @@ Future<KritikSaran> tambahKritikSaran({
       throw Exception('Gagal menghapus data: ${response.body}');
     }
   }
-
-  Future<KritikSaran> editKritikSaran({
-    required int id,
-    required String jenis,
-    required String pesan,
-  }) async {
-    final body = json.encode({
-      'JENIS': jenis,
-      'PESAN': pesan,
-    });
-
-    final response = await http.put(
-      Uri.parse('$_baseUrl/$id'),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
-
-    if (response.statusCode == 200) {
-      final decoded = json.decode(response.body);
-      return KritikSaran.fromJson(decoded['data']);
-    } else {
-      throw Exception('Gagal mengubah data: ${response.body}');
-    }
-  }
 }
