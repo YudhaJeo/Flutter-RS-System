@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../../models/reservasi_model.dart';
 import '../../services/reservasi_service.dart';
 import 'dart:developer' as developer;
@@ -51,14 +52,36 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   }
 
   Future<void> _batalkanReservasi(Reservasi reservasi) async {
-    try {
-      // Batalkan reservasi
-      await _reservasiService.batalkanReservasi(reservasi.idReservasi);
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Batalkan Reservasi'),
+        content: const Text('Apakah Anda yakin ingin membatalkan reservasi ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Tidak'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[700],
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Ya, Batalkan'),
+          ),
+        ],
+      ),
+    );
 
-      // Refresh daftar reservasi
+    if (confirmed != true) return;
+
+    try {
+      await _reservasiService.batalkanReservasi(reservasi.idReservasi);
       await _fetchReservasi();
 
-      // Tampilkan toast
       if (mounted) {
         Fluttertoast.showToast(
           msg: 'Reservasi telah dibatalkan.',
@@ -70,7 +93,6 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
         );
       }
     } catch (e, stackTrace) {
-      // Log error untuk debugging
       developer.log(
         'Error membatalkan reservasi',
         name: 'ReservasiScreen._batalkanReservasi',
@@ -78,7 +100,6 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
         stackTrace: stackTrace,
       );
 
-      // Cek apakah error terkait dengan masalah tipe atau null
       final errorMessage = e.toString().toLowerCase();
       final isSuccessfullyProcessed =
           errorMessage.contains('type') ||
@@ -99,7 +120,6 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
         fontSize: 15,
       );
 
-      // Refresh daftar reservasi meskipun ada error
       await _fetchReservasi();
     }
   }
@@ -110,7 +130,6 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       MaterialPageRoute(builder: (context) => const TambahReservasiScreen()),
     );
 
-    // Refresh list jika reservasi berhasil ditambahkan
     if (result == true) {
       _fetchReservasi();
     }
@@ -124,254 +143,510 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       ),
     );
 
-    // Refresh list jika reservasi berhasil diubah
     if (result == true) {
       _fetchReservasi();
     }
   }
 
+  int _getAktifCount() {
+    return _reservasiList.where((r) => 
+      r.status.toLowerCase() != 'dibatalkan' && 
+      r.status.toLowerCase() != 'selesai'
+    ).length;
+  }
+
+  int _getSelesaiCount() {
+    return _reservasiList.where((r) => 
+      r.status.toLowerCase() == 'selesai' || 
+      r.status.toLowerCase() == 'dikonfirmasi'
+    ).length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomTopBar(title: 'Reservasi Saya'),
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: const CustomTopBar(title: 'Reservasi Saya'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-          ? Center(child: Text('Error: $_errorMessage'))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.exclamationmark_triangle,
+                    size: 64,
+                    color: Colors.red[300],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Terjadi kesalahan',
+                    style: TextStyle(
+                      color: Colors.red[700],
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            )
           : _reservasiList.isEmpty
-          ? const Center(child: Text('Tidak ada reservasi'))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    CupertinoIcons.calendar_badge_plus,
+                    size: 64,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Belum ada reservasi',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap tombol + untuk membuat reservasi',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            )
           : RefreshIndicator(
               onRefresh: _fetchReservasi,
-              child: ListView.builder(
-                itemCount: _reservasiList.length,
-                itemBuilder: (context, index) {
-                  final reservasi = _reservasiList[index];
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+              child: Column(
+                children: [
+                  // Summary Card
+                  Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          spreadRadius: 1,
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Reservasi ${_formatTanggalPendek(reservasi.tanggalReservasi)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      (reservasi.status.toLowerCase() ==
-                                              'selesai' ||
-                                          reservasi.status.toLowerCase() ==
-                                              'dikonfirmasi')
-                                      ? Colors.green.shade100
-                                      : reservasi.status.toLowerCase() ==
-                                            'dibatalkan'
-                                      ? Colors.red.shade100
-                                      : Colors.blue.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  reservasi.status,
-                                  style: TextStyle(
-                                    color:
-                                        (reservasi.status.toLowerCase() ==
-                                                'selesai' ||
-                                            reservasi.status.toLowerCase() ==
-                                                'dikonfirmasi')
-                                        ? Colors.green.shade800
-                                        : reservasi.status.toLowerCase() ==
-                                              'dibatalkan'
-                                        ? Colors.red.shade800
-                                        : Colors.blue.shade800,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Divider(color: Colors.grey.shade300, height: 1),
-                          const SizedBox(height: 10),
-                          _buildInfoRow('Poli', reservasi.namaPoli ?? '-'),
-                          _buildInfoRow('Dokter', reservasi.namaDokter ?? '-'),
-                          _buildInfoRow('Tanggal', reservasi.tanggalReservasi),
-                          _buildInfoRow('Jam', reservasi.jamReservasi ?? '-'),
-                          if (reservasi.keterangan != null)
-                            _buildInfoRow('Keterangan', reservasi.keterangan!),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              OutlinedButton.icon(
-                                icon: Icon(
-                                  Icons.edit,
-                                  color: reservasi.dapatDiedit
-                                      ? Colors.orange
-                                      : Colors.grey,
-                                ),
-                                label: Text(
-                                  'Edit',
-                                  style: TextStyle(
-                                    color: reservasi.dapatDiedit
-                                        ? Colors.orange
-                                        : Colors.grey,
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: reservasi.dapatDiedit
-                                        ? Colors.orange.shade300
-                                        : Colors.grey.shade300,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                onPressed: reservasi.dapatDiedit
-                                    ? () => _editReservasi(reservasi)
-                                    : null,
-                              ),
-                              OutlinedButton.icon(
-                                icon: Icon(
-                                  Icons.cancel,
-                                  color: reservasi.dapatDibatalkan
-                                      ? Colors.red
-                                      : Colors.grey,
-                                ),
-                                label: Text(
-                                  'Batalkan',
-                                  style: TextStyle(
-                                    color: reservasi.dapatDibatalkan
-                                        ? Colors.red
-                                        : Colors.grey,
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                    color: reservasi.dapatDibatalkan
-                                        ? Colors.red.shade300
-                                        : Colors.grey.shade300,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                onPressed: reservasi.dapatDibatalkan
-                                    ? () => _batalkanReservasi(reservasi)
-                                    : null,
-                              ),
-                            ],
-                          ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.blue[700]!,
+                          Colors.blue[500]!,
                         ],
                       ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
-                  );
-                },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.calendar_badge_plus,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Total Reservasi',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          '${_reservasiList.length} Reservasi',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    CupertinoIcons.clock_fill,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${_getAktifCount()} Aktif',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    CupertinoIcons.check_mark_circled_solid,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${_getSelesaiCount()} Selesai',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // List Reservasi
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                      itemCount: _reservasiList.length,
+                      itemBuilder: (context, index) {
+                        final reservasi = _reservasiList[index];
+                        final isSelesai = reservasi.status.toLowerCase() == 'selesai' ||
+                            reservasi.status.toLowerCase() == 'dikonfirmasi';
+                        final isDibatalkan = reservasi.status.toLowerCase() == 'dibatalkan';
+                        
+                        Color statusColor;
+                        Color statusColorLight;
+                        Color statusColorDark;
+                        
+                        if (isSelesai) {
+                          statusColor = Colors.green;
+                          statusColorLight = Colors.green[50]!;
+                          statusColorDark = Colors.green[700]!;
+                        } else if (isDibatalkan) {
+                          statusColor = Colors.red;
+                          statusColorLight = Colors.red[50]!;
+                          statusColorDark = Colors.red[700]!;
+                        } else {
+                          statusColor = Colors.blue;
+                          statusColorLight = Colors.blue[50]!;
+                          statusColorDark = Colors.blue[700]!;
+                        }
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                spreadRadius: 1,
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: statusColor.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'Reservasi ${_formatTanggalPendek(reservasi.tanggalReservasi)}',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: statusColorLight,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            isSelesai
+                                                ? CupertinoIcons.check_mark_circled_solid
+                                                : isDibatalkan
+                                                ? CupertinoIcons.xmark_circle_fill
+                                                : CupertinoIcons.clock_fill,
+                                            size: 14,
+                                            color: statusColorDark,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            reservasi.status,
+                                            style: TextStyle(
+                                              color: statusColorDark,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Divider(color: Colors.grey.shade200, height: 1),
+                                const SizedBox(height: 12),
+                                
+                                // Info Detail
+                                _buildInfoRow(
+                                  CupertinoIcons.building_2_fill,
+                                  'Poli',
+                                  reservasi.namaPoli ?? '-',
+                                ),
+                                _buildInfoRow(
+                                  CupertinoIcons.person_fill,
+                                  'Dokter',
+                                  reservasi.namaDokter ?? '-',
+                                ),
+                                _buildInfoRow(
+                                  CupertinoIcons.calendar,
+                                  'Tanggal',
+                                  _formatTanggal(reservasi.tanggalReservasi),
+                                ),
+                                _buildInfoRow(
+                                  CupertinoIcons.clock,
+                                  'Jam',
+                                  reservasi.jamReservasi ?? '-',
+                                ),
+                                if (reservasi.keterangan != null &&
+                                    reservasi.keterangan!.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[50],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.chat_bubble_text_fill,
+                                          size: 16,
+                                          color: Colors.grey[600],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Keterangan',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[700],
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                reservasi.keterangan!,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 16),
+                                
+                                // Action Buttons
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        icon: Icon(
+                                          CupertinoIcons.pencil,
+                                          size: 18,
+                                          color: reservasi.dapatDiedit
+                                              ? Colors.orange[700]
+                                              : Colors.grey,
+                                        ),
+                                        label: Text(
+                                          'Edit',
+                                          style: TextStyle(
+                                            color: reservasi.dapatDiedit
+                                                ? Colors.orange[700]
+                                                : Colors.grey,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          side: BorderSide(
+                                            color: reservasi.dapatDiedit
+                                                ? Colors.orange.withOpacity(0.3)
+                                                : Colors.grey.shade300,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        onPressed: reservasi.dapatDiedit
+                                            ? () => _editReservasi(reservasi)
+                                            : null,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: OutlinedButton.icon(
+                                        icon: Icon(
+                                          CupertinoIcons.xmark_circle,
+                                          size: 18,
+                                          color: reservasi.dapatDibatalkan
+                                              ? Colors.red[700]
+                                              : Colors.grey,
+                                        ),
+                                        label: Text(
+                                          'Batalkan',
+                                          style: TextStyle(
+                                            color: reservasi.dapatDibatalkan
+                                                ? Colors.red[700]
+                                                : Colors.grey,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          side: BorderSide(
+                                            color: reservasi.dapatDibatalkan
+                                                ? Colors.red.withOpacity(0.3)
+                                                : Colors.grey.shade300,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                        ),
+                                        onPressed: reservasi.dapatDibatalkan
+                                            ? () => _batalkanReservasi(reservasi)
+                                            : null,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08), // bayangan halus
-              spreadRadius: 2,
-              blurRadius: 12, // blur lembut
-              offset: const Offset(0, 4), // arah bayangan ke bawah
-            ),
-          ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: _tambahReservasi,
+        backgroundColor: Colors.blue[700],
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: FloatingActionButton(
-          onPressed: _tambahReservasi,
-          backgroundColor: Colors.white,
-          elevation: 3, // hilangkan default shadow
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: const Icon(Icons.add, size: 36, color: Colors.lightBlue),
+        child: const Icon(
+          CupertinoIcons.add,
+          size: 32,
+          color: Colors.white,
         ),
       ),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  // Method untuk memformat tanggal
   String _formatTanggal(String tanggalString) {
     try {
-      // Parse tanggal dari string, pastikan menggunakan UTC
       final tanggalUtc = DateTime.parse(tanggalString);
       final tanggal = tanggalUtc.toLocal();
 
-      // Log untuk debugging
-      developer.log(
-        'Konversi Tanggal',
-        name: 'ReservasiScreen._formatTanggal',
-        error: {'Input': tanggalString, 'UTC': tanggalUtc, 'Lokal': tanggal},
-      );
-
-      // Daftar nama bulan dalam bahasa Indonesia
       final bulan = [
-        'Januari',
-        'Februari',
-        'Maret',
-        'April',
-        'Mei',
-        'Juni',
-        'Juli',
-        'Agustus',
-        'September',
-        'Oktober',
-        'November',
-        'Desember',
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
       ];
 
-      // Daftar nama hari dalam bahasa Indonesia
       final hari = [
-        'Senin',
-        'Selasa',
-        'Rabu',
-        'Kamis',
-        'Jumat',
-        'Sabtu',
-        'Minggu',
+        'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu',
       ];
 
-      // Format: "Senin, 20 Maret 2024"
       return '${hari[tanggal.weekday - 1]}, ${tanggal.day} ${bulan[tanggal.month - 1]} ${tanggal.year}';
     } catch (e) {
-      // Jika parsing gagal, kembalikan tanggal asli
       return tanggalString;
     }
   }
@@ -388,18 +663,36 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
     }
   }
 
-  // Modifikasi method _buildInfoRow untuk menggunakan format tanggal baru
-  Widget _buildInfoRow(String label, String value) {
-    // Jika label adalah 'Tanggal', gunakan method _formatTanggal
-    final formattedValue = label == 'Tanggal' ? _formatTanggal(value) : value;
-
+  Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(formattedValue),
+          Icon(icon, size: 16, color: Colors.grey[600]),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 60,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[700],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ],
       ),
     );
