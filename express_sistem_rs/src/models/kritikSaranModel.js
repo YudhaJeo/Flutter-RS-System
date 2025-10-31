@@ -19,3 +19,7 @@ export const create = async (data) => {
   const [insertedId] = await db('kritik_saran').insert(data);
   return getById(insertedId);
 };
+
+export const remove = (id) => {
+  return db('kritik_saran').where('IDKRITIKSARAN', id).del();
+}

@@ -55,3 +55,14 @@ export const createKritikSaran = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+export async function deleteKritikSaran(req, res) {
+  try {
+    const id = req.params.id;
+    await KritikSaranModel.remove(id);
+    res.json({ message: 'Kritik saran berhasil dihapus' });
+  } catch (err) {
+    console.error('Error backend:', err);
+    res.status(500).json({ error: err.message });
+  }
+}
