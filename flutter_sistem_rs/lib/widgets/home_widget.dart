@@ -503,9 +503,13 @@ class EmergencyContactCard extends StatelessWidget {
     final uri = Uri.parse('tel:$phoneNumber');
     
     try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
+      // launchUrl dengan mode externalApplication untuk membuka aplikasi telepon
+      final bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      
+      if (!launched) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
