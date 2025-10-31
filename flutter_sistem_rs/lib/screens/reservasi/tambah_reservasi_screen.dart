@@ -4,6 +4,7 @@ import '../../services/reservasi_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../widgets/custom_topbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class TambahReservasiScreen extends StatefulWidget {
   const TambahReservasiScreen({super.key});
@@ -231,20 +232,13 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
         _selectedDokterId == null ||
         _selectedTanggal == null ||
         _selectedJamReservasi == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.warning, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Lengkapi semua field terlebih dahulu'),
-            ],
-          ),
-          backgroundColor: Colors.orange,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          margin: const EdgeInsets.all(16),
-        ),
+      Fluttertoast.showToast(
+        msg: 'Harap lengkapi semua data.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red[700],
+        textColor: Colors.white,
+        fontSize: 14,
       );
       return;
     }
@@ -276,39 +270,25 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
 
       if (!mounted) return;
       Navigator.pop(context, true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 12),
-              Text('Reservasi berhasil ditambahkan'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          margin: const EdgeInsets.all(16),
-        ),
+      Fluttertoast.showToast(
+        msg: "Reservasi berhasil ditambahkan.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 14,
       );
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 12),
-              Expanded(child: Text('Gagal menambah reservasi: $e')),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          margin: const EdgeInsets.all(16),
-        ),
+      Fluttertoast.showToast(
+        msg: 'Gagal menambah reservasi.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red[700],
+        textColor: Colors.white,
+        fontSize: 14,
       );
     } finally {
       setState(() {

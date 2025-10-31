@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../models/kritik_saran_model.dart';
 import '../../services/kritik_saran_service.dart';
 import '../../widgets/custom_topbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class KritikSaranScreen extends StatefulWidget {
   const KritikSaranScreen({super.key});
@@ -111,12 +112,14 @@ class _KritikSaranScreenState extends State<KritikSaranScreen> {
                     icon: const Icon(Icons.send),
                     label: const Text('Kirim'),
                     onPressed: () async {
-                      if (jenisController.text.isEmpty ||
-                          pesanController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Lengkapi semua field!'),
-                          ),
+                      if (jenisController.text.isEmpty || pesanController.text.isEmpty) {
+                        Fluttertoast.showToast(
+                          msg: "Isi semua field!",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.red[700],
+                          textColor: Colors.white,
+                          fontSize: 14,
                         );
                         return;
                       }
@@ -138,7 +141,18 @@ class _KritikSaranScreenState extends State<KritikSaranScreen> {
       ),
     );
 
-    if (result == true) _fetchData();
+    if (result == true) {
+      _fetchData();
+
+      Fluttertoast.showToast(
+        msg: "Kritik & Saran berhasil ditambahkan!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 14,
+      );
+    }
   }
 
   Future<void> _hapusKritikSaran(KritikSaran item) async {
@@ -172,6 +186,15 @@ class _KritikSaranScreenState extends State<KritikSaranScreen> {
     if (konfirmasi == true) {
       await _service.hapusKritikSaran(item.idKritikSaran);
       _fetchData();
+
+      Fluttertoast.showToast(
+        msg: "Kritik & Saran berhasil dihapus.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.redAccent,
+        textColor: Colors.white,
+        fontSize: 14,
+      );
     }
   }
 

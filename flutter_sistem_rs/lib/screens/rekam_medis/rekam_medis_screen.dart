@@ -5,6 +5,7 @@ import '../../services/rekammedis_service.dart';
 import 'detail_rajal_sreen.dart';
 import 'detail_ranap_screen.dart';
 import '../../widgets/custom_topbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RekamMedisScreen extends StatefulWidget {
   const RekamMedisScreen({super.key});
@@ -74,8 +75,13 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ID riwayat tidak ditemukan')),
+      Fluttertoast.showToast(
+        msg: 'ID Riwayat tidak ditemukan.',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red[700],
+        textColor: Colors.white,
+        fontSize: 14,
       );
     }
   }

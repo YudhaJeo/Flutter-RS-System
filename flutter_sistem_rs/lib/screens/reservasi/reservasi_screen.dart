@@ -5,6 +5,7 @@ import 'dart:developer' as developer;
 import '../reservasi/tambah_reservasi_screen.dart';
 import '../reservasi/edit_reservasi_screen.dart';
 import '../../widgets/custom_topbar.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ReservasiScreen extends StatefulWidget {
   const ReservasiScreen({super.key});
@@ -59,8 +60,13 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
 
       // Tampilkan toast
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Reservasi telah dibatalkan')),
+        Fluttertoast.showToast(
+          msg: 'Reservasi telah dibatalkan.',
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red[700],
+          textColor: Colors.white,
+          fontSize: 14,
         );
       }
     } catch (e, stackTrace) {
@@ -79,18 +85,19 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
           errorMessage.contains('null') ||
           errorMessage.contains('subtype');
 
-      // Tampilkan toast
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isSuccessfullyProcessed
-                  ? 'Reservasi telah dibatalkan'
-                  : 'Gagal membatalkan reservasi: $e',
-            ),
-          ),
-        );
-      }
+      Fluttertoast.showToast(
+        msg: isSuccessfullyProcessed
+            ? '✅ Reservasi telah dibatalkan'
+            : '❌ Gagal membatalkan reservasi: $e',
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: isSuccessfullyProcessed
+            ? Colors.green.shade600
+            : Colors.red.shade700,
+        textColor: Colors.white,
+        fontSize: 15,
+      );
 
       // Refresh daftar reservasi meskipun ada error
       await _fetchReservasi();
