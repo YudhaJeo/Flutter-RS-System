@@ -11,6 +11,7 @@ export const getDepositByNik = async (nik) => {
       'deposit.NODEPOSIT',
       'deposit.TANGGALDEPOSIT',
       'deposit.NOMINAL as JUMLAH',
+      'deposit.SALDO_SISA',
       'deposit.STATUS',
       'invoice.NOINVOICE',
       'pasien.NIK',
