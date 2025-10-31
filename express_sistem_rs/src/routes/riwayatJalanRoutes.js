@@ -3,7 +3,6 @@ import * as RiwayatJalanController from '../controllers/riwayatJalanController.j
 
 const router = express.Router();
 
-router.get('/', (req, res) => { res.json({ message: 'Route riwayat jalan aktif' });});
 router.get('/:id', RiwayatJalanController.getById);
 
 export default router;

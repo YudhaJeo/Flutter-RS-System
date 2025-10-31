@@ -1,20 +1,5 @@
 import db from '../core/config/knex.js';
 
-export async function getAllRiwayatInap() {
-  return await db('riwayat_rawat_inap')
-    .join('rawat_inap', 'riwayat_rawat_inap.IDRAWATINAP', 'rawat_inap.IDRAWATINAP')
-    .join('rawat_jalan', 'rawat_inap.IDRAWATJALAN', 'rawat_jalan.IDRAWATJALAN')
-    .join('pendaftaran', 'rawat_jalan.IDPENDAFTARAN', 'pendaftaran.IDPENDAFTARAN')
-    .join('pasien', 'pendaftaran.NIK', 'pasien.NIK')
-    .join('bed', 'rawat_inap.IDBED', 'bed.IDBED')
-    .select(
-      'riwayat_rawat_inap.*',
-      'pasien.NAMALENGKAP',
-      'bed.NOMORBED',
-    )
-    .orderBy('riwayat_rawat_inap.IDRIWAYATINAP', 'desc');
-}
-
 export async function getRiwayatInapById(id) {
   return await db('riwayat_rawat_inap')
     .join('rawat_inap', 'riwayat_rawat_inap.IDRAWATINAP', 'rawat_inap.IDRAWATINAP')

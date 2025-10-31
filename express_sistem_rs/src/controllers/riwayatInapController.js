@@ -1,17 +1,5 @@
 import * as RiwayatRawatInap from '../models/riwayatInapModel.js';
 
-export async function getAllRiwayatInap(req, res) {
-  try {
-    const data = await RiwayatRawatInap.getAllRiwayatInap();
-    res.status(200).json({ data });
-  } catch (error) {
-    console.error('[GET] /riwayat_inap gagal:', error);
-    res.status(500).json({
-      message: 'Gagal mengambil data riwayat rawat inap',
-    });
-  }
-}
-
 export async function getRiwayatInapById(req, res) {
   const { id } = req.params;
 
