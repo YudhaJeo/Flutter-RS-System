@@ -1,7 +1,8 @@
 // D:\Mobile App\flutter_sistem_rs\express_sistem_rs\src\app.js
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './routes/authRoutes.js'
+import loginRoutes from './routes/loginRoutes.js'
+import registerRoutes from './routes/registerRoutes.js'
 import profileRoutes from './routes/profileRoutes.js';
 import reservasiRoutes from './routes/reservasiRoutes.js'
 import poliRoutes from './routes/poliRoutes.js'
@@ -29,7 +30,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/login', authRoutes);
+app.use('/login', loginRoutes);
+app.use('/register', registerRoutes);
 app.use('/profile', profileRoutes);
 app.use('/reservasi', reservasiRoutes);
 app.use('/poli', poliRoutes);
