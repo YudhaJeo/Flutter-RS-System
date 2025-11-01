@@ -10,9 +10,6 @@ export async function getById(req, res) {
     }
 
     res.json({ data });
-
-    console.log("Data rajal backend:", data)
-
   } catch (err) {
     console.error('Error getById:', err);
     res.status(500).json({ error: err.message });
