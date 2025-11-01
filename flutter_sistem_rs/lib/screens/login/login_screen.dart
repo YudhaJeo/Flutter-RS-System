@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import '../../utils/app_env.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,17 +13,28 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _identitasController = TextEditingController();
-  final TextEditingController _tanggalLahirController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String? _error;
+  bool _obscurePassword = true;
+
+  void _showToast(String message, {bool isError = false}) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 3,
+      backgroundColor: isError ? Colors.red : Colors.green,
+      textColor: Colors.white,
+      fontSize: 14.0,
+    );
+  }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
     final uri = Uri.parse('http://10.0.2.2:4100/login');
@@ -35,8 +46,8 @@ class _LoginScreenState extends State<LoginScreen> {
         uri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'norekammedis': _identitasController.text,
-          'tanggallahir': _tanggalLahirController.text,
+          'norekammedis': _identitasController.text.trim(),
+          'password': _passwordController.text,
         }),
       );
 
@@ -49,23 +60,33 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('norekammedis', pasien['NOREKAMMEDIS']);
         await prefs.setString('namaLengkap', pasien['NAMALENGKAP']);
         await prefs.setString('nik', pasien['NIK']);
+
+        _showToast(data['message'] ?? 'Login berhasil');
+
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/main');
         }
       } else {
-        setState(() {
-          _error = data['message'] ?? 'Login gagal';
-        });
+        _showToast(data['message'] ?? 'Login gagal', isError: true);
       }
     } catch (e) {
-      setState(() {
-        _error = 'Gagal terhubung ke server';
-      });
+      _showToast('Gagal terhubung ke server. Periksa koneksi internet Anda.', isError: true);
     }
 
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _goToRegister() {
+    Navigator.pushNamed(context, '/register');
+  }
+
+  @override
+  void dispose() {
+    _identitasController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -106,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "Masukkan No Rekam Medis/NIK dan Tanggal Lahir Anda",
+                  "Masuk untuk mengakses layanan kesehatan Anda",
                   style: TextStyle(color: Colors.black54),
                   textAlign: TextAlign.center,
                 ),
@@ -124,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
+                          // Input No Rekam Medis / NIK
                           TextFormField(
                             controller: _identitasController,
                             decoration: InputDecoration(
@@ -140,34 +162,47 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderSide: const BorderSide(
                                     color: Color(0xFF42A5F5), width: 1.2),
                               ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Colors.grey.shade300, width: 1.2),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF42A5F5), width: 2),
+                              ),
                             ),
                             validator: (value) => value == null || value.isEmpty
-                                ? 'Wajib diisi'
+                                ? 'No Rekam Medis / NIK wajib diisi'
                                 : null,
                           ),
                           const SizedBox(height: 16),
+
+                          // Input Password
                           TextFormField(
-                            controller: _tanggalLahirController,
-                            readOnly: true,
-                            onTap: () async {
-                              final picked = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime(2000),
-                                firstDate: DateTime(1900),
-                                lastDate: DateTime.now(),
-                              );
-                              if (picked != null) {
-                                _tanggalLahirController.text =
-                                    picked.toIso8601String().substring(0, 10);
-                              }
-                            },
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
-                                Icons.calendar_today,
+                                Icons.lock_outline,
                                 color: Color(0xFF42A5F5),
                               ),
-                              labelText: 'Tanggal Lahir (yyyy-MM-dd)',
-                              hintText: 'Pilih tanggal lahir',
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              labelText: 'Password',
+                              hintText: 'Masukkan password',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -175,22 +210,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderSide: const BorderSide(
                                     color: Color(0xFF42A5F5), width: 1.2),
                               ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                    color: Colors.grey.shade300, width: 1.2),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                    color: Color(0xFF42A5F5), width: 2),
+                              ),
                             ),
                             validator: (value) => value == null || value.isEmpty
-                                ? 'Wajib diisi'
+                                ? 'Password wajib diisi'
                                 : null,
                           ),
                           const SizedBox(height: 24),
-
-                          if (_error != null)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Text(
-                                _error!,
-                                style: const TextStyle(color: Colors.red),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
 
                           // 🔵 Tombol Login
                           SizedBox(
@@ -204,6 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
+                                elevation: 2,
                               ),
                               onPressed: _isLoading ? null : _login,
                               child: _isLoading
@@ -215,8 +251,53 @@ class _LoginScreenState extends State<LoginScreen> {
                                     )
                                   : const Text(
                                       'Login',
-                                      style: TextStyle(fontSize: 16),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Divider
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.grey.shade400)),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Text(
+                                  'atau',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                              Expanded(child: Divider(color: Colors.grey.shade400)),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 📝 Tombol Register
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF42A5F5),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
+                                side: const BorderSide(
+                                    color: Color(0xFF42A5F5), width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: _isLoading ? null : _goToRegister,
+                              child: const Text(
+                                'Daftar Akun Baru',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ),
                         ],

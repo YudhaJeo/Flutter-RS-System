@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart'; // ← tambahkan ini
 import 'screens/splash_screen.dart';
 import 'screens/login/login_screen.dart';
+import 'screens/register/register_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'widgets/main_bottom_nav.dart';
 import 'screens/profile/profile_screen.dart';
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
       locale: const Locale('id', 'ID'),
       home: const SplashScreen(onFinish: _cekLoginDanRedirect),
       routes: {
+        '/register': (context) => const RegisterScreen(),
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/profile': (context) => const ProfileScreen(),
