@@ -173,7 +173,6 @@ class _DetailRawatJalanScreenState extends State<DetailRawatJalanScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header Card
                   Container(
                     width: double.infinity,
                     margin: const EdgeInsets.only(bottom: 16),
@@ -223,7 +222,6 @@ class _DetailRawatJalanScreenState extends State<DetailRawatJalanScreen> {
                     ),
                   ),
 
-                  // Info Detail Card
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
@@ -269,12 +267,16 @@ class _DetailRawatJalanScreenState extends State<DetailRawatJalanScreen> {
                             'Pasien',
                             data!['NAMALENGKAP'] ?? '-',
                           ),
+                          _buildInfoRow(
+                            CupertinoIcons.person_crop_square,
+                            'Dokter',
+                            data!['NAMADOKTER'] ?? '-',
+                          ),
                         ],
                       ),
                     ),
                   ),
 
-                  // Keluhan & Diagnosa Card
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
