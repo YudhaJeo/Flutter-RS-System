@@ -10,6 +10,7 @@ import '../kalender/kalender_screen.dart';
 import '../daftar_dokter/daftar_dokter_screen.dart';
 import '../kritik_saran/kritik_saran_screen.dart';
 import '../notifikasi/notifikasi_screen.dart';
+import '../tentang_kami/profileTentang_screen.dart'; // <--- Tambahkan ini
 import '../../widgets/berita_widget.dart';
 import '../../widgets/home_widget.dart';
 import '../../services/notifikasi_service.dart';
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _patientName = prefs.getString('namaLengkap') ?? 'Pasien';
       _nik = prefs.getString('nik') ?? prefs.getString('NIK') ?? '';
     });
-    
+
     await _loadStatisticsData();
   }
 
@@ -90,11 +91,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadJumlahReservasi() async {
     try {
       final reservasiList = await _reservasiService.fetchReservasiByNIK();
-      final activeReservasi = reservasiList.where((r) => 
-        r.status.toLowerCase() == 'menunggu' || 
-        r.status.toLowerCase() == 'dikonfirmasi'
-      ).length;
-      
+      final activeReservasi = reservasiList.where((r) =>
+          r.status.toLowerCase() == 'menunggu' ||
+          r.status.toLowerCase() == 'dikonfirmasi').length;
+
       setState(() {
         _jumlahReservasi = activeReservasi;
       });
@@ -117,15 +117,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadTotalSaldo() async {
     try {
       if (_nik.isEmpty) return;
-      
       final dompetList = await DompetMedisService.fetchDompetMedisByNik(_nik);
       double total = 0;
-      
       for (var dompet in dompetList) {
-        // Ambil saldo sisa dari setiap deposit yang statusnya AKTIF
         total += dompet.saldoSisa;
       }
-      
       setState(() {
         _totalSaldo = total;
       });
@@ -144,127 +140,150 @@ class _HomeScreenState extends State<HomeScreen> {
       statusBarColor: Color(0xFFF5F7FA),
       statusBarIconBrightness: Brightness.dark,
     ));
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refreshData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with Gradient
-                HomeHeader(
-                  patientName: _patientName,
-                  hasUnreadNotifications: _hasUnreadNotifications,
-                  onNotificationPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NotifikasiScreen(),
-                      ),
-                    );
-                    _checkUnreadNotifications();
-                  },
-                  onChatPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const KritikSaranScreen(),
-                      ),
-                    );
-                  },
-                ),
-
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Services Menu Grid
-                      ServicesCard(
-                        onReservasiTap: () => Navigator.push(
+        child: Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: _refreshData,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeHeader(
+                      patientName: _patientName,
+                      hasUnreadNotifications: _hasUnreadNotifications,
+                      onNotificationPressed: () async {
+                        await Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ReservasiScreen()),
-                        ),
-                        onRekamMedisTap: () => Navigator.push(
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiScreen(),
+                          ),
+                        );
+                        _checkUnreadNotifications();
+                      },
+                      onChatPressed: () {
+                        Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => RekamMedisScreen()),
-                        ),
-                        onDompetMedisTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DompetMedisScreen()),
-                        ),
-                        onPoliTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => PoliScreen()),
-                        ),
-                        onKalenderTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => KalenderScreen()),
-                        ),
-                        onDaftarDokterTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DaftarDokterScreen()),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 20),
-
-                      // Quick Stats Summary
-                      QuickStatsCard(
-                        isLoading: _isLoadingStats,
-                        jumlahReservasi: _jumlahReservasi,
-                        jumlahRekamMedis: _jumlahRekamMedis,
-                        totalSaldo: _totalSaldo,
-                        hasUnreadNotifications: _hasUnreadNotifications,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // News Section Header
-                      Row(
+                          MaterialPageRoute(
+                              builder: (context) => const KritikSaranScreen()),
+                        );
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.blue[50],
-                              borderRadius: BorderRadius.circular(10),
+                          ServicesCard(
+                            onReservasiTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ReservasiScreen()),
                             ),
-                            child: Icon(
-                              CupertinoIcons.news_solid,
-                              color: Colors.blue[700],
-                              size: 20,
+                            onRekamMedisTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => RekamMedisScreen()),
+                            ),
+                            onDompetMedisTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DompetMedisScreen()),
+                            ),
+                            onPoliTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PoliScreen()),
+                            ),
+                            onKalenderTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => KalenderScreen()),
+                            ),
+                            onDaftarDokterTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DaftarDokterScreen()),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Berita Kesehatan Terkini',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[800],
-                            ),
+                          const SizedBox(height: 20),
+                          QuickStatsCard(
+                            isLoading: _isLoadingStats,
+                            jumlahReservasi: _jumlahReservasi,
+                            jumlahRekamMedis: _jumlahRekamMedis,
+                            totalSaldo: _totalSaldo,
+                            hasUnreadNotifications: _hasUnreadNotifications,
                           ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[50],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.news_solid,
+                                  color: Colors.blue[700],
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Berita Kesehatan Terkini',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          const BeritaWidget(),
+                          const SizedBox(height: 24),
+                          const EmergencyContactCard(),
+                          const SizedBox(height: 80), // Spasi bawah tambahan
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      const BeritaWidget(),
-                      
-                      const SizedBox(height: 24),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
-                      // Emergency Contact Button (at bottom)
-                      const EmergencyContactCard(),
-                      
-                      const SizedBox(height: 20),
-                    ],
+            // === Tombol "Tentang Kami" Floating di kanan bawah ===
+            Positioned(
+              bottom: 24,
+              right: 20,
+              child: FloatingActionButton.extended(
+                backgroundColor: Colors.amber[700],
+                elevation: 6,
+                icon: const Icon(Icons.info_outline, color: Colors.white),
+                label: const Text(
+                  "Tentang Kami",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
                   ),
                 ),
-              ],
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileTentangScreen(),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

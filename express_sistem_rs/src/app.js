@@ -15,6 +15,7 @@ import riwayatInapRoutes from './routes/riwayatInapRoutes.js';
 import beritaRoutes from './routes/beritaRoutes.js';
 import kritikSaranRoutes from './routes/kritikSaranRoutes.js';
 import notifikasiRoutes from './routes/notifikasiRoutes.js';
+import profileTentangRoutes from './routes/profileTentangRoutes.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -44,5 +45,6 @@ app.use('/riwayat_inap', riwayatInapRoutes);
 app.use('/berita', beritaRoutes);
 app.use('/kritik_saran', kritikSaranRoutes);
 app.use('/notifikasi', notifikasiRoutes);
+app.use('/profile_tentang', profileTentangRoutes);
 
 export default app;

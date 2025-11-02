@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/berita_model.dart';
@@ -13,11 +14,42 @@ class BeritaWidget extends StatefulWidget {
 
 class _BeritaWidgetState extends State<BeritaWidget> {
   late Future<List<Berita>> _beritaFuture;
+  PageController? _pageController;
+  Timer? _autoScrollTimer;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _beritaFuture = BeritaService.fetchAllBerita();
+  }
+
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    _pageController?.dispose();
+    super.dispose();
+  }
+
+  void _startAutoScroll(int itemCount) {
+    // hentikan timer lama jika ada
+    _autoScrollTimer?.cancel();
+
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!mounted) return;
+      if (_pageController == null || !_pageController!.hasClients) return;
+
+      _currentPage++;
+      if (_currentPage >= itemCount) {
+        _currentPage = 0;
+      }
+
+      _pageController!.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   Future<void> _launchURL(String url) async {
@@ -47,15 +79,30 @@ class _BeritaWidgetState extends State<BeritaWidget> {
         // urutkan berita dari terbaru
         beritaList.sort((a, b) => b.id.compareTo(a.id));
 
-        // ambil maksimal 4 berita untuk ditampilkan di card
+        // ambil maksimal 4 berita
         final tampilList =
             beritaList.length > 4 ? beritaList.take(4).toList() : beritaList;
+
+        // total item termasuk "lihat semua"
+        final totalItem =
+            tampilList.length + (beritaList.length > 4 ? 1 : 0);
+
+        // pastikan pageController diinisialisasi sekali
+        _pageController ??= PageController(viewportFraction: 0.9);
+
+        // jalankan auto-scroll setelah frame pertama selesai
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_pageController != null && mounted) {
+            _startAutoScroll(totalItem);
+          }
+        });
 
         return SizedBox(
           height: 200,
           child: PageView.builder(
-            controller: PageController(viewportFraction: 0.9),
-            itemCount: tampilList.length + (beritaList.length > 4 ? 1 : 0),
+            controller: _pageController,
+            itemCount: totalItem,
+            onPageChanged: (index) => _currentPage = index,
             itemBuilder: (context, index) {
               // card terakhir = tombol "Lihat Semua Berita"
               if (beritaList.length > 4 && index == tampilList.length) {
@@ -79,20 +126,15 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          // pakai background blur newspaper
                           Image.asset(
                             'assets/images/newspaper-background.jpg',
                             fit: BoxFit.cover,
                           ),
-                          // overlay warna biar teks kebaca
-                          Container(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                          // konten tengah
-                          Center(
+                          Container(color: Colors.black.withOpacity(0.5)),
+                          const Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children: [
                                 Icon(Icons.newspaper,
                                     color: Colors.white, size: 40),
                                 SizedBox(height: 10),
@@ -197,7 +239,6 @@ class _BeritaWidgetState extends State<BeritaWidget> {
                             ),
                           ),
                         ),
-                        // tap area
                         Positioned.fill(
                           child: Material(
                             color: Colors.transparent,
