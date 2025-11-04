@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'profile_not_found_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -124,201 +125,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     
     if (_profile == null) {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
-        body: Column(
-          children: [
-            // Header dengan gradient yang sama
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.blue[700]!,
-                    Colors.blue[500]!,
-                  ],
-                ),
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(60),
-                  bottomRight: Radius.circular(60),
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(20, 50, 20, 30),
-              child: Column(
-                children: [
-                  const SizedBox(height: 30),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      radius: 65,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.blue.shade50,
-                        child: Icon(
-                          Icons.person_off_outlined,
-                          size: 80,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Profil Tidak Ditemukan',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      "Data tidak tersedia",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Konten error message
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 4,
-                    shadowColor: Colors.black.withOpacity(0.1),
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.warning_amber_rounded,
-                              size: 80,
-                              color: Colors.orange[700],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'Data Profil Tidak Ditemukan',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Maaf, data profil Anda tidak dapat ditemukan dalam sistem. Silakan login kembali atau hubungi administrator.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                              height: 1.5,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 32),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [Colors.blueAccent, Colors.blue.shade300],
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.blueAccent.withOpacity(0.4),
-                                    blurRadius: 6,
-                                    offset: const Offset(2, 3),
-                                  ),
-                                ],
-                              ),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 16, horizontal: 20),
-                                ),
-                                onPressed: () async {
-                                  final prefs = await SharedPreferences.getInstance();
-                                  await prefs.clear();
-                                  if (!mounted) return;
-                                  Navigator.pushNamedAndRemoveUntil(
-                                      context, '/login', (route) => false);
-                                },
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.login, color: Colors.white, size: 20),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Kembali ke Login',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      return const ProfileNotFoundScreen();
     }
 
     String formatDate(String? s) {
@@ -772,30 +579,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_editMode) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: DropdownButtonFormField<String>(
-          value: _idasuransiController.text.isNotEmpty
-              ? _idasuransiController.text
-              : null,
-          onChanged: (val) {
-            if (val != null) {
-              setState(() => _idasuransiController.text = val);
-            }
-          },
-          decoration: InputDecoration(
-            labelText: 'Asuransi',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              margin: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.medical_services_outlined,
+                color: Colors.blueAccent,
+                size: 18,
+              ),
             ),
-            isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          ),
-          items: _asuransiList
-              .map((asuransi) => DropdownMenuItem(
-                    value: asuransi["IDASURANSI"].toString(),
-                    child: Text(asuransi["NAMAASURANSI"]),
-                  ))
-              .toList(),
+            const SizedBox(width: 12),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                value: _idasuransiController.text.isNotEmpty
+                    ? _idasuransiController.text
+                    : null,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _idasuransiController.text = val);
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Asuransi',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue.shade200),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue.shade200),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                  ),
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                ),
+                items: _asuransiList
+                    .map((asuransi) => DropdownMenuItem(
+                          value: asuransi["IDASURANSI"].toString(),
+                          child: Text(asuransi["NAMAASURANSI"]),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
         ),
       );
     } else {
