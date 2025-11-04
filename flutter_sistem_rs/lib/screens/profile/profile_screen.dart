@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'profile_not_found_screen.dart';
+import '../../widgets/loading_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -106,21 +107,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return Scaffold(
-        backgroundColor: const Color(0xFFF5F7FA),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(
-                'Memuat profil...',
-                style: TextStyle(color: Colors.blue.shade700, fontSize: 16),
-              ),
-            ],
-          ),
-        ),
+      return const LoadingScreen(
+        message: 'Memuat profil...',
       );
     }
     

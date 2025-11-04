@@ -7,6 +7,7 @@ import '../reservasi/tambah_reservasi_screen.dart';
 import '../reservasi/edit_reservasi_screen.dart';
 import '../../widgets/custom_topbar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../widgets/loading_widget.dart';
 
 class ReservasiScreen extends StatefulWidget {
   const ReservasiScreen({super.key});
@@ -58,7 +59,9 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Batalkan Reservasi'),
-        content: const Text('Apakah Anda yakin ingin membatalkan reservasi ini?'),
+        content: const Text(
+          'Apakah Anda yakin ingin membatalkan reservasi ini?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -149,17 +152,23 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
   }
 
   int _getAktifCount() {
-    return _reservasiList.where((r) => 
-      r.status.toLowerCase() != 'dibatalkan' && 
-      r.status.toLowerCase() != 'selesai'
-    ).length;
+    return _reservasiList
+        .where(
+          (r) =>
+              r.status.toLowerCase() != 'dibatalkan' &&
+              r.status.toLowerCase() != 'selesai',
+        )
+        .length;
   }
 
   int _getSelesaiCount() {
-    return _reservasiList.where((r) => 
-      r.status.toLowerCase() == 'selesai' || 
-      r.status.toLowerCase() == 'dikonfirmasi'
-    ).length;
+    return _reservasiList
+        .where(
+          (r) =>
+              r.status.toLowerCase() == 'selesai' ||
+              r.status.toLowerCase() == 'dikonfirmasi',
+        )
+        .length;
   }
 
   @override
@@ -168,7 +177,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: const CustomTopBar(title: 'Reservasi Saya'),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget(message: 'Memuat data reservasi...')
           : _errorMessage != null
           ? Center(
               child: Column(
@@ -213,18 +222,12 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Belum ada reservasi',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Tap tombol + untuk membuat reservasi',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[500], fontSize: 14),
                   ),
                 ],
               ),
@@ -241,10 +244,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Colors.blue[700]!,
-                          Colors.blue[500]!,
-                        ],
+                        colors: [Colors.blue[700]!, Colors.blue[500]!],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
@@ -364,14 +364,16 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                       itemCount: _reservasiList.length,
                       itemBuilder: (context, index) {
                         final reservasi = _reservasiList[index];
-                        final isSelesai = reservasi.status.toLowerCase() == 'selesai' ||
+                        final isSelesai =
+                            reservasi.status.toLowerCase() == 'selesai' ||
                             reservasi.status.toLowerCase() == 'dikonfirmasi';
-                        final isDibatalkan = reservasi.status.toLowerCase() == 'dibatalkan';
-                        
+                        final isDibatalkan =
+                            reservasi.status.toLowerCase() == 'dibatalkan';
+
                         Color statusColor;
                         Color statusColorLight;
                         Color statusColorDark;
-                        
+
                         if (isSelesai) {
                           statusColor = Colors.green;
                           statusColorLight = Colors.green[50]!;
@@ -411,7 +413,8 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                               children: [
                                 // Header
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
@@ -437,9 +440,11 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                         children: [
                                           Icon(
                                             isSelesai
-                                                ? CupertinoIcons.check_mark_circled_solid
+                                                ? CupertinoIcons
+                                                      .check_mark_circled_solid
                                                 : isDibatalkan
-                                                ? CupertinoIcons.xmark_circle_fill
+                                                ? CupertinoIcons
+                                                      .xmark_circle_fill
                                                 : CupertinoIcons.clock_fill,
                                             size: 14,
                                             color: statusColorDark,
@@ -461,7 +466,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                 const SizedBox(height: 12),
                                 Divider(color: Colors.grey.shade200, height: 1),
                                 const SizedBox(height: 12),
-                                
+
                                 // Info Detail
                                 _buildInfoRow(
                                   CupertinoIcons.building_2_fill,
@@ -493,7 +498,8 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Icon(
                                           CupertinoIcons.chat_bubble_text_fill,
@@ -503,7 +509,8 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 'Keterangan',
@@ -529,7 +536,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                   ),
                                 ],
                                 const SizedBox(height: 16),
-                                
+
                                 // Action Buttons
                                 Row(
                                   children: [
@@ -552,14 +559,18 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                           ),
                                         ),
                                         style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
                                           side: BorderSide(
                                             color: reservasi.dapatDiedit
                                                 ? Colors.orange.withOpacity(0.3)
                                                 : Colors.grey.shade300,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                           ),
                                         ),
                                         onPressed: reservasi.dapatDiedit
@@ -587,18 +598,23 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
                                           ),
                                         ),
                                         style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
                                           side: BorderSide(
                                             color: reservasi.dapatDibatalkan
                                                 ? Colors.red.withOpacity(0.3)
                                                 : Colors.grey.shade300,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                           ),
                                         ),
                                         onPressed: reservasi.dapatDibatalkan
-                                            ? () => _batalkanReservasi(reservasi)
+                                            ? () =>
+                                                  _batalkanReservasi(reservasi)
                                             : null,
                                       ),
                                     ),
@@ -618,14 +634,8 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
         onPressed: _tambahReservasi,
         backgroundColor: Colors.blue[700],
         elevation: 8,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(
-          CupertinoIcons.add,
-          size: 32,
-          color: Colors.white,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(CupertinoIcons.add, size: 32, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -637,12 +647,28 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
       final tanggal = tanggalUtc.toLocal();
 
       final bulan = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
       ];
 
       final hari = [
-        'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu',
+        'Senin',
+        'Selasa',
+        'Rabu',
+        'Kamis',
+        'Jumat',
+        'Sabtu',
+        'Minggu',
       ];
 
       return '${hari[tanggal.weekday - 1]}, ${tanggal.day} ${bulan[tanggal.month - 1]} ${tanggal.year}';
@@ -675,10 +701,7 @@ class _ReservasiScreenState extends State<ReservasiScreen> {
             width: 60,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey[700],
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
             ),
           ),
           const SizedBox(width: 8),

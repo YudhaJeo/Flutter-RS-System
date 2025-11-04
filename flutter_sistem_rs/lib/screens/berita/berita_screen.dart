@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../models/berita_model.dart';
 import '../../services/berita_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../widgets/loading_widget.dart';
 
 class BeritaScreen extends StatefulWidget {
   const BeritaScreen({super.key});
@@ -52,15 +53,18 @@ class _BeritaScreenState extends State<BeritaScreen>
 
     if (_searchQuery.isNotEmpty) {
       result = result
-          .where((b) =>
-              b.judul.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .where(
+            (b) => b.judul.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
           .toList();
     }
 
     if (_startDate != null && _endDate != null) {
       result = result.where((b) {
         final beritaDate = DateTime.parse(b.tanggalUpload);
-        return beritaDate.isAfter(_startDate!.subtract(const Duration(days: 1))) &&
+        return beritaDate.isAfter(
+              _startDate!.subtract(const Duration(days: 1)),
+            ) &&
             beritaDate.isBefore(_endDate!.add(const Duration(days: 1)));
       }).toList();
     }
@@ -111,20 +115,42 @@ class _BeritaScreenState extends State<BeritaScreen>
         future: _beritaFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-                child: CircularProgressIndicator(color: Colors.blue));
+            return const LoadingWidget(message: 'Memuat berita kesehatan...');
           }
           if (snapshot.hasError) {
             return Center(
-              child: Text('Gagal memuat berita: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.black)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Terjadi kesalahan',
+                    style: TextStyle(
+                      color: Colors.red[700],
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      'Gagal memuat berita: ${snapshot.error}',
+                      style: TextStyle(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             );
           }
 
           if (_allBerita.isEmpty && snapshot.hasData) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               setState(() {
-                _allBerita = snapshot.data!..sort((a, b) => b.id.compareTo(a.id));
+                _allBerita = snapshot.data!
+                  ..sort((a, b) => b.id.compareTo(a.id));
                 _filteredBerita = _allBerita;
               });
             });
@@ -141,93 +167,113 @@ class _BeritaScreenState extends State<BeritaScreen>
             children: [
               // 🔍 Search & Filter
               Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Row(
-                    children: [
-                      // 🔍 Search
-                      Expanded(
-                        child: TextField(
-                          style: const TextStyle(color: Colors.black),
-                          decoration: InputDecoration(
-                            hintText: 'Cari berita kesehatan...',
-                            hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                            prefixIcon: const Icon(Icons.search, color: Colors.blue),
-                            filled: true,
-                            fillColor: Colors.grey.shade100,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              borderSide: BorderSide.none,
+                color: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Row(
+                  children: [
+                    // 🔍 Search
+                    Expanded(
+                      child: TextField(
+                        style: const TextStyle(color: Colors.black),
+                        decoration: InputDecoration(
+                          hintText: 'Cari berita kesehatan...',
+                          hintStyle: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.blue,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          _searchQuery = value;
+                          _applyFilters();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // 🧭 Filter tanggal
+                    IconButton(
+                      icon: const Icon(
+                        Icons.filter_alt_rounded,
+                        color: Colors.blueAccent,
+                      ),
+                      tooltip: 'Filter tanggal',
+                      onPressed: () => _pickDateRange(context),
+                    ),
+
+                    // 🔘 Toggle tampilan (Drive-style)
+                    const SizedBox(width: 6),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: Colors.grey.shade300),
+                        color: Colors.grey.shade100,
+                      ),
+                      child: Row(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            decoration: BoxDecoration(
+                              color: !_isDetailMode
+                                  ? Colors.blue.shade50
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.view_agenda_rounded,
+                                color: !_isDetailMode
+                                    ? Colors.blueAccent
+                                    : Colors.grey.shade500,
+                                size: 22,
+                              ),
+                              tooltip: 'Detail Singkat',
+                              onPressed: () =>
+                                  setState(() => _isDetailMode = false),
                             ),
                           ),
-                          onChanged: (value) {
-                            _searchQuery = value;
-                            _applyFilters();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-
-                      // 🧭 Filter tanggal
-                      IconButton(
-                        icon: const Icon(Icons.filter_alt_rounded, color: Colors.blueAccent),
-                        tooltip: 'Filter tanggal',
-                        onPressed: () => _pickDateRange(context),
-                      ),
-
-                      // 🔘 Toggle tampilan (Drive-style)
-                      const SizedBox(width: 6),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(color: Colors.grey.shade300),
-                          color: Colors.grey.shade100,
-                        ),
-                        child: Row(
-                          children: [
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              decoration: BoxDecoration(
-                                color: !_isDetailMode ? Colors.blue.shade50 : Colors.transparent,
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.view_agenda_rounded,
-                                  color: !_isDetailMode
-                                      ? Colors.blueAccent
-                                      : Colors.grey.shade500,
-                                  size: 22,
-                                ),
-                                tooltip: 'Detail Singkat',
-                                onPressed: () => setState(() => _isDetailMode = false),
-                              ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            decoration: BoxDecoration(
+                              color: _isDetailMode
+                                  ? Colors.blue.shade50
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(25),
                             ),
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              decoration: BoxDecoration(
-                                color: _isDetailMode ? Colors.blue.shade50 : Colors.transparent,
-                                borderRadius: BorderRadius.circular(25),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.article_rounded,
+                                color: _isDetailMode
+                                    ? Colors.blueAccent
+                                    : Colors.grey.shade500,
+                                size: 22,
                               ),
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.article_rounded,
-                                  color: _isDetailMode
-                                      ? Colors.blueAccent
-                                      : Colors.grey.shade500,
-                                  size: 22,
-                                ),
-                                tooltip: 'Detail Lengkap',
-                                onPressed: () => setState(() => _isDetailMode = true),
-                              ),
+                              tooltip: 'Detail Lengkap',
+                              onPressed: () =>
+                                  setState(() => _isDetailMode = true),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
               // 📄 Daftar Berita
               Expanded(
                 child: AnimatedSwitcher(
@@ -249,20 +295,26 @@ class _BeritaScreenState extends State<BeritaScreen>
                         onPressed: _currentPage > 1
                             ? () => setState(() => _currentPage--)
                             : null,
-                        icon: const Icon(Icons.arrow_back_ios,
-                            color: Colors.black54),
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.black54,
+                        ),
                       ),
                       Text(
                         '$_currentPage',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
                       ),
                       IconButton(
                         onPressed: endIndex < _filteredBerita.length
                             ? () => setState(() => _currentPage++)
                             : null,
-                        icon: const Icon(Icons.arrow_forward_ios,
-                            color: Colors.black54),
+                        icon: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.black54,
+                        ),
                       ),
                     ],
                   ),
@@ -283,7 +335,9 @@ class _BeritaScreenState extends State<BeritaScreen>
       itemBuilder: (context, index) {
         final berita = list[index];
         return Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
           elevation: 3,
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
@@ -304,8 +358,10 @@ class _BeritaScreenState extends State<BeritaScreen>
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(formatTanggal(berita.tanggalUpload),
-                style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            subtitle: Text(
+              formatTanggal(berita.tanggalUpload),
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
             onTap: () => _launchURL(berita.url),
           ),
         );
@@ -322,15 +378,18 @@ class _BeritaScreenState extends State<BeritaScreen>
       itemBuilder: (context, index) {
         final berita = list[index];
         return Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
           elevation: 5,
           margin: const EdgeInsets.symmetric(vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(15)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(15),
+                ),
                 child: Image.network(
                   berita.pratinjau,
                   width: double.infinity,
@@ -351,23 +410,33 @@ class _BeritaScreenState extends State<BeritaScreen>
                     Text(
                       berita.judul,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       berita.deskripsiSingkat,
-                      style: const TextStyle(color: Colors.black87, fontSize: 14),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today,
-                            size: 14, color: Colors.blueAccent),
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: Colors.blueAccent,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           formatTanggal(berita.tanggalUpload),
                           style: const TextStyle(
-                              fontSize: 12, color: Colors.black54),
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
                         ),
                       ],
                     ),
@@ -376,10 +445,15 @@ class _BeritaScreenState extends State<BeritaScreen>
                       alignment: Alignment.centerRight,
                       child: TextButton.icon(
                         onPressed: () => _launchURL(berita.url),
-                        icon: const Icon(Icons.open_in_new,
-                            size: 16, color: Colors.blue),
-                        label: const Text('Baca Selengkapnya',
-                            style: TextStyle(color: Colors.blue)),
+                        icon: const Icon(
+                          Icons.open_in_new,
+                          size: 16,
+                          color: Colors.blue,
+                        ),
+                        label: const Text(
+                          'Baca Selengkapnya',
+                          style: TextStyle(color: Colors.blue),
+                        ),
                       ),
                     ),
                   ],

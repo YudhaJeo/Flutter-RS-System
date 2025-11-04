@@ -8,6 +8,7 @@ import '../../services/dompet_medis_service.dart';
 import '../../services/deposit_penggunaan_service.dart';
 import '../../models/deposit_penggunaan_model.dart';
 import '../../widgets/custom_topbar.dart';
+import '../../widgets/loading_widget.dart';
 
 class DompetMedisScreen extends StatefulWidget {
   const DompetMedisScreen({super.key});
@@ -62,10 +63,12 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
   }
 
   String _formatCurrency(double amount) {
-    return amount.toStringAsFixed(0).replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}.',
-    );
+    return amount
+        .toStringAsFixed(0)
+        .replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
   }
 
   /// Menampilkan dialog riwayat penggunaan deposit
@@ -116,7 +119,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                 // Content
                 Flexible(
                   child: FutureBuilder<List<DepositPenggunaan>>(
-                    future: DepositPenggunaanService.fetchByNoInvoice(noInvoice),
+                    future: DepositPenggunaanService.fetchByNoInvoice(
+                      noInvoice,
+                    ),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -193,9 +198,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                              ),
+                              border: Border.all(color: Colors.grey.shade300),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.05),
@@ -224,7 +227,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             penggunaan.noDeposit,
@@ -234,7 +238,9 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                             ),
                                           ),
                                           Text(
-                                            _formatTanggal(penggunaan.tanggalPemakaian),
+                                            _formatTanggal(
+                                              penggunaan.tanggalPemakaian,
+                                            ),
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey[600],
@@ -256,7 +262,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Jumlah Pemakaian',
@@ -301,7 +308,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
         future: futureDompetMedis,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingWidget(message: 'Memuat data dompet medis...');
           } else if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -346,10 +353,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Belum ada deposit tercatat',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
@@ -380,10 +384,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        Colors.blue[700]!,
-                        Colors.blue[500]!,
-                      ],
+                      colors: [Colors.blue[700]!, Colors.blue[500]!],
                     ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
@@ -462,7 +463,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                       final isActive = deposit.status?.toUpperCase() == 'AKTIF';
 
                       return GestureDetector(
-                        onTap: () => _showRiwayatPenggunaanDialog(deposit.noInvoice),
+                        onTap: () =>
+                            _showRiwayatPenggunaanDialog(deposit.noInvoice),
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 12),
                           decoration: BoxDecoration(
@@ -477,7 +479,7 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                               ),
                             ],
                             border: Border.all(
-                              color: isActive 
+                              color: isActive
                                   ? Colors.green.withOpacity(0.3)
                                   : Colors.grey.shade200,
                               width: 1,
@@ -490,7 +492,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                               children: [
                                 // Header
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
@@ -518,8 +521,10 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                         children: [
                                           Icon(
                                             isActive
-                                                ? CupertinoIcons.check_mark_circled_solid
-                                                : CupertinoIcons.xmark_circle_fill,
+                                                ? CupertinoIcons
+                                                      .check_mark_circled_solid
+                                                : CupertinoIcons
+                                                      .xmark_circle_fill,
                                             size: 14,
                                             color: isActive
                                                 ? Colors.green[700]
@@ -527,7 +532,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            deposit.status?.toUpperCase() ?? 'N/A',
+                                            deposit.status?.toUpperCase() ??
+                                                'N/A',
                                             style: TextStyle(
                                               color: isActive
                                                   ? Colors.green[700]
@@ -575,7 +581,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                   child: Column(
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Jumlah Deposit',
@@ -596,7 +603,8 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
                                       ),
                                       const SizedBox(height: 8),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Saldo Tersisa',
@@ -664,18 +672,19 @@ class _DompetMedisScreenState extends State<DompetMedisScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 16, color: Colors.grey[600]),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: Colors.grey[700],
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 13, color: Colors.grey[700]),
             ),
           ),
-          const Spacer(),
-          Flexible(
+          Expanded(
+            flex: 3,
             child: Text(
               value,
               textAlign: TextAlign.right,
