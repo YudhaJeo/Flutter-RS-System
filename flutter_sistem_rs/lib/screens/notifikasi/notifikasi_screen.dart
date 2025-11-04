@@ -4,6 +4,7 @@ import '../../models/notifikasi_model.dart';
 import '../../services/notifikasi_service.dart';
 import '../../widgets/custom_topbar.dart';
 import '../../widgets/notifikasi_detail_widget.dart';
+import '../../widgets/loading_widget.dart';
 
 class NotifikasiScreen extends StatefulWidget {
   const NotifikasiScreen({super.key});
@@ -87,19 +88,28 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
       backgroundColor: Colors.white,
       appBar: CustomTopBar(title: 'Notifikasi'),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget(message: 'Memuat notifikasi...')
           : _errorMessage != null
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                   const SizedBox(height: 16),
+                  Text(
+                    'Terjadi kesalahan',
+                    style: TextStyle(
+                      color: Colors.red[700],
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     child: Text(
                       _errorMessage!,
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.grey[600]),
                       textAlign: TextAlign.center,
                     ),
                   ),

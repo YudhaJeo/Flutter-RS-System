@@ -4,6 +4,7 @@ import '../../models/dokter_model.dart';
 import '../../services/dokter_service.dart';
 import '../../widgets/jadwal_dokter_modal.dart';
 import '../../widgets/custom_topbar.dart';
+import '../../widgets/loading_widget.dart';
 
 class DaftarDokterScreen extends StatefulWidget {
   const DaftarDokterScreen({super.key});
@@ -74,7 +75,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
         future: futureDokter,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingWidget(message: 'Memuat daftar dokter...');
           } else if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -119,10 +120,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Belum ada data dokter',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
@@ -145,10 +143,7 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        Colors.blue[700]!,
-                        Colors.blue[500]!,
-                      ],
+                      colors: [Colors.blue[700]!, Colors.blue[500]!],
                     ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
@@ -336,13 +331,14 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                                         ? Image.network(
                                             dokter.fotoProfil!,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Icon(
-                                                CupertinoIcons.person_fill,
-                                                color: Colors.blue[700],
-                                                size: 32,
-                                              );
-                                            },
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                                  return Icon(
+                                                    CupertinoIcons.person_fill,
+                                                    color: Colors.blue[700],
+                                                    size: 32,
+                                                  );
+                                                },
                                           )
                                         : Icon(
                                             CupertinoIcons.person_fill,
@@ -355,7 +351,8 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                                 // Info
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         dokter.namaLengkap,
@@ -373,7 +370,9 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: Colors.blue[50],
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -412,10 +411,14 @@ class _DaftarDokterScreenState extends State<DaftarDokterScreen> {
                                               Colors.blue[500]!,
                                             ],
                                           ),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.blue.withOpacity(0.3),
+                                              color: Colors.blue.withOpacity(
+                                                0.3,
+                                              ),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
                                             ),

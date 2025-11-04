@@ -17,7 +17,6 @@ import '../../services/notifikasi_service.dart';
 import '../../services/reservasi_service.dart';
 import '../../services/rekammedis_service.dart';
 import '../../services/dompet_medis_service.dart';
-import 'package:flutter/services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -136,14 +135,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFFF5F7FA),
-      statusBarIconBrightness: Brightness.dark,
-    ));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
+        top: false,
         child: Stack(
           children: [
             RefreshIndicator(

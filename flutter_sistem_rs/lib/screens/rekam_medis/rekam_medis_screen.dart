@@ -8,6 +8,7 @@ import 'detail_rajal_sreen.dart';
 import 'detail_ranap_screen.dart';
 import '../../widgets/custom_topbar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../widgets/loading_widget.dart';
 
 class RekamMedisScreen extends StatefulWidget {
   const RekamMedisScreen({super.key});
@@ -111,7 +112,7 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: const CustomTopBar(title: 'Rekam Medis'),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget(message: 'Memuat riwayat medis...')
           : _error != null
           ? Center(
               child: Column(
@@ -156,10 +157,7 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Belum ada riwayat kunjungan',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 ],
               ),
@@ -176,10 +174,7 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [
-                          Colors.blue[700]!,
-                          Colors.blue[500]!,
-                        ],
+                        colors: [Colors.blue[700]!, Colors.blue[500]!],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
@@ -300,7 +295,7 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
                       itemBuilder: (context, i) {
                         final item = _riwayat[i];
                         final isRawatInap = item.jenis == 'RAWAT INAP';
-                        
+
                         return GestureDetector(
                           onTap: () => _openDetail(item),
                           child: Container(
@@ -364,11 +359,12 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 16),
-                                  
+
                                   // Info
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           item.jenis,
@@ -408,7 +404,9 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
                                             color: isRawatInap
                                                 ? Colors.purple[50]
                                                 : Colors.blue[50],
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -437,7 +435,7 @@ class _RekamMedisScreenState extends State<RekamMedisScreen> {
                                       ],
                                     ),
                                   ),
-                                  
+
                                   // Arrow Icon
                                   Icon(
                                     CupertinoIcons.chevron_right,

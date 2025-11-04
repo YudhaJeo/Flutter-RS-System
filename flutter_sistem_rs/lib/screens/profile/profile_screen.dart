@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'profile_not_found_screen.dart';
+import '../../widgets/loading_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -105,28 +107,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return Scaffold(
-        backgroundColor: Colors.blue.shade50,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const CircularProgressIndicator(),
-              const SizedBox(height: 16),
-              Text(
-                'Memuat profil...',
-                style: TextStyle(color: Colors.blue.shade700, fontSize: 16),
-              ),
-            ],
-          ),
-        ),
+      return const LoadingScreen(
+        message: 'Memuat profil...',
       );
     }
+    
     if (_profile == null) {
-      return Scaffold(
-        backgroundColor: Colors.blue.shade50,
-        body: const Center(child: Text('Data profil tidak ditemukan')),
-      );
+      return const ProfileNotFoundScreen();
     }
 
     String formatDate(String? s) {
@@ -580,30 +567,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_editMode) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: DropdownButtonFormField<String>(
-          value: _idasuransiController.text.isNotEmpty
-              ? _idasuransiController.text
-              : null,
-          onChanged: (val) {
-            if (val != null) {
-              setState(() => _idasuransiController.text = val);
-            }
-          },
-          decoration: InputDecoration(
-            labelText: 'Asuransi',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              margin: const EdgeInsets.only(top: 12),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.medical_services_outlined,
+                color: Colors.blueAccent,
+                size: 18,
+              ),
             ),
-            isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          ),
-          items: _asuransiList
-              .map((asuransi) => DropdownMenuItem(
-                    value: asuransi["IDASURANSI"].toString(),
-                    child: Text(asuransi["NAMAASURANSI"]),
-                  ))
-              .toList(),
+            const SizedBox(width: 12),
+            Expanded(
+              child: DropdownButtonFormField<String>(
+                value: _idasuransiController.text.isNotEmpty
+                    ? _idasuransiController.text
+                    : null,
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _idasuransiController.text = val);
+                  }
+                },
+                decoration: InputDecoration(
+                  labelText: 'Asuransi',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue.shade200),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.blue.shade200),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderSide: BorderSide(color: Colors.blueAccent, width: 2),
+                  ),
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                ),
+                items: _asuransiList
+                    .map((asuransi) => DropdownMenuItem(
+                          value: asuransi["IDASURANSI"].toString(),
+                          child: Text(asuransi["NAMAASURANSI"]),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
         ),
       );
     } else {

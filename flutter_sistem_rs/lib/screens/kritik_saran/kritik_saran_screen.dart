@@ -4,6 +4,7 @@ import '../../models/kritik_saran_model.dart';
 import '../../services/kritik_saran_service.dart';
 import '../../widgets/custom_topbar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../widgets/loading_widget.dart';
 
 class KritikSaranScreen extends StatefulWidget {
   const KritikSaranScreen({super.key});
@@ -112,7 +113,8 @@ class _KritikSaranScreenState extends State<KritikSaranScreen> {
                     icon: const Icon(Icons.send),
                     label: const Text('Kirim'),
                     onPressed: () async {
-                      if (jenisController.text.isEmpty || pesanController.text.isEmpty) {
+                      if (jenisController.text.isEmpty ||
+                          pesanController.text.isEmpty) {
                         Fluttertoast.showToast(
                           msg: "Isi semua field!",
                           toastLength: Toast.LENGTH_SHORT,
@@ -209,14 +211,46 @@ class _KritikSaranScreenState extends State<KritikSaranScreen> {
       backgroundColor: Colors.white,
       appBar: CustomTopBar(title: 'Kritik & Saran'),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingWidget(message: 'Memuat kritik & saran...')
           : _errorMessage != null
-          ? Center(child: Text('Error: $_errorMessage'))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Terjadi kesalahan',
+                    style: TextStyle(
+                      color: Colors.red[700],
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            )
           : _list.isEmpty
           ? const Center(
-              child: Text(
-                'Belum ada kritik/saran',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.comment_outlined, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'Belum ada kritik/saran',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
               ),
             )
           : RefreshIndicator(

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Header section with gradient background
+/// Header section with gradient background
 class HomeHeader extends StatelessWidget {
   final String patientName;
   final bool hasUnreadNotifications;
@@ -20,6 +21,9 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Dapatkan tinggi status bar
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -43,7 +47,7 @@ class HomeHeader extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        padding: EdgeInsets.fromLTRB(20, statusBarHeight + 4, 20, 30),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -170,6 +174,7 @@ class ServicesCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -197,13 +202,15 @@ class ServicesCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 3,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12, 
+              childAspectRatio: 1, 
+              padding: EdgeInsets.zero,
               children: [
                 _MenuItem(
                   icon: CupertinoIcons.calendar,

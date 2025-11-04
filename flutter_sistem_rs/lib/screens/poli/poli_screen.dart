@@ -4,6 +4,7 @@ import '../../services/poli_service.dart';
 import '../../services/dokter_service.dart';
 import 'dokter_by_poli_screen.dart';
 import '../../widgets/custom_topbar.dart';
+import '../../widgets/loading_widget.dart';
 
 class PoliScreen extends StatefulWidget {
   const PoliScreen({Key? key}) : super(key: key);
@@ -67,16 +68,52 @@ class _PoliScreenState extends State<PoliScreen> {
         future: futurePoli,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingWidget(message: 'Memuat daftar poli...');
           } else if (snapshot.hasError) {
             return Center(
-              child: Text(
-                'Terjadi kesalahan: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Terjadi kesalahan',
+                    style: TextStyle(
+                      color: Colors.red[700],
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Text(
+                      '${snapshot.error}',
+                      style: TextStyle(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Belum ada data poli.'));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.local_hospital_outlined,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Belum ada data poli.',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                ],
+              ),
+            );
           }
 
           return RefreshIndicator(
