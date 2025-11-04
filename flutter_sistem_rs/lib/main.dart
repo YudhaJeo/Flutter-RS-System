@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/services.dart'; // ← tambahkan ini
 import 'screens/splash_screen.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/register/register_screen.dart';
@@ -27,12 +26,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // menyatu dengan appbar
-      statusBarIconBrightness: Brightness.dark, // icon gelap
-      statusBarBrightness: Brightness.light, // iOS
-    ));
-
     return MaterialApp(
       title: 'Flutter RS Bayza',
       debugShowCheckedModeBanner: false,
