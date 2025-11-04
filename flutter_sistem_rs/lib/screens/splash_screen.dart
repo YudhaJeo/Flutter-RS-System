@@ -12,80 +12,67 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late AnimationController _logoController;
-  late AnimationController _pulseController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    // Logo fade & scale animation
+    // Logo fade & scale animation (dipercepat)
     _logoController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 600), // Dikurangi dari 1200
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+        curve: Curves.easeOut,
       ),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
         parent: _logoController,
-        curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
+        curve: Curves.easeOut,
       ),
     );
 
-    // Pulse animation
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    // Start animations
+    // Start animation
     _logoController.forward();
-    Future.delayed(const Duration(milliseconds: 600), () {
+
+    // Navigation logic - langsung cek tanpa delay
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    // Tunggu animasi selesai (minimal)
+    await Future.delayed(const Duration(milliseconds: 800));
+    
+    if (!mounted) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final norekammedis = prefs.getString('norekammedis');
+
       if (mounted) {
-        _pulseController.repeat(reverse: true);
-      }
-    });
-
-    // Navigation logic
-    Future.delayed(const Duration(milliseconds: 2500), () async {
-      if (!mounted) return;
-
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        final norekammedis = prefs.getString('norekammedis');
-
-        if (mounted) {
-          if (norekammedis != null) {
-            Navigator.pushReplacementNamed(context, '/main');
-          } else {
-            Navigator.pushReplacementNamed(context, '/login');
-          }
-        }
-      } catch (e) {
-        if (mounted) {
+        if (norekammedis != null) {
+          Navigator.pushReplacementNamed(context, '/main');
+        } else {
           Navigator.pushReplacementNamed(context, '/login');
         }
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    }
   }
 
   @override
   void dispose() {
     _logoController.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -102,45 +89,29 @@ class _SplashScreenState extends State<SplashScreen>
         ),
         child: Stack(
           children: [
-            // Animated circles in background
+            // Simplified background circles (static)
             Positioned(
               top: -100,
               right: -100,
-              child: AnimatedBuilder(
-                animation: _pulseController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _pulseAnimation.value,
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.1),
-                      ),
-                    ),
-                  );
-                },
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
               ),
             ),
             Positioned(
               bottom: -150,
               left: -150,
-              child: AnimatedBuilder(
-                animation: _pulseController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: 1.2 - (_pulseAnimation.value - 1.0),
-                    child: Container(
-                      width: 400,
-                      height: 400,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.08),
-                      ),
-                    ),
-                  );
-                },
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.08),
+                ),
               ),
             ),
 
@@ -149,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo with animations
+                  // Logo with fade & scale animation
                   AnimatedBuilder(
                     animation: _logoController,
                     builder: (context, child) {
@@ -157,33 +128,25 @@ class _SplashScreenState extends State<SplashScreen>
                         opacity: _fadeAnimation,
                         child: ScaleTransition(
                           scale: _scaleAnimation,
-                          child: AnimatedBuilder(
-                            animation: _pulseController,
-                            builder: (context, child) {
-                              return Transform.scale(
-                                scale: _pulseAnimation.value,
-                                child: Container(
-                                  padding: const EdgeInsets.all(30),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        blurRadius: 30,
-                                        spreadRadius: 5,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Image.asset(
-                                    'assets/images/logo.png',
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.contain,
-                                  ),
+                          child: Container(
+                            padding: const EdgeInsets.all(30),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 30,
+                                  spreadRadius: 5,
                                 ),
-                              );
-                            },
+                              ],
+                            ),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       );
