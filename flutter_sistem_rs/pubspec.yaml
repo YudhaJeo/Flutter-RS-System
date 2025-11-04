@@ -105,6 +105,20 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+# flutter_native_splash dinonaktifkan
+# flutter_native_splash:
+#   color: "#FFFFFF"
+#   image: "assets/images/logo.png"
+#   android: true
+#   ios: true
+#   web: true
+  
+#   android_12:
+#     image: "assets/images/logo.png"
+#     icon_background_color: "#FFFFFF"
+    
+#   fullscreen: true
+
 flutter_launcher_icons:
   android: true
   ios: true
