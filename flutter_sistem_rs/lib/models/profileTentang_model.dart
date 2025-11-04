@@ -24,6 +24,21 @@ class ProfileTentang {
   });
 
   factory ProfileTentang.fromJson(Map<String, dynamic> json) {
+
+  final rawFotoLogo = json['FOTOLOGO'];
+  String fotoLogoUrl = '';
+
+  if (rawFotoLogo != null && rawFotoLogo.toString().isNotEmpty) {
+    if (rawFotoLogo.toString().startsWith('http')) {
+      fotoLogoUrl = rawFotoLogo;
+    } else {
+      final path = rawFotoLogo.toString().startsWith('/')
+          ? rawFotoLogo
+          : '/$rawFotoLogo';
+      fotoLogoUrl = 'http://10.0.2.2:4100$path';
+    }
+  }
+
     return ProfileTentang(
       namaRs: json['NAMARS'] ?? '',
       alamat: json['ALAMAT'] ?? '',
@@ -34,7 +49,7 @@ class ProfileTentang {
       deskripsi: json['DESKRIPSI'] ?? '',
       visi: json['VISI'] ?? '',
       misi: json['MISI'] ?? '',
-      fotoLogo: json['FOTOLOGO'] ?? '',
+      fotoLogo: fotoLogoUrl,
     );
   }
 }
