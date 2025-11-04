@@ -14,7 +14,7 @@ export async function getprofileById(req, res) {
     try {
         const id = req.params.id;
         const profile = await profileModel.getById(id);
-        if (!profile) return res.status(404).json({ error: 'profile tidak ditemukan' });
+        if (!profile) return res.status(404).json({ error: 'Profile tidak ditemukan' });
         res.json(profile);
     } catch (err) {
         console.error('Error backend:', err);
