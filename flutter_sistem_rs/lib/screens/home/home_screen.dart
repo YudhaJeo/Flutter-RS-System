@@ -244,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const BeritaWidget(),
                           const SizedBox(height: 24),
                           const EmergencyContactCard(),
-                          const SizedBox(height: 80), // Spasi bawah tambahan
+                          const SizedBox(height: 80),
                         ],
                       ),
                     ),
@@ -253,30 +253,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            // === Tombol "Tentang Kami" Floating di kanan bawah ===
             Positioned(
               bottom: 24,
               right: 20,
-              child: FloatingActionButton.extended(
-                backgroundColor: Colors.amber[700],
-                elevation: 6,
-                icon: const Icon(Icons.info_outline, color: Colors.white),
-                label: const Text(
-                  "Tentang Kami",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
+              child: Tooltip(
+                message: "Tentang Kami", 
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfileTentangScreen(),
-                    ),
-                  );
-                },
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                waitDuration: const Duration(milliseconds: 300),
+                showDuration: const Duration(seconds: 2), 
+                child: FloatingActionButton(
+                  backgroundColor: Colors.amber[700],
+                  elevation: 6,
+                  child: const Icon(Icons.info_outline, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileTentangScreen(),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
