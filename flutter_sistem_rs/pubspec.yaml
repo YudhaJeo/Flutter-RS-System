@@ -80,6 +80,8 @@ flutter:
     - assets/icons/male-avatar.png
     - assets/icons/female-avatar.png
     - assets/images/newspaper-background.jpg
+    - .env
+    - assets/.env
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

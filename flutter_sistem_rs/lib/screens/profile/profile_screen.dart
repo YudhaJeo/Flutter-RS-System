@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'profile_not_found_screen.dart';
 import '../../widgets/loading_widget.dart';
+import '../../utils/app_env.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     final idPasien = prefs.getInt('idPasien');
     if (idPasien == null) return;
-    final uri = Uri.parse('http://10.0.2.2:4100/profile?id=$idPasien');
+    final uri = Uri.parse('${AppEnv.baseUrl}/profile?id=$idPasien');
     final res =
         await http.get(uri, headers: {'Content-Type': 'application/json'});
     if (res.statusCode == 200) {
@@ -52,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     final idPasien = prefs.getInt('idPasien');
     if (idPasien == null) return;
-    final uri = Uri.parse('http://10.0.2.2:4100/profile');
+    final uri = Uri.parse('${AppEnv.baseUrl}/profile');
     final res = await http.put(
       uri,
       headers: {'Content-Type': 'application/json'},
@@ -89,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _fetchAsuransi() async {
-    final uri = Uri.parse('http://10.0.2.2:4100/profile/asuransi');
+    final uri = Uri.parse('${AppEnv.baseUrl}/profile/asuransi');
     final res = await http.get(uri);
     if (res.statusCode == 200) {
       final data = jsonDecode(res.body)['data'] as List;

@@ -2,9 +2,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/dompet_medis_model.dart';
+import '../utils/app_env.dart';
 
 class DompetMedisService {
-  static const String baseUrl = 'http://10.0.2.2:4100/dompet_medis';
+  static String get baseUrl => '${AppEnv.baseUrl}/dompet_medis';
 
   /// Ambil semua deposit milik pengguna berdasarkan NIK
   static Future<List<DompetMedis>> fetchDompetMedisByNik(String nik) async {
@@ -23,7 +24,9 @@ class DompetMedisService {
         throw Exception('Format data dompet medis tidak sesuai');
       }
     } else {
-      throw Exception('Gagal memuat data dompet medis (${response.statusCode})');
+      throw Exception(
+        'Gagal memuat data dompet medis (${response.statusCode})',
+      );
     }
   }
 }

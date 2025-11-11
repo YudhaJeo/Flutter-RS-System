@@ -2,8 +2,8 @@ import db from '../core/config/knex.js';
 
 const MINIO_URL =
   process.env.NODE_ENV === 'development'
-    ? 'http://10.0.2.2:9000' 
-    : process.env.MINIO_BASE_URL || 'http://localhost:9000';
+    ? process.env.MINIO_DEVICE_URL 
+    : process.env.MINIO_BASE_URL;
 
 export async function getAllDokter() {
   const rows = await db('dokter')

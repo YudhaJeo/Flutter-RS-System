@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../../widgets/custom_topbar.dart';
+import '../../utils/app_env.dart';
 
 class DetailRawatInapScreen extends StatefulWidget {
   final int id;
@@ -29,11 +30,11 @@ class _DetailRawatInapScreenState extends State<DetailRawatInapScreen> {
 
   Future<void> fetchDetail() async {
     try {
-      final res = await http.get(
-        Uri.parse('http://10.0.2.2:4100/riwayat_inap/${widget.id}'),
+      final response = await http.get(
+        Uri.parse('${AppEnv.baseUrl}/riwayat_inap/${widget.id}'),
       );
-      if (res.statusCode == 200) {
-        final body = json.decode(res.body);
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
         setState(() {
           data = body['data'];
           loading = false;

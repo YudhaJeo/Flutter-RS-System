@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
+import '../../utils/app_env.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String norekammedis;
@@ -25,10 +26,12 @@ class OtpVerificationScreen extends StatefulWidget {
 }
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
-  
+
   bool _isLoading = false;
   bool _isResending = false;
   int _countdown = 60;
@@ -88,7 +91,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   Future<void> _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
-    
+
     if (otp.length != 6) {
       _showToast('Masukkan kode OTP lengkap', isError: true);
       return;
@@ -98,7 +101,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       _isLoading = true;
     });
 
-    final uri = Uri.parse('http://10.0.2.2:4100/register/verify-otp');
+    final uri = Uri.parse('${AppEnv.baseUrl}/register/verify-otp');
 
     try {
       final response = await http.post(
@@ -116,16 +119,16 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
       if (response.statusCode == 200 && data['success'] == true) {
         _showToast(data['message'] ?? 'Registrasi berhasil');
-        
+
         await Future.delayed(const Duration(milliseconds: 1500));
-        
+
         if (mounted) {
           Navigator.of(context).popUntil((route) => route.isFirst);
           Navigator.pushReplacementNamed(context, '/login');
         }
       } else {
         _showToast(data['message'] ?? 'Kode OTP tidak valid', isError: true);
-        
+
         // Clear OTP fields on error
         for (var controller in _otpControllers) {
           controller.clear();
@@ -148,15 +151,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       _isResending = true;
     });
 
-    final uri = Uri.parse('http://10.0.2.2:4100/register/resend-otp');
+    final uri = Uri.parse('${AppEnv.baseUrl}/register/resend-otp');
 
     try {
       final response = await http.post(
         uri,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'norekammedis': widget.norekammedis,
-        }),
+        body: jsonEncode({'norekammedis': widget.norekammedis}),
       );
 
       final data = jsonDecode(response.body);
@@ -164,14 +165,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       if (response.statusCode == 200 && data['success'] == true) {
         _showToast('Kode OTP berhasil dikirim ulang');
         _startCountdown();
-        
+
         // Clear OTP fields
         for (var controller in _otpControllers) {
           controller.clear();
         }
         _focusNodes[0].requestFocus();
       } else {
-        _showToast(data['message'] ?? 'Gagal mengirim ulang OTP', isError: true);
+        _showToast(
+          data['message'] ?? 'Gagal mengirim ulang OTP',
+          isError: true,
+        );
       }
     } catch (e) {
       _showToast('Gagal terhubung ke server', isError: true);
@@ -260,9 +264,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                 color: Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: _focusNodes[index].hasFocus 
-                                    ? const Color(0xFF42A5F5)
-                                    : Colors.grey.shade300,
+                                  color: _focusNodes[index].hasFocus
+                                      ? const Color(0xFF42A5F5)
+                                      : Colors.grey.shade300,
                                   width: _focusNodes[index].hasFocus ? 2 : 1.5,
                                 ),
                               ),
@@ -288,14 +292,14 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                                   ],
                                   onChanged: (value) {
                                     setState(() {}); // Refresh border color
-                                    
+
                                     if (value.isNotEmpty && index < 5) {
                                       _focusNodes[index + 1].requestFocus();
                                     }
                                     if (value.isEmpty && index > 0) {
                                       _focusNodes[index - 1].requestFocus();
                                     }
-                                    
+
                                     // Auto verify when all fields filled
                                     if (index == 5 && value.isNotEmpty) {
                                       final allFilled = _otpControllers.every(

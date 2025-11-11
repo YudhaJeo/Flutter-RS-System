@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../widgets/custom_topbar.dart';
 import 'package:intl/intl.dart';
+import '../../utils/app_env.dart';
 
 class DetailRawatJalanScreen extends StatefulWidget {
   final int id;
@@ -26,11 +27,11 @@ class _DetailRawatJalanScreenState extends State<DetailRawatJalanScreen> {
 
   Future<void> fetchDetail() async {
     try {
-      final res = await http.get(
-        Uri.parse('http://10.0.2.2:4100/riwayat_jalan/${widget.id}'),
+      final response = await http.get(
+        Uri.parse('${AppEnv.baseUrl}/riwayat_jalan/${widget.id}'),
       );
-      if (res.statusCode == 200) {
-        final body = json.decode(res.body);
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
         setState(() {
           data = body['data'];
           loading = false;

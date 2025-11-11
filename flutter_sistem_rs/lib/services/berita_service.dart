@@ -2,9 +2,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/berita_model.dart';
+import '../utils/app_env.dart';
 
 class BeritaService {
-  static const String baseUrl = 'http://10.0.2.2:4100/berita';
+  static String get baseUrl => '${AppEnv.baseUrl}/berita';
 
   static Future<List<Berita>> fetchAllBerita() async {
     final url = Uri.parse(baseUrl);

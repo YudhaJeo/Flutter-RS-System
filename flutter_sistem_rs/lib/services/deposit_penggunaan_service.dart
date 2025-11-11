@@ -2,11 +2,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/deposit_penggunaan_model.dart';
+import '../utils/app_env.dart';
 
 class DepositPenggunaanService {
-  static const String baseUrl = 'http://10.0.2.2:4100/dompet_medis';
+  static String get baseUrl => '${AppEnv.baseUrl}/dompet_medis';
 
-  static Future<List<DepositPenggunaan>> fetchByNoInvoice(String noInvoice) async {
+  static Future<List<DepositPenggunaan>> fetchByNoInvoice(
+    String noInvoice,
+  ) async {
     final url = Uri.parse('$baseUrl/invoice/$noInvoice');
     final response = await http.get(url);
 

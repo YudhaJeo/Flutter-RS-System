@@ -1,4 +1,6 @@
-class ProfileTentang {
+import '../utils/app_env.dart';
+
+class ProfileRs {
   final String namaRs;
   final String alamat;
   final String email;
@@ -10,7 +12,7 @@ class ProfileTentang {
   final String misi;
   final String fotoLogo;
 
-  ProfileTentang({
+  ProfileRs({
     required this.namaRs,
     required this.alamat,
     required this.email,
@@ -23,7 +25,7 @@ class ProfileTentang {
     required this.fotoLogo,
   });
 
-  factory ProfileTentang.fromJson(Map<String, dynamic> json) {
+  factory ProfileRs.fromJson(Map<String, dynamic> json) {
 
   final rawFotoLogo = json['FOTOLOGO'];
   String fotoLogoUrl = '';
@@ -35,11 +37,11 @@ class ProfileTentang {
       final path = rawFotoLogo.toString().startsWith('/')
           ? rawFotoLogo
           : '/$rawFotoLogo';
-      fotoLogoUrl = 'http://10.0.2.2:4100$path';
+      fotoLogoUrl = '${AppEnv.baseUrl}$path';
     }
   }
 
-    return ProfileTentang(
+    return ProfileRs(
       namaRs: json['NAMARS'] ?? '',
       alamat: json['ALAMAT'] ?? '',
       email: json['EMAIL'] ?? '',
