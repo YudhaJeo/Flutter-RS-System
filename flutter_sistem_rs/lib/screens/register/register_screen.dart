@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'otp_verification_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -40,9 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return 'Password minimal 8 karakter';
     }
     
-    // Cek apakah mengandung huruf
     final hasLetter = RegExp(r'[a-zA-Z]').hasMatch(value);
-    // Cek apakah mengandung angka
     final hasNumber = RegExp(r'[0-9]').hasMatch(value);
     
     if (!hasLetter || !hasNumber) {
@@ -62,16 +61,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  Future<void> _register() async {
+  Future<void> _requestOTP() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    final uri = Uri.parse('http://10.0.2.2:4100/register');
-    // final uri = Uri.parse('http://10.127.175.73:4100/register');
-    // final uri = Uri.parse('${AppEnv.baseUrl}/register');
+    final uri = Uri.parse('http://10.0.2.2:4100/register/request-otp');
 
     try {
       final response = await http.post(
@@ -86,13 +83,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 && data['success'] == true) {
-        _showToast(data['message'] ?? 'Registrasi berhasil');
+        _showToast('Kode OTP telah dikirim ke nomor HP Anda');
 
-        // Kembali ke halaman login setelah delay singkat
-        await Future.delayed(const Duration(milliseconds: 1500));
-        
+        await Future.delayed(const Duration(milliseconds: 500));
+
         if (mounted) {
-          Navigator.pop(context);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpVerificationScreen(
+                norekammedis: _identitasController.text.trim(),
+                password: _passwordController.text,
+                phoneNumber: data['data']['phoneNumber'],
+                otpId: data['data']['otpId'],
+              ),
+            ),
+          );
         }
       } else {
         _showToast(data['message'] ?? 'Registrasi gagal', isError: true);
@@ -138,7 +144,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 🏥 Ikon rumah sakit di atas
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(
@@ -153,7 +158,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // 🩺 Judul dan deskripsi
                 const Text(
                   "Daftar Akun Mobile",
                   style: TextStyle(
@@ -171,7 +175,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // 📋 Form Register
                 Card(
                   elevation: 6,
                   shape: RoundedRectangleBorder(
@@ -184,7 +187,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Info Box
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -214,7 +216,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Input No Rekam Medis / NIK
                           TextFormField(
                             controller: _identitasController,
                             decoration: InputDecoration(
@@ -248,7 +249,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Input Password
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
@@ -292,7 +292,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             validator: _validatePassword,
                             onChanged: (value) {
-                              // Revalidasi konfirmasi password saat password berubah
                               if (_confirmPasswordController.text.isNotEmpty) {
                                 _formKey.currentState?.validate();
                               }
@@ -300,7 +299,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Input Konfirmasi Password
                           TextFormField(
                             controller: _confirmPasswordController,
                             obscureText: _obscureConfirmPassword,
@@ -346,7 +344,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 24),
 
-                          // 🔵 Tombol Daftar
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
@@ -360,7 +357,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                                 elevation: 2,
                               ),
-                              onPressed: _isLoading ? null : _register,
+                              onPressed: _isLoading ? null : _requestOTP,
                               child: _isLoading
                                   ? const SizedBox(
                                       height: 22,
@@ -369,7 +366,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           strokeWidth: 2, color: Colors.white),
                                     )
                                   : const Text(
-                                      'Daftar',
+                                      'Lanjutkan',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
@@ -379,7 +376,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Link ke Login
                           Center(
                             child: TextButton(
                               onPressed: _isLoading ? null : () {

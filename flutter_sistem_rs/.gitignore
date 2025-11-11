@@ -1,5 +1,8 @@
 .env
 
+/android/app/google-services.json
+/lib/firebase_options.dart
+
 # Miscellaneous
 *.class
 *.log

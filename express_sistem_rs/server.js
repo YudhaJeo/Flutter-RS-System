@@ -1,7 +1,17 @@
-// D:\Mobile App\flutter_sistem_rs\server\server.js
+// D:\Mobile App\flutter_sistem_rs\express_sistem_rs\server\server.js
 import { config } from 'dotenv';
 import { createServer } from 'http';
+import { readFileSync } from 'fs';
 import app from './src/app.js';
+import admin from 'firebase-admin';
+
+const serviceAccount = JSON.parse(
+  readFileSync(new URL('./serviceAccountKey.json', import.meta.url))
+);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 config({ quiet: true });
 

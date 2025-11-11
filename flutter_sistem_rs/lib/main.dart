@@ -8,9 +8,14 @@ import 'screens/register/register_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'widgets/main_bottom_nav.dart';
 import 'screens/profile/profile_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   
   try {
     await dotenv.load(fileName: ".env");
