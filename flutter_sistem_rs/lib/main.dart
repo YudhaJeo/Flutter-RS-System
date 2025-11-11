@@ -16,23 +16,10 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   try {
-    // Coba load dari beberapa lokasi
     await dotenv.load(fileName: ".env");
-    debugPrint("Berhasil memuat .env dari root project");
   } catch (e) {
-    try {
-      // Coba load dari direktori assets
-      await dotenv.load(fileName: ".env");
-      debugPrint("Berhasil memuat .env dari assets");
-    } catch (assetsError) {
-      debugPrint("Gagal memuat .env: $e, Assets Error: $assetsError");
-
-      // Tambahkan default values jika env gagal dimuat
-      dotenv.env['EXPRESS_PORT'] = '4100';
-      dotenv.env['IP_ADDRESS'] = '10.0.2.2';
-
-      debugPrint("Menggunakan default environment values");
-    }
+    dotenv.env['EXPRESS_PORT'] = '4100';
+    dotenv.env['IP_ADDRESS'] = '10.0.2.2';
   }
 
   runApp(const MyApp());
