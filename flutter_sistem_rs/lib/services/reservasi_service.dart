@@ -4,12 +4,10 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/reservasi_model.dart';
-// import '../../utils/app_env.dart';
+import '../utils/app_env.dart';
 
 class ReservasiService {
-  static const String _baseUrl = 'http://10.0.2.2:4100/reservasi';
-  // static String get _baseUrl => '${AppEnv.baseUrl}/reservasi';
-  // static const String _baseUrl = 'http://10.127.175.73:4100/reservasi';
+  static String get _baseUrl => '${AppEnv.baseUrl}/reservasi';
 
   Future<List<Reservasi>> fetchReservasiByNIK() async {
     try {
@@ -264,14 +262,16 @@ class ReservasiService {
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('$_baseUrl/count?IDDOKTER=$idDokter&TANGGALRESERVASI=$tanggalReservasi'),
+        Uri.parse(
+          '$_baseUrl/count?IDDOKTER=$idDokter&TANGGALRESERVASI=$tanggalReservasi',
+        ),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         return data['total'] ?? 0;
-      } else { 
+      } else {
         throw Exception('Gagal mengambil jumlah reservasi');
       }
     } catch (e) {
@@ -284,4 +284,3 @@ class ReservasiService {
     }
   }
 }
-

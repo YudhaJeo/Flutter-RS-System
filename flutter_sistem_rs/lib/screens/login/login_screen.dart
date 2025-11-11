@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../utils/app_env.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,9 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    final uri = Uri.parse('http://10.0.2.2:4100/login');
-    // final uri = Uri.parse('http://10.127.175.73:4100/login');
-    // final uri = Uri.parse('${AppEnv.baseUrl}/login');
+    final uri = Uri.parse('${AppEnv.baseUrl}/login');
 
     try {
       final response = await http.post(
@@ -70,7 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
         _showToast(data['message'] ?? 'Login gagal', isError: true);
       }
     } catch (e) {
-      _showToast('Gagal terhubung ke server. Periksa koneksi internet Anda.', isError: true);
+      _showToast(
+        'Gagal terhubung ke server. Periksa koneksi internet Anda.',
+        isError: true,
+      );
     }
 
     setState(() {
@@ -160,17 +162,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                    color: Color(0xFF42A5F5), width: 1.2),
+                                  color: Color(0xFF42A5F5),
+                                  width: 1.2,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                    color: Colors.grey.shade300, width: 1.2),
+                                  color: Colors.grey.shade300,
+                                  width: 1.2,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                    color: Color(0xFF42A5F5), width: 2),
+                                  color: Color(0xFF42A5F5),
+                                  width: 2,
+                                ),
                               ),
                             ),
                             validator: (value) => value == null || value.isEmpty
@@ -208,17 +216,23 @@ class _LoginScreenState extends State<LoginScreen> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                    color: Color(0xFF42A5F5), width: 1.2),
+                                  color: Color(0xFF42A5F5),
+                                  width: 1.2,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide(
-                                    color: Colors.grey.shade300, width: 1.2),
+                                  color: Colors.grey.shade300,
+                                  width: 1.2,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: const BorderSide(
-                                    color: Color(0xFF42A5F5), width: 2),
+                                  color: Color(0xFF42A5F5),
+                                  width: 2,
+                                ),
                               ),
                             ),
                             validator: (value) => value == null || value.isEmpty
@@ -234,8 +248,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF42A5F5),
                                 foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -247,7 +262,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       height: 22,
                                       width: 22,
                                       child: CircularProgressIndicator(
-                                          strokeWidth: 2, color: Colors.white),
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
                                     )
                                   : const Text(
                                       'Login',
@@ -263,7 +280,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Divider
                           Row(
                             children: [
-                              Expanded(child: Divider(color: Colors.grey.shade400)),
+                              Expanded(
+                                child: Divider(color: Colors.grey.shade400),
+                              ),
                               const Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 12),
                                 child: Text(
@@ -271,7 +290,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(color: Colors.grey),
                                 ),
                               ),
-                              Expanded(child: Divider(color: Colors.grey.shade400)),
+                              Expanded(
+                                child: Divider(color: Colors.grey.shade400),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -282,10 +303,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: const Color(0xFF42A5F5),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 side: const BorderSide(
-                                    color: Color(0xFF42A5F5), width: 1.5),
+                                  color: Color(0xFF42A5F5),
+                                  width: 1.5,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),

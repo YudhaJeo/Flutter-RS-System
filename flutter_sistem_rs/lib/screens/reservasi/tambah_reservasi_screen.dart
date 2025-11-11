@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../widgets/custom_topbar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../utils/app_env.dart';
 
 class TambahReservasiScreen extends StatefulWidget {
   const TambahReservasiScreen({super.key});
@@ -46,7 +47,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   Future<void> _fetchPoliList() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:4100/poli'),
+        Uri.parse('${AppEnv.baseUrl}/poli'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -75,7 +76,7 @@ class _TambahReservasiScreenState extends State<TambahReservasiScreen> {
   Future<void> _fetchAllDokter() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:4100/dokter'),
+        Uri.parse('${AppEnv.baseUrl}/dokter'),
         headers: {'Content-Type': 'application/json'},
       );
 

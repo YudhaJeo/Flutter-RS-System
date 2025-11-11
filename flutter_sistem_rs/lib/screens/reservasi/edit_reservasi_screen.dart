@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show debugPrint;
 import '../../widgets/custom_topbar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../utils/app_env.dart';
 
 class EditReservasiScreen extends StatefulWidget {
   final Reservasi reservasi;
@@ -33,7 +34,7 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
 
   bool _isLoading = false;
   String? _errorMessage;
-  
+
   // Tambahan untuk jumlah reservasi
   int? _jumlahReservasi;
   bool _isLoadingJumlah = false;
@@ -50,15 +51,17 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
     _selectedPoliId = widget.reservasi.idPoli;
     _selectedDokterId = widget.reservasi.idDokter;
 
-    final tanggalReservasi = DateTime.parse(widget.reservasi.tanggalReservasi)
-        .add(const Duration(days: 1));
+    final tanggalReservasi = DateTime.parse(
+      widget.reservasi.tanggalReservasi,
+    ).add(const Duration(days: 1));
     _selectedTanggal = tanggalReservasi;
 
     _selectedJamReservasi = widget.reservasi.jamReservasi;
     _keteranganController.text = widget.reservasi.keterangan ?? '';
 
     debugPrint(
-        'Init Reservasi: ${widget.reservasi.tanggalReservasi} -> $tanggalReservasi');
+      'Init Reservasi: ${widget.reservasi.tanggalReservasi} -> $tanggalReservasi',
+    );
   }
 
   void _updateFiltersAfterInitialization() {
@@ -71,12 +74,12 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
 
   Future<void> _fetchPoliList() async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:4100/poli'),
+      final poliResponse = await http.get(
+        Uri.parse('${AppEnv.baseUrl}/poli'),
         headers: {'Content-Type': 'application/json'},
       );
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+      if (poliResponse.statusCode == 200) {
+        final List<dynamic> data = json.decode(poliResponse.body);
         setState(() {
           _poliList = data
               .map((p) => {'IDPOLI': p['IDPOLI'], 'NAMAPOLI': p['NAMAPOLI']})
@@ -90,12 +93,12 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
 
   Future<void> _fetchAllDokter() async {
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:4100/dokter'),
+      final dokterResponse = await http.get(
+        Uri.parse('${AppEnv.baseUrl}/dokter'),
         headers: {'Content-Type': 'application/json'},
       );
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+      if (dokterResponse.statusCode == 200) {
+        final List<dynamic> data = json.decode(dokterResponse.body);
         setState(() {
           _allDokterList = data.map((d) {
             List<String> jadwal = [];
@@ -134,14 +137,15 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
       'Rabu',
       'Kamis',
       'Jumat',
-      'Sabtu'
+      'Sabtu',
     ][_selectedTanggal!.weekday % 7];
 
     setState(() {
       _dokterList = _allDokterList.where((d) {
         bool poliMatch = d['IDPOLI'] == _selectedPoliId;
-        bool jadwalMatch = (d['JADWALPRAKTEK'] as List<String>)
-            .any((j) => j.toLowerCase().contains(hari.toLowerCase()));
+        bool jadwalMatch = (d['JADWALPRAKTEK'] as List<String>).any(
+          (j) => j.toLowerCase().contains(hari.toLowerCase()),
+        );
         return poliMatch && jadwalMatch;
       }).toList();
     });
@@ -163,7 +167,7 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
       'Rabu',
       'Kamis',
       'Jumat',
-      'Sabtu'
+      'Sabtu',
     ][_selectedTanggal!.weekday % 7];
 
     final dokter = _allDokterList.firstWhere(
@@ -344,7 +348,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                     decoration: InputDecoration(
                       labelText: 'Tanggal Reservasi',
                       labelStyle: TextStyle(color: Colors.grey.shade700),
-                      prefixIcon: Icon(Icons.date_range, color: Colors.blue.shade600),
+                      prefixIcon: Icon(
+                        Icons.date_range,
+                        color: Colors.blue.shade600,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
@@ -357,7 +364,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+                        borderSide: BorderSide(
+                          color: Colors.blue.shade400,
+                          width: 2,
+                        ),
                       ),
                     ),
                     readOnly: true,
@@ -384,7 +394,8 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                         });
                       }
                     },
-                    validator: (value) => _selectedTanggal == null ? 'Pilih tanggal' : null,
+                    validator: (value) =>
+                        _selectedTanggal == null ? 'Pilih tanggal' : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -393,7 +404,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                     decoration: InputDecoration(
                       labelText: 'Pilih Poli',
                       labelStyle: TextStyle(color: Colors.grey.shade700),
-                      prefixIcon: Icon(Icons.local_hospital, color: Colors.blue.shade600),
+                      prefixIcon: Icon(
+                        Icons.local_hospital,
+                        color: Colors.blue.shade600,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
@@ -406,7 +420,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+                        borderSide: BorderSide(
+                          color: Colors.blue.shade400,
+                          width: 2,
+                        ),
                       ),
                     ),
                     value: _selectedPoliId,
@@ -435,7 +452,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                     decoration: InputDecoration(
                       labelText: 'Pilih Dokter',
                       labelStyle: TextStyle(color: Colors.grey.shade700),
-                      prefixIcon: Icon(Icons.person, color: Colors.blue.shade600),
+                      prefixIcon: Icon(
+                        Icons.person,
+                        color: Colors.blue.shade600,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
@@ -448,7 +468,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+                        borderSide: BorderSide(
+                          color: Colors.blue.shade400,
+                          width: 2,
+                        ),
                       ),
                     ),
                     value: _selectedDokterId,
@@ -458,7 +481,8 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                         child: Text(d['NAMALENGKAP'] ?? '-'),
                       );
                     }).toList(),
-                    onChanged: (_selectedPoliId == null || _selectedTanggal == null)
+                    onChanged:
+                        (_selectedPoliId == null || _selectedTanggal == null)
                         ? null
                         : (value) {
                             setState(() {
@@ -483,7 +507,11 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.blue.shade700,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: _isLoadingJumlah
@@ -513,7 +541,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                     decoration: InputDecoration(
                       labelText: 'Pilih Jam Praktek',
                       labelStyle: TextStyle(color: Colors.grey.shade700),
-                      prefixIcon: Icon(Icons.access_time, color: Colors.blue.shade600),
+                      prefixIcon: Icon(
+                        Icons.access_time,
+                        color: Colors.blue.shade600,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
@@ -526,7 +557,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+                        borderSide: BorderSide(
+                          color: Colors.blue.shade400,
+                          width: 2,
+                        ),
                       ),
                     ),
                     value: _selectedJamReservasi,
@@ -543,7 +577,8 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                               _selectedJamReservasi = value;
                             });
                           },
-                    validator: (value) => value == null ? 'Pilih jam praktek' : null,
+                    validator: (value) =>
+                        value == null ? 'Pilih jam praktek' : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -553,7 +588,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                     decoration: InputDecoration(
                       labelText: 'Keterangan (Opsional)',
                       labelStyle: TextStyle(color: Colors.grey.shade700),
-                      prefixIcon: Icon(Icons.note_alt_outlined, color: Colors.blue.shade600),
+                      prefixIcon: Icon(
+                        Icons.note_alt_outlined,
+                        color: Colors.blue.shade600,
+                      ),
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
@@ -566,7 +604,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue.shade400, width: 2),
+                        borderSide: BorderSide(
+                          color: Colors.blue.shade400,
+                          width: 2,
+                        ),
                       ),
                     ),
                     maxLines: 3,
@@ -622,7 +663,10 @@ class _EditReservasiScreenState extends State<EditReservasiScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red.shade700),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade700,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(

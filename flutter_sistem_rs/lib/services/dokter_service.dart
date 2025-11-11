@@ -2,10 +2,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/dokter_model.dart';
+import '../utils/app_env.dart';
 
 class DokterService {
   static Future<List<Dokter>> fetchAllDokter() async {
-    final url = Uri.parse('http://10.0.2.2:4100/dokter');
+    final url = Uri.parse('${AppEnv.baseUrl}/dokter');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -21,7 +22,7 @@ class DokterService {
   }
 
   static Future<List<Dokter>> fetchDokterByPoli(int idPoli) async {
-    final url = Uri.parse('http://10.0.2.2:4100/dokter/poli/$idPoli');
+    final url = Uri.parse('${AppEnv.baseUrl}/dokter/poli/$idPoli');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

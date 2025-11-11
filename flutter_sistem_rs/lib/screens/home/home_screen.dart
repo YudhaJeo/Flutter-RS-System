@@ -10,7 +10,7 @@ import '../kalender/kalender_screen.dart';
 import '../daftar_dokter/daftar_dokter_screen.dart';
 import '../kritik_saran/kritik_saran_screen.dart';
 import '../notifikasi/notifikasi_screen.dart';
-import '../tentang_kami/profileTentang_screen.dart'; // <--- Tambahkan ini
+import '../tentang_kami/profile_rs_screen.dart'; // <--- Tambahkan ini
 import '../../widgets/berita_widget.dart';
 import '../../widgets/home_widget.dart';
 import '../../services/notifikasi_service.dart';
@@ -90,9 +90,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadJumlahReservasi() async {
     try {
       final reservasiList = await _reservasiService.fetchReservasiByNIK();
-      final activeReservasi = reservasiList.where((r) =>
-          r.status.toLowerCase() == 'menunggu' ||
-          r.status.toLowerCase() == 'dikonfirmasi').length;
+      final activeReservasi = reservasiList
+          .where(
+            (r) =>
+                r.status.toLowerCase() == 'menunggu' ||
+                r.status.toLowerCase() == 'dikonfirmasi',
+          )
+          .length;
 
       setState(() {
         _jumlahReservasi = activeReservasi;
@@ -135,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       body: SafeArea(
@@ -165,7 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const KritikSaranScreen()),
+                            builder: (context) => const KritikSaranScreen(),
+                          ),
                         );
                       },
                     ),
@@ -178,32 +182,38 @@ class _HomeScreenState extends State<HomeScreen> {
                             onReservasiTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ReservasiScreen()),
+                                builder: (context) => ReservasiScreen(),
+                              ),
                             ),
                             onRekamMedisTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => RekamMedisScreen()),
+                                builder: (context) => RekamMedisScreen(),
+                              ),
                             ),
                             onDompetMedisTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => DompetMedisScreen()),
+                                builder: (context) => DompetMedisScreen(),
+                              ),
                             ),
                             onPoliTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => PoliScreen()),
+                                builder: (context) => PoliScreen(),
+                              ),
                             ),
                             onKalenderTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => KalenderScreen()),
+                                builder: (context) => KalenderScreen(),
+                              ),
                             ),
                             onDaftarDokterTap: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => DaftarDokterScreen()),
+                                builder: (context) => DaftarDokterScreen(),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -257,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 24,
               right: 20,
               child: Tooltip(
-                message: "Tentang Kami", 
+                message: "Tentang Kami",
                 decoration: BoxDecoration(
                   color: Colors.black87,
                   borderRadius: BorderRadius.circular(8),
@@ -267,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.w500,
                 ),
                 waitDuration: const Duration(milliseconds: 300),
-                showDuration: const Duration(seconds: 2), 
+                showDuration: const Duration(seconds: 2),
                 child: FloatingActionButton(
                   backgroundColor: Colors.amber[700],
                   elevation: 6,
@@ -276,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ProfileTentangScreen(),
+                        builder: (context) => const ProfileRsScreen(),
                       ),
                     );
                   },

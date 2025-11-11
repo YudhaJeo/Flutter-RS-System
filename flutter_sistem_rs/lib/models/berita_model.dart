@@ -1,4 +1,6 @@
 // D:\Mobile App\flutter_sistem_rs\flutter_sistem_rs\lib\models\berita_model.dart
+import '../utils/app_env.dart';
+
 class Berita {
   final int id;
   final String judul;
@@ -27,7 +29,7 @@ class Berita {
       final path = rawPratinjau.toString().startsWith('/')
           ? rawPratinjau
           : '/$rawPratinjau';
-      pratinjauUrl = 'http://10.0.2.2:4100$path';
+      pratinjauUrl = '${AppEnv.baseUrl}$path';
     }
   }
 
