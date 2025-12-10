@@ -52,7 +52,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -109,7 +108,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
                     ],
                   ),
                 ),
-                // Content
                 Flexible(
                   child: ListView.builder(
                     shrinkWrap: true,
@@ -202,16 +200,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
                                       ),
                                     ),
                                   ),
-                                  if (k.keterangan != null) ...[
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      k.keterangan!,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
                                 ],
                               ),
                             ),
@@ -313,7 +301,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
 
             return Column(
               children: [
-                // Calendar Card
                 Container(
                   margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -440,7 +427,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
                   ),
                 ),
 
-                // List Section
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -523,27 +509,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
                                               color: Colors.grey[600],
                                             ),
                                           ),
-                                          if (item.keterangan != null &&
-                                              item.keterangan!.isNotEmpty) ...[
-                                            const SizedBox(height: 6),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red[50],
-                                                borderRadius: BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                item.keterangan!,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.red[700],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
                                         ],
                                       ),
                                     ),
@@ -630,27 +595,6 @@ class _KalenderScreenState extends State<KalenderScreen> {
                                               color: Colors.grey[600],
                                             ),
                                           ),
-                                          if (item.keterangan != null &&
-                                              item.keterangan!.isNotEmpty) ...[
-                                            const SizedBox(height: 6),
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.blue[50],
-                                                borderRadius: BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                item.keterangan!,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.blue[700],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
                                         ],
                                       ),
                                     ),
